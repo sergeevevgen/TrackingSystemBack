@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackingSystem.Shared.Enums
+namespace TrackingSystem.DataLayer.DataAccessManagers
 {
-    public enum ERoles
+    public class UserAccessManager
     {
-        Pupil,
-        Teacher,
     }
 }

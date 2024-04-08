@@ -21,4 +21,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TrackingSystem.BusinessLogic\TrackingSystem.BusinessLogic.csproj" />
+    <ProjectReference Include="..\TrackingSystem.Dto\TrackingSystem.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -5,6 +5,8 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using TrackingSystem.Api.AppLogic.Core;
+using TrackingSystem.BusinessLogic.Managers;
+using TrackingSystem.Shared.IManagers;
 
 namespace TrackingSystem.Api
 {
@@ -52,7 +54,8 @@ namespace TrackingSystem.Api
 
             services.AddDistributedMemoryCache();
 
-            // TODO Добавить Di для сервеисов
+            // TODO Добавить Di для сервисов
+            services.AddScoped<IUserManager, UserManager>();
 
             services.AddSession();
 
@@ -124,7 +127,7 @@ namespace TrackingSystem.Api
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "MOIORestApi v1"));
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrackingSystemRestAPI v1"));
             //}
             app.UseHttpsRedirection();
             app.UseRouting();

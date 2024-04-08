@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrackingSystem.Dto\TrackingSystem.Dto.csproj" />
+    <ProjectReference Include="..\TrackingSystem.Dto\TrackingSystem.Shared.csproj" />
   </ItemGroup>
 
 </Project>

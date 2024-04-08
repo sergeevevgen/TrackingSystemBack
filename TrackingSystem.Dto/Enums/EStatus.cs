@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackingSystem.Dto.Enums
+namespace TrackingSystem.Shared.Enums
 {
     public enum EStatus
     {

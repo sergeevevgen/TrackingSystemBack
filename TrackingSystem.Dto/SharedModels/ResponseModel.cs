@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackingSystem.Dto.SharedModels
+namespace TrackingSystem.Shared.SharedModels
 {
     public class ResponseModel<TValue>
     {
