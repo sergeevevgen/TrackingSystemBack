@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using System.IdentityModel.Tokens.Jwt;
 using TrackingSystem.Api.AppLogic.Core;
-using TrackingSystem.BusinessLogic.Managers;
-using TrackingSystem.Shared.IManagers;
+using TrackingSystem.Api.BusinessLogic.Managers;
+using TrackingSystem.Api.DataLayer.Data;
+using TrackingSystem.Api.DataLayer.DataAccessManagers;
+using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api
 {
@@ -56,6 +61,23 @@ namespace TrackingSystem.Api
 
             // TODO Добавить Di для сервисов
             services.AddScoped<IUserManager, UserManager>();
+            services.AddScoped<IIdentityManager, IdentityManager>();
+            services.AddScoped<IJWTAuthManager, JWTAuthManager>();
+            services.AddScoped<IJWTUserManager, JWTUserManager>();
+            services.AddScoped<ISecurityTokenValidator, JwtSecurityTokenHandler>();
+
+            services.AddSingleton<UserDbManager>();
+
+            services.AddDbContextPool<TrackingSystemContext>(
+                dbContextOptions =>
+                {
+                    dbContextOptions.UseSqlServer(appConfig.DBConnectionString);
+                    dbContextOptions.ConfigureWarnings(warnings =>
+                    {
+
+                    });
+                }
+            );
 
             services.AddSession();
 

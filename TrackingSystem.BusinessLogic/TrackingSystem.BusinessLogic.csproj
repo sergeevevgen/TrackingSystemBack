@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TrackingSystem.Dto\TrackingSystem.Shared.csproj" />
+    <ProjectReference Include="..\TrackingSystem.DataLayer\TrackingSystem.DataLayer.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,8 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TrackingSystem.Shared.Enums;
-using TrackingSystem.Shared.IManagers;
+using TrackingSystem.Api.Shared.Enums;
+using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api.AppLogic.Core
 {
