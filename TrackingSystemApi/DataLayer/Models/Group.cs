@@ -16,10 +16,10 @@ namespace TrackingSystem.Api.DataLayer.Models
         [Required]
         public string Name { get; set; }
 
-        [InverseProperty("GroupId")]
+        //[InverseProperty("GroupId")]
         public virtual ICollection<User> Users { get; set; }
 
-        [InverseProperty("SubjectId")]
+        //[InverseProperty("SubjectId")]
         public virtual ICollection<Subject> Subjects { get; set; }
     }
 }

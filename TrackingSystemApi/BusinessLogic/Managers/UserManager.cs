@@ -17,15 +17,15 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
     public class UserManager : IUserManager
     {
         private readonly ILogger _logger;
-        private readonly UserDbManager _manager;
+        private readonly IUserDbManager _manager;
         private readonly IJWTAuthManager _jwtManager;
-        private readonly IdentityManager _identityManager;
+        private readonly IIdentityManager _identityManager;
 
         public UserManager(
             ILogger logger,
-            UserDbManager manager,
+            IUserDbManager manager,
             IJWTAuthManager jwtManager,
-            IdentityManager identityManager)
+            IIdentityManager identityManager)
         {
             _logger = logger;
             _manager = manager;

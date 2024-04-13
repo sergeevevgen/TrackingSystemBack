@@ -4,10 +4,11 @@ using TrackingSystem.Api.DataLayer.Data;
 using ILogger = NLog.ILogger;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
+using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
-    public class UserDbManager
+    public class UserDbManager : IUserDbManager
     {
         private readonly ILogger _logger;
         private readonly TrackingSystemContext _context;

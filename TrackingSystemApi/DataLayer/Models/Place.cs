@@ -16,7 +16,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         [Required]
         public string Name { get; set; }
 
-        [InverseProperty("PlaceId")]
+        //[InverseProperty("PlaceId")]
         public virtual ICollection<Subject> Subjects { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.Shared.IManagers;
+using ILogger = NLog.ILogger;
 
 namespace TrackingSystem.Api
 {
@@ -60,13 +61,15 @@ namespace TrackingSystem.Api
             services.AddDistributedMemoryCache();
 
             // TODO Добавить Di для сервисов
+            services.AddSingleton(typeof(ILogger), m => LogManager.GetCurrentClassLogger());
+
             services.AddScoped<IUserManager, UserManager>();
             services.AddScoped<IIdentityManager, IdentityManager>();
             services.AddScoped<IJWTAuthManager, JWTAuthManager>();
             services.AddScoped<IJWTUserManager, JWTUserManager>();
             services.AddScoped<ISecurityTokenValidator, JwtSecurityTokenHandler>();
 
-            services.AddSingleton<UserDbManager>();
+            services.AddScoped<IUserDbManager, UserDbManager>();
 
             services.AddDbContextPool<TrackingSystemContext>(
                 dbContextOptions =>

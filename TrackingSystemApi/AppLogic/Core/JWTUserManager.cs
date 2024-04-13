@@ -14,13 +14,13 @@ namespace TrackingSystem.Api.AppLogic.Core
         private readonly IJWTAuthManager _jwtAuthManager;
         private readonly ISecurityTokenValidator _securityTokenValidator;
         private readonly ILogger _logger;
-        private readonly UserDbManager _dbManager;
+        private readonly IUserDbManager _dbManager;
 
         public JWTUserManager(
             IJWTAuthManager jwtAuthManager,
             ISecurityTokenValidator securityTokenValidator,
             ILogger logger, 
-            UserDbManager dbManager)
+            IUserDbManager dbManager)
         {
             _jwtAuthManager = jwtAuthManager;
             _securityTokenValidator = securityTokenValidator;

@@ -26,10 +26,10 @@ namespace TrackingSystem.Api.DataLayer.Models
         [Required]
         public EStatus Status { get; set; }
 
-        [InverseProperty("UserId")]
+        //[InverseProperty("UserId")]
         public virtual ICollection<User_Role> Roles { get; set; }
 
-        [InverseProperty("UserId")]
+        //[InverseProperty("UserId")]
         public virtual ICollection<User_Subject> Subjects { get; set; }
     }
 }

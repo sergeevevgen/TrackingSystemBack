@@ -22,18 +22,18 @@ namespace TrackingSystem.Api.DataLayer.Models
         public EPairNumbers Pair { get; set; }
 
         [ForeignKey("GroupId")]
-        public int GroupId { get; set; }
+        public Guid GroupId { get; set; }
         public virtual Group Group { get; set; }
 
         [ForeignKey("PlaceId")]
-        public int PlaceId { get; set; }
+        public Guid PlaceId { get; set; }
         public virtual Place Place { get; set; }
 
         [ForeignKey("DisciplineId")]
-        public int DisciplineId { get; set; }
+        public Guid DisciplineId { get; set; }
         public virtual Discipline Discipline { get; set; }
 
-        [InverseProperty("SubjectId")]
+        //[InverseProperty("SubjectId")]
         public virtual ICollection<User_Subject> Users { get; set; }
     }
 }
