@@ -65,7 +65,7 @@ namespace TrackingSystem.Api.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Login = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -75,8 +75,7 @@ namespace TrackingSystem.Api.Migrations
                         name: "FK_Users_Groups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Groups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

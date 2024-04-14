@@ -7,7 +7,7 @@ using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
 using ILogger = NLog.ILogger;
 
-namespace TrackingSystem.Api.AppLogic.Core
+namespace TrackingSystem.Api.BusinessLogic.Managers
 {
     public class JWTUserManager : IJWTUserManager
     {

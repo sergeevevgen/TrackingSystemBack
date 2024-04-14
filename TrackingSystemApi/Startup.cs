@@ -56,31 +56,13 @@ namespace TrackingSystem.Api
 
             services.AddHttpContextAccessor();
 
+            services.AddAllSingletones();
+            services.AddAllScoped(appConfig);
+            services.AddAllTransients();
+
             services.AddControllers().AddNewtonsoftJson();
 
             services.AddDistributedMemoryCache();
-
-            // TODO Добавить Di для сервисов
-            services.AddSingleton(typeof(ILogger), m => LogManager.GetCurrentClassLogger());
-
-            services.AddScoped<IUserManager, UserManager>();
-            services.AddScoped<IIdentityManager, IdentityManager>();
-            services.AddScoped<IJWTAuthManager, JWTAuthManager>();
-            services.AddScoped<IJWTUserManager, JWTUserManager>();
-            services.AddScoped<ISecurityTokenValidator, JwtSecurityTokenHandler>();
-
-            services.AddScoped<IUserDbManager, UserDbManager>();
-
-            services.AddDbContextPool<TrackingSystemContext>(
-                dbContextOptions =>
-                {
-                    dbContextOptions.UseSqlServer(appConfig.DBConnectionString);
-                    dbContextOptions.ConfigureWarnings(warnings =>
-                    {
-
-                    });
-                }
-            );
 
             services.AddSession();
 
@@ -152,7 +134,7 @@ namespace TrackingSystem.Api
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrackingSystemRestAPI v1"));
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrackingSystemRestAPI v1"));
             //}
             app.UseHttpsRedirection();
             app.UseRouting();

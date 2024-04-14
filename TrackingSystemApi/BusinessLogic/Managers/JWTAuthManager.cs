@@ -3,10 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
 
-namespace TrackingSystem.Api.AppLogic.Core
+namespace TrackingSystem.Api.BusinessLogic.Managers
 {
     public class JWTAuthManager : IJWTAuthManager
     {

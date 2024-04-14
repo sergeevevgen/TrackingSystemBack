@@ -12,7 +12,7 @@ using TrackingSystem.Api.DataLayer.Data;
 namespace TrackingSystem.Api.Migrations
 {
     [DbContext(typeof(TrackingSystemContext))]
-    [Migration("20240413103547_Init")]
+    [Migration("20240414103624_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,7 +128,7 @@ namespace TrackingSystem.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Login")
@@ -234,9 +234,7 @@ namespace TrackingSystem.Api.Migrations
                 {
                     b.HasOne("TrackingSystem.Api.DataLayer.Models.Group", "UserGroup")
                         .WithMany("Users")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.Navigation("UserGroup");
                 });

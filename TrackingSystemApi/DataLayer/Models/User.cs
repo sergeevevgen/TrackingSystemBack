@@ -20,7 +20,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         public string Password { get; set; }
 
         [ForeignKey("GroupId")]
-        public Guid GroupId { get; set; }
+        public Guid? GroupId { get; set; }
         public virtual Group UserGroup { get; set; }
 
         [Required]

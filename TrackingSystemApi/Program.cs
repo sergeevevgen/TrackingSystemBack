@@ -10,7 +10,15 @@ namespace TrackingSystem.Api
             try
             {
                 logger.Info("Запуск программы");
-                CreateHostBuilder(args).Build().Run();
+
+                var host = CreateHostBuilder(args).Build();
+
+
+                // Получаем IServiceScope, чтобы извлечь IMqttService
+                using var scope = host.Services.CreateScope();
+                var services = scope.ServiceProvider;
+
+                host.Run();
             }
             catch (Exception ex)
             {
@@ -22,10 +30,11 @@ namespace TrackingSystem.Api
             Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
+                    logging.AddConsole();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls("http://*:7001").UseStartup<Startup>();
                 });
     }
 }

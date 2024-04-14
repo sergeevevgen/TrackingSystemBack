@@ -7,22 +7,29 @@ using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api.Controllers
 {
-    [Route("/api/v1/users/[action]")]
+    [Route("/api/v1/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserManager _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IdentityManager _identityManager;
+        private readonly IIdentityManager _identityManager;
 
         public UserController(
             IUserManager userManager,
-            HttpContextAccessor httpContextAccessor,
-            IdentityManager identityManager)
+            IHttpContextAccessor httpContextAccessor,
+            IIdentityManager identityManager)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _identityManager = identityManager;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
+        {
+            return Ok("stirng lsa;dasld;a");
         }
 
         [HttpPost]

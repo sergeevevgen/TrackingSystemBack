@@ -126,7 +126,7 @@ namespace TrackingSystem.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Login")
@@ -232,9 +232,7 @@ namespace TrackingSystem.Api.Migrations
                 {
                     b.HasOne("TrackingSystem.Api.DataLayer.Models.Group", "UserGroup")
                         .WithMany("Users")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.Navigation("UserGroup");
                 });
