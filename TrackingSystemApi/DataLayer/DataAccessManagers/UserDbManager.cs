@@ -81,14 +81,22 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
         public async Task<UserByIdResponse?> FindUserById(UserByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _context.Users
-                            .Where(u => u.Id == request.UserId)
-                            .Select(u => new UserByIdResponse
-                            {
-                                Login = u.Login,
-                                Name = u.Name,
-                            })
-                            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            try
+            {
+                return await _context.Users
+                                .Where(u => u.Id == request.UserId)
+                                .Select(u => new UserByIdResponse
+                                {
+                                    Login = u.Login,
+                                    Name = u.Name,
+                                })
+                                .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Ошибка получения пользователя по идентификатору");
+                throw;
+            }
         }
     }
 }

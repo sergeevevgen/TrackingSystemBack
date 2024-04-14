@@ -7,6 +7,7 @@ using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.Shared.IManagers;
 using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.DataLayer.DataAccessManagers;
+using TrackingSystem.Api.BusinessLogic.DownloadLk;
 
 namespace TrackingSystem.Api.AppLogic.Core
 {
@@ -19,6 +20,7 @@ namespace TrackingSystem.Api.AppLogic.Core
         {
             // NLog
             services.AddSingleton(typeof(ILogger), m => LogManager.GetCurrentClassLogger());
+            services.AddSingleton<LkClient>();
         }
 
         public static void AddAllScoped(this IServiceCollection services, AppConfig appConfig)

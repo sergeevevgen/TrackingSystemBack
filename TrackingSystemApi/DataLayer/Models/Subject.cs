@@ -21,6 +21,9 @@ namespace TrackingSystem.Api.DataLayer.Models
         [Required]
         public EPairNumbers Pair { get; set; }
 
+        [Required]
+        public int IsDifference { get; set; }
+
         [ForeignKey("GroupId")]
         public Guid GroupId { get; set; }
         public virtual Group Group { get; set; }
