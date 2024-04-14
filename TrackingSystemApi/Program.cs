@@ -34,7 +34,7 @@ namespace TrackingSystem.Api
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls("http://*:7001").UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }

@@ -38,18 +38,18 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// </summary>
         /// <param name="httpContextAccessor"></param>
         /// <returns></returns>
-        public Task<UserResponseData> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor)
+        public async Task<UserResponseData> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor)
         {
             try
             {
                 var userId = GetCurrentUserIdByContext(httpContextAccessor);
 
-                //var userData = await _mediator.Send(new UserDataQuery
-                //{
-                //    Id = userId,
-                //});
+                var userData = await _manager.FindUser(new UserDataQuery
+                {
+                    Id = userId,
+                }, default);
 
-                return null;
+                return userData;
             }
             catch (Exception ex)
             {

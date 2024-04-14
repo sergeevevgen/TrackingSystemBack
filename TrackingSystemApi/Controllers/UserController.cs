@@ -7,7 +7,8 @@ using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api.Controllers
 {
-    [Route("/api/v1/[controller]/[action]")]
+    //[Route("/api/v1/[controller]/[action]")]
+    [Route("/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
     {

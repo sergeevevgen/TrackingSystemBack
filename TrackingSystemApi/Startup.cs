@@ -149,6 +149,11 @@ namespace TrackingSystem.Api
                .SetIsOriginAllowed((host) => true)
                .AllowCredentials()
              );
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()

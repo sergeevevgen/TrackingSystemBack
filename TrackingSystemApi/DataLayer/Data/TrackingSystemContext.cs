@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.DataLayer.Data
             Database.EnsureCreated();
         }
 
-        public virtual DbSet<Discipline> Disciplines { get; set; }
+        public virtual DbSet<Lesson> Disciplines { get; set; }
 
         public virtual DbSet<User> Users { get; set; }
 

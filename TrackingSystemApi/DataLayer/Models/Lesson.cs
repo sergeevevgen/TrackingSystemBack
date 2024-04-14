@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.DataLayer.Models
 {
-    public class Discipline
+    public class Lesson
     {
         [Key]
         public Guid Id { get; set; }

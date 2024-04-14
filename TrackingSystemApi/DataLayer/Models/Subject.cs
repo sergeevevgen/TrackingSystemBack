@@ -29,9 +29,9 @@ namespace TrackingSystem.Api.DataLayer.Models
         public Guid PlaceId { get; set; }
         public virtual Place Place { get; set; }
 
-        [ForeignKey("DisciplineId")]
-        public Guid DisciplineId { get; set; }
-        public virtual Discipline Discipline { get; set; }
+        [ForeignKey("LessonId")]
+        public Guid LessonId { get; set; }
+        public virtual Lesson Lesson { get; set; }
 
         //[InverseProperty("SubjectId")]
         public virtual ICollection<User_Subject> Users { get; set; }
