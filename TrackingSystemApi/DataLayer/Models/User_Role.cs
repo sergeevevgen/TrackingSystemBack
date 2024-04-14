@@ -10,7 +10,7 @@ namespace TrackingSystem.Api.DataLayer.Models
 {
     public class User_Role
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         [ForeignKey("UserId")]

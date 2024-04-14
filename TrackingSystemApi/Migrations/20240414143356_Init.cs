@@ -10,18 +10,6 @@ namespace TrackingSystem.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Disciplines",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Disciplines", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Groups",
                 columns: table => new
                 {
@@ -31,6 +19,18 @@ namespace TrackingSystem.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Groups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Lessons",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Lessons", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,21 +89,21 @@ namespace TrackingSystem.Api.Migrations
                     Pair = table.Column<int>(type: "int", nullable: false),
                     GroupId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PlaceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DisciplineId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    LessonId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Subjects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Subjects_Disciplines_DisciplineId",
-                        column: x => x.DisciplineId,
-                        principalTable: "Disciplines",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Subjects_Groups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Subjects_Lessons_LessonId",
+                        column: x => x.LessonId,
+                        principalTable: "Lessons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -166,14 +166,14 @@ namespace TrackingSystem.Api.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Subjects_DisciplineId",
-                table: "Subjects",
-                column: "DisciplineId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Subjects_GroupId",
                 table: "Subjects",
                 column: "GroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subjects_LessonId",
+                table: "Subjects",
+                column: "LessonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subjects_PlaceId",
@@ -224,7 +224,7 @@ namespace TrackingSystem.Api.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Disciplines");
+                name: "Lessons");
 
             migrationBuilder.DropTable(
                 name: "Places");

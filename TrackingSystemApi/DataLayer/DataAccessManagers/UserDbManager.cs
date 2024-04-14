@@ -26,7 +26,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 UserResponseData? result = null;
-                var rolesList = new List<ERoles> { ERoles.Pupil, ERoles.Teacher };
+
+                var rolesList = new List<ERoles>();
+
                 // Фильтр по логину
                 if (!string.IsNullOrEmpty(query.Login) && !string.IsNullOrEmpty(query.Password))
                 {
@@ -40,7 +42,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                            {
                                Id = u.Id,
                                Login = u.Login,
-                               Roles = rolesList, // TODO
+                               Roles = u.Roles.Select(t => t.Role.Name).ToList(), // TODO
                                Name = u.Name,
                                Group = u.UserGroup.Name,
                                Status = u.Status,
@@ -59,7 +61,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                            {
                                Id = u.Id,
                                Login = u.Login,
-                               Roles = rolesList, // TODO
+                               Roles = u.Roles.Select(t => t.Role.Name).ToList(), // TODO
                                Name = u.Name,
                                Group = u.UserGroup.Name,
                                Status = u.Status,

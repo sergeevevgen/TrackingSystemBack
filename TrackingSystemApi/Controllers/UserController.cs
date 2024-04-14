@@ -26,13 +26,6 @@ namespace TrackingSystem.Api.Controllers
             _identityManager = identityManager;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> Index()
-        {
-            return Ok("stirng lsa;dasld;a");
-        }
-
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> LoginAsync(
