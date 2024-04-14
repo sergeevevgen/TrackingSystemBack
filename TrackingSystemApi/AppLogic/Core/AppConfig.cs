@@ -55,5 +55,15 @@
         /// Включает SSL при отправки сообщения на почту
         /// </summary>
         public bool EnableSsl { get; set; }
+
+        /// <summary>
+        /// Логин для доступа в lms.lk.ulstu
+        /// </summary>
+        public string LkLogin { get; set; } = null!;
+
+        /// <summary>
+        /// Пароль для доступа в lms.lk.ulstu
+        /// </summary>
+        public string LkPassword { get; set; } = null!;
     }
 }

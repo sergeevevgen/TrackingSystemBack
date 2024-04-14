@@ -48,7 +48,9 @@ namespace TrackingSystem.Api
                     { "AppConfig:SenderPassword", appConfig.SenderPassword },
                     { "AppConfig:SmtpHost", appConfig.SmtpHost },
                     { "AppConfig:SmtpPort", appConfig.SmtpPort.ToString() },
-                    { "AppConfig:EnableSsl", appConfig.EnableSsl.ToString() }
+                    { "AppConfig:EnableSsl", appConfig.EnableSsl.ToString() },
+                    { "AppConfig:LkLogin", appConfig.LkLogin },
+                    { "AppConfig:LkPassword", appConfig.LkPassword },
                 });
 
             var configuration = configBuilder.Build();
@@ -184,6 +186,12 @@ namespace TrackingSystem.Api
             // Smtp хост
             appConfig.SmtpHost = Environment.GetEnvironmentVariable("SMTP_HOST") ?? appConfig.SmtpHost;
 
+            // Логин от лк
+            appConfig.LkLogin = Environment.GetEnvironmentVariable("LK_LOGIN") ?? appConfig.LkLogin;
+
+            // Пароль от лк
+            appConfig.LkPassword = Environment.GetEnvironmentVariable("LK_PASSWORD") ?? appConfig.LkPassword;
+
             // Smtp порт
             if (int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT"), out int smtpPort))
             {
@@ -206,6 +214,8 @@ namespace TrackingSystem.Api
             Configuration["AppConfig:SmtpHost"] = appConfig.SmtpHost;
             Configuration["AppConfig:SmtpPort"] = appConfig.SmtpPort.ToString();
             Configuration["AppConfig:EnableSsl"] = appConfig.EnableSsl.ToString();
+            Configuration["AppConfig:LkLogin"] = appConfig.LkLogin;
+            Configuration["AppConfig:LkPassword"] = appConfig.LkPassword;
 
             return appConfig;
         }
