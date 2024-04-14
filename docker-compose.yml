@@ -5,7 +5,7 @@ services:
         image: zhenya/api
         build:
             context: .
-            dockerfile: /Dockerfile
+            dockerfile: /TrackingSystemApi/Dockerfile
         ports:
             - "7001:7001"
         depends_on:
