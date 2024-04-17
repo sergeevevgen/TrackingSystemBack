@@ -7,8 +7,7 @@ using TrackingSystem.Api.Shared.IManagers;
 
 namespace TrackingSystem.Api.Controllers
 {
-    //[Route("/api/v1/[controller]/[action]")]
-    [Route("/[controller]/[action]")]
+    [Route("/api/v1/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -59,14 +58,14 @@ namespace TrackingSystem.Api.Controllers
                 return BadRequest(response.ErrorMessage);
         }
 
-        [HttpGet("/api/v1/users/current")]
+        [HttpGet("current")]
         [Authorize]
         public async Task<IActionResult> GetUserByIdentity()
         {
             return Ok(await _userManager.GetCurrentUserDataAsync(_httpContextAccessor));
         }
 
-        [HttpGet("/api/v1/users/{id:guid}")]
+        [HttpGet("{id:guid}")]
         [Authorize]
         public async Task<IActionResult> GetUserById([FromRoute] Guid id)
         {
@@ -78,6 +77,24 @@ namespace TrackingSystem.Api.Controllers
             var response = await _userManager.FindUserById(command, default);
 
             return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
+        }
+
+        [HttpGet("mark/{id:guid}")]
+        [Authorize]
+        public async Task<IActionResult> MarkLesson([FromRoute] Guid id)
+        {
+            var message = "Урок отмечен";
+
+            return Ok(message);
+        }
+
+        [HttpGet("timetable/today")]
+        [Authorize]
+        public async Task<IActionResult> TimetableToday()
+        {
+            var message = "sss";
+
+            return Ok(message);
         }
     }
 }
