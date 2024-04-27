@@ -13,6 +13,7 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
         private readonly string teachersURL = "https://lk.ulstu.ru/timetable/shared/teachers/Praspisan.html";
         private readonly string timetableURL = "https://lk.ulstu.ru/timetable/shared/teachers/m";
         private readonly string downloadFolder = "Download\\";
+        private const string fileName = "result.html";
 
         private readonly ILogger _logger;
 
@@ -23,6 +24,7 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
 
         public async Task Authentication(string login, string password)
         {
+            _logger.Info("Начало аутентификации");
             try
             {
                 await PostAsync(
@@ -35,6 +37,7 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
                         }   
                     )
                 );
+                _logger.Info("Пользователь для загрузки расписания аутентифицирован успешно");
             }
             catch (Exception ex)
             {
@@ -49,16 +52,16 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             {
                 var test = await GetStringAsync(url);
 
-                File.WriteAllText("resout.html", test);
+                File.WriteAllText(fileName, test);
             }
             catch(Exception ex)
             {
-                _logger.Error(ex, $"Ошибка загрузки файла");
+                _logger.Error(ex, $"Ошибка загрузки файла из {url}");
                 throw;
             }
         }
 
-        public async Task<bool> DownloadFile(int id, string url, string path)
+        public async Task<bool> DownloadFile(int id, string url)
         {
             try
             {
@@ -124,26 +127,26 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
 
                 if (!teachersCount.HasValue)
                 {
-                    Console.WriteLine("При попытке узнать колличество учителей возникла проблема.");
+                    Console.WriteLine("При попытке узнать количество учителей возникла проблема");
                     return false;
                 }
 
-                Console.WriteLine($"Текущее колличество учителей {teachersCount} человек.");
+                Console.WriteLine($"Текущее колличество учителей: {teachersCount}");
 
-                bool resout = false;
+                bool result = false;
 
                 for (int i = 1; i < teachersCount; i++)
                 {
-                    bool res = await DownloadFile(i, timetableURL, path);
+                    bool res = await DownloadFile(i, timetableURL);
 
                     if (res)
                     { 
                         Console.WriteLine($"Обновление файла преподавателя с id={i}"); 
                     }
 
-                    resout |= res;
+                    result |= res;
                 }
-                return resout;
+                return result;
             }
             catch (Exception ex)
             {

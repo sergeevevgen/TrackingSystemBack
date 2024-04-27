@@ -13,8 +13,6 @@ namespace TrackingSystem.Api
 
                 var host = CreateHostBuilder(args).Build();
 
-
-                // Получаем IServiceScope, чтобы извлечь IMqttService
                 using var scope = host.Services.CreateScope();
                 var services = scope.ServiceProvider;
 

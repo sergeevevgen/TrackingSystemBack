@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Data;
+using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.IManagers;
 using ILogger = NLog.ILogger;
 
@@ -38,6 +39,36 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 _logger.Error(ex, "Ошибка получения пользователя по идентификатору");
                 throw;
+            }
+        }
+
+        public async Task<UserResponseData> GetTeacher(UserCreateQuery user) 
+        {
+            try
+            {
+                var u = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Name.Equals(user.Name));
+
+                return u != null ? u.Id : Guid.Empty;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return Guid.Empty;
+            }
+        }
+
+        public async Task<Guid> CreateTeacher(UserCreateQuery user)
+        {
+            try
+            {
+                var u = 
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return Guid.Empty;
             }
         }
     }
