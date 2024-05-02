@@ -49,6 +49,7 @@ namespace TrackingSystem.Api.AppLogic.Core
         {
             // Слои доступа к данным
             services.AddTransient<IUserDbManager, UserDbManager>();
+           
         }
     }
 }

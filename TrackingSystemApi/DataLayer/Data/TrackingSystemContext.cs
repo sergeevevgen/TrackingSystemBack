@@ -11,11 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Data
             Database.EnsureCreated();
         }
 
-        public TrackingSystemContext()
-        {
-
-        }
-
         public virtual DbSet<Lesson> Lessons { get; set; }
 
         public virtual DbSet<User> Users { get; set; }
@@ -34,18 +29,19 @@ namespace TrackingSystem.Api.DataLayer.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserSubject>()
-                .HasOne(us => us.User)
-                .WithMany(u => u.Subjects)
-                .HasForeignKey(us => us.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление только для пользователя
+            // Todo: Надо прописать все типы удалений при удалении связанных сущностей
+            //modelBuilder.Entity<UserSubject>()
+            //    .HasOne(us => us.User)
+            //    .WithMany(u => u.Subjects)
+            //    .HasForeignKey(us => us.UserId)
+            //    .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление только для пользователя
 
-            // Внешний ключ для Subject без каскадного удаления
-            modelBuilder.Entity<UserSubject>()
-                .HasOne(us => us.Subject)
-                .WithMany(s => s.Users)
-                .HasForeignKey(us => us.SubjectId)
-                .OnDelete(DeleteBehavior.NoAction);
+            //// Внешний ключ для Subject без каскадного удаления
+            //modelBuilder.Entity<UserSubject>()
+            //    .HasOne(us => us.Subject)
+            //    .WithMany(s => s.Users)
+            //    .HasForeignKey(us => us.SubjectId)
+            //    .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

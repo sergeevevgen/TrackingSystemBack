@@ -2,15 +2,17 @@
 using System.Text;
 using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.IManagers;
+using ILogger = NLog.ILogger;
+
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {
     public class ParserManager : IParserManager
     {
-        private readonly IParserDbManager _dbManager;
-
-        public ParserManager(IParserDbManager dbManager)
+        private readonly ILogger _logger;
+        
+        public ParserManager(ILogger logger)
         {
-            _dbManager = dbManager;
+            _logger = logger;
         }
 
         public Task LoadDataFromServer()
