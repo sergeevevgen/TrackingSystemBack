@@ -128,7 +128,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await context.Users.AddAsync(CreateModel(model, new User()), cancellationToken);
+                User user = new()
+                {
+                    Name = model.Name,                   
+                    Login = model.Login,
+                    Password = model.Password,
+                    GroupId = model.GroupId,
+                    Status = model.Status,
+                };
+
+                await context.Users.AddAsync(user);
+                await context.SaveChangesAsync(cancellationToken);
+
+                await CreateModel(model, user, context);
                 await context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
@@ -160,7 +172,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     throw new Exception($"Пользователь с Id {model.Id} не найден");
                 }
 
-                CreateModel(model, element);
+                await CreateModel(model, element, context);
                 await context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
@@ -240,13 +252,45 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        private static User CreateModel(UserDto model, User user)
+        private static async Task<User> CreateModel(UserDto model, User user, TrackingSystemContext context)
         {
-            user.GroupId = model.GroupId;
-            user.Name = model.Name;
-            user.Password = model.Password;
-            user.Status = model.Status;
-            user.Login = model.Login;
+            if (model.Id.HasValue)
+            {
+                user.Name = model.Name;
+                user.Login = model.Login;
+                user.Password = model.Password;
+                user.GroupId = model.GroupId;
+                user.Status = model.Status;
+                
+                // Работа со связанными сущностями. Надо удалить те, которых нет и добавить новые
+                ICollection<UserRole> userRoles = context.User_Roles
+                    .Where(r => r.UserId.Equals(model.Id.Value))
+                    .ToList();
+
+                context.User_Roles
+                    .RemoveRange(userRoles
+                        .Where(r => !model.Roles.Contains(r.RoleId))
+                        .ToList());
+
+                await context.SaveChangesAsync();
+
+                foreach (UserRole ur in userRoles)
+                {
+                    model.Roles.Remove(ur.RoleId);
+                }
+                await context.SaveChangesAsync();
+            }
+
+            foreach (Guid r in model.Roles)
+            {
+                await context.User_Roles.AddAsync(new UserRole
+                {
+                    RoleId = r,
+                    UserId = user.Id,
+                });
+                await context.SaveChangesAsync();
+            }
+
             return user;
         }
 

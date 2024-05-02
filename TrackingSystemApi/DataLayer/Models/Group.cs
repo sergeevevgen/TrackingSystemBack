@@ -17,9 +17,9 @@ namespace TrackingSystem.Api.DataLayer.Models
         public string Name { get; set; }
 
         //[InverseProperty("GroupId")]
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<User>? Users { get; set; }
 
         //[InverseProperty("SubjectId")]
-        public virtual ICollection<Subject> Subjects { get; set; }
+        public virtual ICollection<Subject>? Subjects { get; set; }
     }
 }

@@ -8,23 +8,17 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.DataLayer.Models
 {
-    public class User_Subject
+    public class UserRole
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-
-        [Required]
-        public bool IsMarked { get; set; }
-
-        [Required]
-        public DateTime MarkTime { get; set; }
 
         [ForeignKey("UserId")]
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
 
-        [ForeignKey("SubjectId")]
-        public Guid SubjectId { get; set; }
-        public virtual Subject Subject { get; set; }
+        [ForeignKey("RoleId")]
+        public Guid RoleId { get; set; }
+        public virtual Role Role { get; set; }
     }
 }

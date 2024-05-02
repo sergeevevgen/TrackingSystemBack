@@ -14,6 +14,6 @@ namespace TrackingSystem.Api.DataLayer.Models
         public ERoles Name { get; set; }
 
         //[InverseProperty("RoleId")]
-        public virtual ICollection<User_Role> Users { get; set; }
+        public virtual ICollection<UserRole> Users { get; set; }
     }
 }

@@ -28,20 +28,20 @@ namespace TrackingSystem.Api.DataLayer.Data
 
         public virtual DbSet<Subject> Subjects { get; set; }
 
-        public virtual DbSet<User_Role> User_Roles { get; set; }
+        public virtual DbSet<UserRole> User_Roles { get; set; }
 
-        public virtual DbSet<User_Subject> User_Subjects { get; set; }
+        public virtual DbSet<UserSubject> User_Subjects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User_Subject>()
+            modelBuilder.Entity<UserSubject>()
                 .HasOne(us => us.User)
                 .WithMany(u => u.Subjects)
                 .HasForeignKey(us => us.UserId)
                 .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление только для пользователя
 
             // Внешний ключ для Subject без каскадного удаления
-            modelBuilder.Entity<User_Subject>()
+            modelBuilder.Entity<UserSubject>()
                 .HasOne(us => us.Subject)
                 .WithMany(s => s.Users)
                 .HasForeignKey(us => us.SubjectId)

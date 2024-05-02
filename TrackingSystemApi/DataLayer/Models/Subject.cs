@@ -37,6 +37,6 @@ namespace TrackingSystem.Api.DataLayer.Models
         public virtual Lesson Lesson { get; set; }
 
         //[InverseProperty("SubjectId")]
-        public virtual ICollection<User_Subject> Users { get; set; }
+        public virtual ICollection<UserSubject> Users { get; set; }
     }
 }

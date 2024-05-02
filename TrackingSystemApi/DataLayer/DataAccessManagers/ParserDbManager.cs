@@ -16,28 +16,28 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             _logger = logger;
         }
 
-        public async Task<bool> DeleteSubjectIsDifferenceZero()
-        {
-            try 
-            {
-                // Получаем лист занятий, которые надо удалить
-                var listToDelete = _context.Subjects
-                    .Where(s => s.IsDifference == 0);
+        //public async Task<bool> DeleteSubjectIsDifferenceZero()
+        //{
+        //    try 
+        //    {
+        //        // Получаем лист занятий, которые надо удалить
+        //        var listToDelete = _context.Subjects
+        //            .Where(s => s.IsDifference == 0);
 
-                // Удаляем
-                _context.Subjects.RemoveRange(listToDelete);
+        //        // Удаляем
+        //        _context.Subjects.RemoveRange(listToDelete);
 
-                // Обновляем статус записей
-                await _context.Database.ExecuteSqlRawAsync("Update Subject SET isdifference = 0");
+        //        // Обновляем статус записей
+        //        await _context.Database.ExecuteSqlRawAsync("Update Subject SET isdifference = 0");
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Ошибка получения пользователя по идентификатору");
-                throw;
-            }
-        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex, "Ошибка получения пользователя по идентификатору");
+        //        throw;
+        //    }
+        //}
 
         //public async Task<UserResponseData> GetTeacher(UserCreateQuery user) 
         //{

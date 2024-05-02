@@ -32,7 +32,6 @@
     <Folder Include="Shared\Dto\Subject\" />
     <Folder Include="Shared\Dto\Place\" />
     <Folder Include="Shared\Dto\Lesson\" />
-    <Folder Include="Shared\Dto\Group\" />
   </ItemGroup>
 
 </Project>
