@@ -10,7 +10,7 @@ namespace TrackingSystem.Api.Shared.IManagers
         /// </summary>
         /// <param name="httpContextAccessor"></param>
         /// <returns></returns>
-        Task<UserResponseData> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor);
+        Task<UserResponseDto> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor);
 
         /// <summary>
         /// Определить Id залогиненного пользователя по контексту авторизации
@@ -25,7 +25,7 @@ namespace TrackingSystem.Api.Shared.IManagers
         /// <param name="query"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserLoginResponseModel>> UserLoginAsync(UserLoginQuery query, CancellationToken cancellationToken);
+        Task<ResponseModel<UserLoginResponseDto>> UserLoginAsync(UserLoginDto query, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получение пользователя по идентификатору
@@ -33,6 +33,6 @@ namespace TrackingSystem.Api.Shared.IManagers
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserByIdResponse>> FindUserById(UserByIdQuery request, CancellationToken cancellationToken);
+        Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken);
     }
 }

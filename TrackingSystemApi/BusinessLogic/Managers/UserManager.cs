@@ -38,13 +38,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// </summary>
         /// <param name="httpContextAccessor"></param>
         /// <returns></returns>
-        public async Task<UserResponseData> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor)
+        public async Task<UserResponseDto> GetCurrentUserDataAsync(IHttpContextAccessor httpContextAccessor)
         {
             try
             {
                 var userId = GetCurrentUserIdByContext(httpContextAccessor);
 
-                var userData = await _manager.FindUser(new UserDataQuery
+                var userData = await _manager.FindUser(new UserFindDto
                 {
                     Id = userId,
                 }, default);
@@ -92,14 +92,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="query"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<UserLoginResponseModel>> UserLoginAsync(
-            UserLoginQuery query,
+        public async Task<ResponseModel<UserLoginResponseDto>> UserLoginAsync(
+            UserLoginDto query,
             CancellationToken cancellationToken)
         {
             try
             {
                 var user = await _manager.FindUser(
-                    new UserDataQuery
+                    new UserFindDto
                     {
                         Login = query.Login,
                         Password = query.Password,
@@ -107,7 +107,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     cancellationToken);
 
                 if (user == null)
-                    return new ResponseModel<UserLoginResponseModel> { ErrorMessage = "Неправильный логин / пароль" };
+                    return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин / пароль" };
 
                 var identity = await _identityManager.CreateIdentity(
                     new CreateIdentityCommand
@@ -126,9 +126,9 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     identity.Claims,
                     EJwtTokenType.Refresh);
 
-                var response = new ResponseModel<UserLoginResponseModel>
+                var response = new ResponseModel<UserLoginResponseDto>
                 {
-                    Data = new UserLoginResponseModel
+                    Data = new UserLoginResponseDto
                     {
                         AccessToken = accessToken,
                         RefreshToken = refreshToken,
@@ -144,7 +144,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 var errorMessage = "Неправильный логин / пароль";
                 _logger.Error(ex, errorMessage);
-                return new ResponseModel<UserLoginResponseModel> { ErrorMessage = errorMessage };
+                return new ResponseModel<UserLoginResponseDto> { ErrorMessage = errorMessage };
             }
         }
 
@@ -154,22 +154,22 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<UserByIdResponse>> FindUserById(UserByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken)
         {
             try
             {
                 var result = await _manager.FindUserById(request, cancellationToken);
 
                 if (result == null)
-                    return new ResponseModel<UserByIdResponse>() { ErrorMessage = "Не удалось найти пользователя по Id" };
+                    return new ResponseModel<UserFindResponseDto>() { ErrorMessage = "Не удалось найти пользователя по Id" };
                 else
-                    return new ResponseModel<UserByIdResponse>() { Data = result };
+                    return new ResponseModel<UserFindResponseDto>() { Data = result };
             }
             catch (Exception ex)
             {
                 var errorMessage = "Не удалось получить пользователя";
                 _logger.Error(ex, errorMessage);
-                return new ResponseModel<UserByIdResponse>() { ErrorMessage = errorMessage };
+                return new ResponseModel<UserFindResponseDto>() { ErrorMessage = errorMessage };
             }
         }
     }

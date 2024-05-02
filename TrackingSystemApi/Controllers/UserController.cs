@@ -28,7 +28,7 @@ namespace TrackingSystem.Api.Controllers
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> LoginAsync(
-            [FromBody] UserLoginQuery query,
+            [FromBody] UserLoginDto query,
             CancellationToken token)
         {
             if (!ModelState.IsValid)
@@ -69,7 +69,7 @@ namespace TrackingSystem.Api.Controllers
         [Authorize]
         public async Task<IActionResult> GetUserById([FromRoute] Guid id)
         {
-            var command = new UserByIdQuery { UserId = id };
+            var command = new UserFindDto { Id = id };
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

@@ -10,7 +10,7 @@ namespace TrackingSystem.Api.Shared.Dto.User
     /// <summary>
     /// Dto для авторизации
     /// </summary>
-    public class UserLoginQuery
+    public class UserLoginDto
     {
         /// <summary>
         /// Логин

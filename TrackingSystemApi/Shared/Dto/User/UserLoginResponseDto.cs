@@ -9,8 +9,18 @@ namespace TrackingSystem.Api.Shared.Dto.User
     /// <summary>
     /// Dto для ответа на запрос авторизации
     /// </summary>
-    public class UserLoginResponseModel
+    public class UserLoginResponseDto
     {
+        /// <summary>
+        /// Идентификатор пользователя
+        /// </summary>
+        public string Id { get; init; } = null!;
+
+        /// <summary>
+        /// Имя пользователя
+        /// </summary>
+        public string? Name { get; init; }
+
         /// <summary>
         /// Токен доступа
         /// </summary>
@@ -19,16 +29,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Токен обновления
         /// </summary>
-        public string RefreshToken { get; init; } = null!;
-
-        /// <summary>
-        /// Имя пользователя
-        /// </summary>
-        public string Name { get; init; }
-
-        /// <summary>
-        /// Идентификатор пользователя
-        /// </summary>
-        public string Id { get; init; } = null!;
+        public string RefreshToken { get; init; } = null!;     
     }
 }

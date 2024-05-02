@@ -5,7 +5,7 @@ namespace TrackingSystem.Api.Shared.Dto.User
     /// <summary>
     /// Dto для ответа на запрос о получении данных пользователя
     /// </summary>
-    public class UserResponseData
+    public class UserResponseDto
     {
         /// <summary>
         /// Идентификатор
@@ -30,7 +30,12 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Учебная группа
         /// </summary>
-        public string Group { get; set; }
+        public string? Group { get; set; }
+
+        /// <summary>
+        /// Идентификатор учебной группы (если его нет, то этот пользователь - учитель)
+        /// </summary>
+        public Guid? GroupId { get; set; }
 
         /// <summary>
         /// Статус (отчислен, вышел из академа, учится)

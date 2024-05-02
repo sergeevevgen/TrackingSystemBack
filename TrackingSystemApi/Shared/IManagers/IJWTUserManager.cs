@@ -5,7 +5,7 @@ namespace TrackingSystem.Api.Shared.IManagers
 {
     public interface IJWTUserManager
     {
-        Task<UserResponseData> GetUserByIdentity(ClaimsIdentity identity);
+        Task<UserResponseDto> GetUserByIdentity(ClaimsIdentity identity);
 
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }

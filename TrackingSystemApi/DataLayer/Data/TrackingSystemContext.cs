@@ -11,6 +11,11 @@ namespace TrackingSystem.Api.DataLayer.Data
             Database.EnsureCreated();
         }
 
+        public TrackingSystemContext()
+        {
+
+        }
+
         public virtual DbSet<Lesson> Lessons { get; set; }
 
         public virtual DbSet<User> Users { get; set; }

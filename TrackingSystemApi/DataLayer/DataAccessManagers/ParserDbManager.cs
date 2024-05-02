@@ -9,14 +9,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
     public class ParserDbManager : IParserDbManager
     {
         private readonly ILogger _logger;
-        private readonly TrackingSystemContext _context;
 
         public ParserDbManager(
-            ILogger logger,
-            TrackingSystemContext context)
+            ILogger logger)
         {
             _logger = logger;
-            _context = context;
         }
 
         public async Task<bool> DeleteSubjectIsDifferenceZero()
@@ -42,34 +39,34 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
-        public async Task<UserResponseData> GetTeacher(UserCreateQuery user) 
-        {
-            try
-            {
-                var u = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Name.Equals(user.Name));
+        //public async Task<UserResponseData> GetTeacher(UserCreateQuery user) 
+        //{
+        //    try
+        //    {
+        //        var u = await _context.Users
+        //            .FirstOrDefaultAsync(u => u.Name.Equals(user.Name));
 
-                return u != null ? u.Id : Guid.Empty;
+        //        return u != null ? u.Id : Guid.Empty;
 
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex.Message);
-                return Guid.Empty;
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex.Message);
+        //        return Guid.Empty;
+        //    }
+        //}
 
-        public async Task<Guid> CreateTeacher(UserCreateQuery user)
-        {
-            try
-            {
-                var u = 
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex.Message);
-                return Guid.Empty;
-            }
-        }
+        //public async Task<Guid> CreateTeacher(UserCreateQuery user)
+        //{
+        //    try
+        //    {
+        //        var u = 
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex.Message);
+        //        return Guid.Empty;
+        //    }
+        //}
     }
 }

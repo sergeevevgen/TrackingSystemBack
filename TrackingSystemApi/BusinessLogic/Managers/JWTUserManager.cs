@@ -28,14 +28,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _dbManager = dbManager;
         }
 
-        public async Task<UserResponseData> GetUserByIdentity(ClaimsIdentity identity)
+        public async Task<UserResponseDto> GetUserByIdentity(ClaimsIdentity identity)
         {
             if (!Guid.TryParse(identity?.FindFirst("Id")?.Value, out Guid id))
             {
                 throw new Exception("Не удалось получить Id пользователя");
             };
 
-            var result = await _dbManager.FindUser(new UserDataQuery
+            var result = await _dbManager.FindUser(new UserFindDto
             {
                 Id = id,
             }, default) ?? throw new Exception("Пользователь не был найден");

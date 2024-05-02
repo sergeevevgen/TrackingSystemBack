@@ -2,10 +2,21 @@
 
 namespace TrackingSystem.Api.Shared.IManagers
 {
+    /// <summary>
+    /// Интерфейс для db-менеджера к пользователю
+    /// </summary>
     public interface IUserDbManager
     {
-        Task<UserResponseData> FindUser(UserDataQuery query, CancellationToken cancellationToken);
+        Task<UserResponseDto> FindUser(UserFindDto query, CancellationToken cancellationToken);
 
-        Task<UserByIdResponse?> FindUserById(UserByIdQuery request, CancellationToken cancellationToken);
+        Task<UserFindResponseDto?> FindUserById(UserFindDto request, CancellationToken cancellationToken);
+
+        Task Insert(UserDto model, CancellationToken cancellationToken);
+
+        Task Update(UserDto model, CancellationToken cancellationToken);
+
+        Task Delete(UserDto model, CancellationToken cancellationToken);
+
+        Task<UserResponseDto?> GetElement(UserDto model, CancellationToken cancellationToken);
     }
 }
