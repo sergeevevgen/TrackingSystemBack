@@ -11,21 +11,26 @@ namespace TrackingSystem.Api.DataLayer.Data
             Database.EnsureCreated();
         }
 
-        public virtual DbSet<Lesson> Lessons { get; set; }
+        public TrackingSystemContext()
+        {
 
-        public virtual DbSet<User> Users { get; set; }
+        }
 
-        public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<Lesson>? Lessons { get; set; }
 
-        public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<User>? Users { get; set; }
 
-        public virtual DbSet<Place> Places { get; set; }
+        public virtual DbSet<Group>? Groups { get; set; }
 
-        public virtual DbSet<Subject> Subjects { get; set; }
+        public virtual DbSet<Role>? Roles { get; set; }
 
-        public virtual DbSet<UserRole> User_Roles { get; set; }
+        public virtual DbSet<Place>? Places { get; set; }
 
-        public virtual DbSet<UserSubject> User_Subjects { get; set; }
+        public virtual DbSet<Subject>? Subjects { get; set; }
+
+        public virtual DbSet<UserRole>? User_Roles { get; set; }
+
+        public virtual DbSet<UserSubject>? User_Subjects { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

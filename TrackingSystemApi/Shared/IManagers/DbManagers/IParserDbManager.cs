@@ -1,4 +1,4 @@
-﻿namespace TrackingSystem.Api.Shared.IManagers
+﻿namespace TrackingSystem.Api.Shared.IManagers.DbManagers
 {
     public interface IParserDbManager
     {

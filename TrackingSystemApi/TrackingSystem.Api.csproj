@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <UserSecretsId>8e1830f7-1de2-436d-8f03-39727725ed0a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,13 +26,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="5.2.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Shared\Dto\Discipline\" />
-    <Folder Include="Shared\Dto\Subject\" />
-    <Folder Include="Shared\Dto\Place\" />
-    <Folder Include="Shared\Dto\Lesson\" />
   </ItemGroup>
 
 </Project>

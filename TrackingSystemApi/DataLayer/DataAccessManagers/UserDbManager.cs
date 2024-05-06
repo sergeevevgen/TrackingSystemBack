@@ -1,10 +1,9 @@
 ﻿using NLog;
 using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Data;
-using ILogger = NLog.ILogger;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
-using TrackingSystem.Api.Shared.IManagers;
+using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using TrackingSystem.Api.DataLayer.Models;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
@@ -197,7 +196,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 User element = await context.Users
-                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id.HasValue), cancellationToken);
+                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id.Value), cancellationToken);
 
                 if (element != null)
                 {
@@ -228,7 +227,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             using var context = new TrackingSystemContext();
             try
             {
-                // Ищем пользователя сначала по Логину, потом по идентификатору
+                // Ищем пользователя сначала по логину, потом по идентификатору
                 var element = await context.Users
                     .Include(u => u.UserGroup)
                     .Include(u => u.Roles)
@@ -236,8 +235,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     .AsNoTracking()
                     .FirstOrDefaultAsync(u => u.Login.Equals(model.Login) || u.Id.Equals(model.Id), cancellationToken);
 
-                return element == null ? null : CreateModel(element);
-                    
+                return element == null ? null : CreateModel(element); 
             }
             catch (Exception ex)
             {

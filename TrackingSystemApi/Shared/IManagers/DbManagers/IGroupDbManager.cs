@@ -1,6 +1,6 @@
 ﻿using TrackingSystem.Api.Shared.Dto.Group;
 
-namespace TrackingSystem.Api.Shared.IManagers
+namespace TrackingSystem.Api.Shared.IManagers.DbManagers
 {
     public interface IGroupDbManager
     {

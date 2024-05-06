@@ -1,6 +1,6 @@
 ﻿using TrackingSystem.Api.Shared.Dto.User;
 
-namespace TrackingSystem.Api.Shared.IManagers
+namespace TrackingSystem.Api.Shared.IManagers.DbManagers
 {
     /// <summary>
     /// Интерфейс для db-менеджера к пользователю

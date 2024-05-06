@@ -1,44 +1,41 @@
 ﻿using TrackingSystem.Api.DataLayer.Data;
-using TrackingSystem.Api.DataLayer.Models;
-using TrackingSystem.Api.Shared.Dto.Group;
+using TrackingSystem.Api.Shared.Dto.Place;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using Microsoft.EntityFrameworkCore;
+using TrackingSystem.Api.DataLayer.Models;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
-    /// <summary>
-    /// Класс для взаимодействия с сущностью "Группа"
-    /// </summary>
-    public class GroupDbManager : IGroupDbManager
+    public class PlaceDbManager : IPlaceDbManager
     {
         private readonly ILogger _logger;
 
-        public GroupDbManager(
+        public PlaceDbManager(
             ILogger logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// Метод для удаления группы
+        /// Метод для удаления помещения
         /// </summary>
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public async Task Delete(GroupDto model, CancellationToken cancellationToken)
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task Delete(PlaceDto model, CancellationToken cancellationToken)
         {
             using var context = new TrackingSystemContext();
             using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                Group element = await context.Groups
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value) 
+                Place element = await context.Places
+                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value)
                     || g.Name.Equals(model.Name), cancellationToken);
 
                 if (element != null)
                 {
-                    context.Groups.Remove(element);
+                    context.Places.Remove(element);
                     await context.SaveChangesAsync(cancellationToken);
                 }
                 else
@@ -49,83 +46,82 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка удаления группы c Id {model.Id}: {ex.Message}");
+                _logger.Error(ex, $"Ошибка удаления помещения c Id {model.Id}: {ex.Message}");
                 throw;
             }
         }
 
         /// <summary>
-        /// Метод для получения группы по идентификатору или названию
+        /// Метод для получения помещения по идентификатору или названию
         /// </summary>
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public async Task<GroupResponseDto?> GetElement(GroupDto model, CancellationToken cancellationToken)
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<PlaceResponseDto?> GetElement(PlaceDto model, CancellationToken cancellationToken)
         {
             using var context = new TrackingSystemContext();
             try
             {
-                var element = await context.Groups
+                var element = await context.Places
                     .Include(g => g.Subjects)
-                    .Include(g => g.Users)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value) 
+                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value)
                     || g.Name.Equals(model.Name), cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.Error(ex, $"Ошибка получения группы c Id {model.Id}: {ex.Message}");
+                _logger.Error(ex, $"Ошибка получения помещения c Id {model.Id}: {ex.Message}");
                 throw;
             }
         }
 
         /// <summary>
-        /// Метод для создания группы
+        /// Метод для создания помещения
         /// </summary>
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public async Task Insert(GroupDto model, CancellationToken cancellationToken)
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task Insert(PlaceDto model, CancellationToken cancellationToken)
         {
             using var context = new TrackingSystemContext();
             using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await context.Groups.AddAsync(CreateModel(model, new Group()));
+                await context.Places.AddAsync(CreateModel(model, new Place()));
                 await context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка создания группы: {ex.Message}");
+                _logger.Error(ex, $"Ошибка создания помещения: {ex.Message}");
                 throw;
             }
         }
 
         /// <summary>
-        /// Метод для обновления группы
+        /// Метод для обновления помещения
         /// </summary>
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public async Task Update(GroupDto model, CancellationToken cancellationToken)
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task Update(PlaceDto model, CancellationToken cancellationToken)
         {
             using var context = new TrackingSystemContext();
             using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                var element = await context.Groups
+                var element = await context.Places
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
 
                 if (element == null)
                 {
-                    throw new Exception($"Группа с Id {model.Id} не найдена");
+                    throw new Exception($"Помещение с Id {model.Id} не найдена");
                 }
 
                 CreateModel(model, element);
@@ -135,25 +131,24 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка обновления группы c Id {model.Id}: {ex.Message}");
+                _logger.Error(ex, $"Ошибка обновления помещения c Id {model.Id}: {ex.Message}");
                 throw;
             }
         }
 
-        private static Group CreateModel(GroupDto model, Group group)
+        private static Place CreateModel(PlaceDto model, Place place)
         {
-            group.Name = model.Name;
-            return group;
+            place.Name = model.Name;
+            return place;
         }
 
-        private static GroupResponseDto CreateModel(Group group)
+        private static PlaceResponseDto CreateModel(Place place)
         {
-            return new GroupResponseDto
+            return new PlaceResponseDto
             {
-                Id = group.Id,
-                Name = group.Name,
-                Users = group.Users.Select(x => x.Id).ToList(),
-                Subjects = group.Subjects.Select(x => x.Id).ToList(),
+                Id = place.Id,
+                Name = place.Name,
+                Subjects = place.Subjects.Select(x => x.Id).ToList(),
             };
         }
     }

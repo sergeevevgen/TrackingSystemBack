@@ -12,7 +12,6 @@ using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.Shared.IManagers;
-using ILogger = NLog.ILogger;
 
 namespace TrackingSystem.Api
 {

@@ -2,7 +2,7 @@
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.IManagers;
-using ILogger = NLog.ILogger;
+using TrackingSystem.Api.Shared.IManagers.DbManagers;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
