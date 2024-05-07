@@ -11,7 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Класс для связи занятия и пользователя. Используется для отметки посещения
     /// </summary>
-    [Table("UUserSubject")]
     public class UserSubject
     {
         /// <summary>

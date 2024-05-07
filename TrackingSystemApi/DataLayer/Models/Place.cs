@@ -11,7 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Помещение
     /// </summary>
-    [Table("UPlace")]
     public class Place
     {
         /// <summary>

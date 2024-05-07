@@ -1,4 +1,4 @@
-﻿namespace TrackingSystem.Api.Shared.Dto.Discipline
+﻿namespace TrackingSystem.Api.Shared.Dto.Lesson
 {
     public class LessonDto
     {

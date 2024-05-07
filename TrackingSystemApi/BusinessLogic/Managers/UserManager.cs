@@ -173,5 +173,25 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 return new ResponseModel<UserFindResponseDto>() { ErrorMessage = errorMessage };
             }
         }
+
+        public async Task<ResponseModel<UserResponseDto>> Create(UserDto model, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ResponseModel<UserResponseDto>> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ResponseModel<bool>> Delete(UserDto model, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -11,7 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Тип занятия
     /// </summary>
-    [Table("ULesson")]
     public class Lesson
     {
         /// <summary>

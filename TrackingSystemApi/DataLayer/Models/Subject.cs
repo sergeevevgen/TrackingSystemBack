@@ -7,7 +7,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Сама сущность занятия
     /// </summary>
-    [Table("USubject")]
     public class Subject
     {
         /// <summary>

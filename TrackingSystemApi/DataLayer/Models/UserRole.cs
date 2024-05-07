@@ -11,7 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Таблица для связи пользователя и роли
     /// </summary>
-    [Table("UUserRole")]
     public class UserRole
     {
         /// <summary>

@@ -8,10 +8,11 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
     /// </summary>
     public class LkClient : HttpClient
     {
+        // Todo: перенести в AppConfig
         private readonly string authURL = "https://lk.ulstu.ru/?q=auth/login";
         private readonly string teachersURL = "https://lk.ulstu.ru/timetable/shared/teachers/Praspisan.html";
         private readonly string timetableURL = "https://lk.ulstu.ru/timetable/shared/teachers/m";
-        private readonly string downloadFolder = "Download\\";
+        public readonly string downloadFolder = "Download\\";
         private const string fileName = "result.html";
 
         private readonly ILogger _logger;

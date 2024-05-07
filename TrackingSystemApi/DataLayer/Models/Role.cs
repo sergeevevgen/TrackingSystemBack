@@ -8,7 +8,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Роли
     /// </summary>
-    [Table("URole")]
     public class Role
     {
         /// <summary>

@@ -7,7 +7,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Пользователь - ученик или учитель
     /// </summary>
-    [Table("UUser")]
     public class User
     {
         /// <summary>

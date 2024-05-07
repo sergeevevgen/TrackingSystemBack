@@ -50,7 +50,11 @@ namespace TrackingSystem.Api.AppLogic.Core
         {
             // Слои доступа к данным
             services.AddTransient<IUserDbManager, UserDbManager>();
-           
+            services.AddTransient<ILessonDbManager, LessonDbManager>();
+            services.AddTransient<IPlaceDbManager, PlaceDbManager>();
+            services.AddTransient<ISubjectDbManager, SubjectDbManager>();
+            services.AddTransient<IGroupDbManager, GroupDbManager>();
+            services.AddTransient<IParserDbManager, ParserDbManager>();
         }
     }
 }

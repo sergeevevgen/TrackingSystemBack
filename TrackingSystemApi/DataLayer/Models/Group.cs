@@ -11,7 +11,6 @@ namespace TrackingSystem.Api.DataLayer.Models
     /// <summary>
     /// Группа
     /// </summary>
-    [Table("UGroup")]
     public class Group
     {
         /// <summary>
