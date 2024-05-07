@@ -14,11 +14,14 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
     public class UserDbManager : IUserDbManager
     {
         private readonly ILogger _logger;
+        private readonly TrackingSystemContext _context;
 
         public UserDbManager(
-            ILogger logger)
+            ILogger logger,
+            TrackingSystemContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -29,8 +32,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task<UserResponseDto> FindUser(UserFindDto query, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 UserResponseDto? result = null;
@@ -40,7 +42,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 {
                     var login = query.Login.ToLower();
 
-                    result = await context.Users
+                    result = await _context.Users
                            .Where(
                             u => u.Login.ToLower() == login &&
                             u.Password == query.Password)
@@ -61,7 +63,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 if (query.Id.HasValue)
                 {
                     
-                    result = await context.Users
+                    result = await _context.Users
                            .Where(u => u.Id == query.Id)
                            .Select(u => new UserResponseDto
                            {
@@ -94,11 +96,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task<UserFindResponseDto?> FindUserById(UserFindDto request, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                return await context.Users
+                return await _context.Users
                                 .Where(u => u.Id == request.Id)
                                 .Select(u => new UserFindResponseDto
                                 {
@@ -122,9 +123,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task Insert(UserDto model, CancellationToken cancellationToken)
         {
-            
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 User user = new()
@@ -136,11 +135,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     Status = model.Status,
                 };
 
-                await context.Users.AddAsync(user);
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync(cancellationToken);
 
-                await CreateModel(model, user, context);
-                await context.SaveChangesAsync(cancellationToken);
+                await CreateModel(model, user, _context);
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -159,11 +158,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task Update(UserDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                var element = await context.Users
+                var element = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken);
 
                 if (element == null)
@@ -171,8 +169,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     throw new Exception($"Пользователь с Id {model.Id} не найден");
                 }
 
-                await CreateModel(model, element, context);
-                await context.SaveChangesAsync(cancellationToken);
+                await CreateModel(model, element, _context);
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -191,17 +189,16 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task Delete(UserDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                User element = await context.Users
+                User element = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id.Equals(model.Id.Value), cancellationToken);
 
                 if (element != null)
                 {
-                    context.Users.Remove(element);
-                    await context.SaveChangesAsync(cancellationToken);
+                    _context.Users.Remove(element);
+                    await _context.SaveChangesAsync(cancellationToken);
                 }
                 else
                 {
@@ -224,11 +221,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <returns></returns>
         public async Task<UserResponseDto?> GetElement(UserDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
             try
             {
                 // Ищем пользователя сначала по логину, потом по идентификатору
-                var element = await context.Users
+                var element = await _context.Users
                     .Include(u => u.UserGroup)
                     .Include(u => u.Roles)
                     .ThenInclude(ur => ur.Role)
@@ -261,11 +257,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 user.Status = model.Status;
                 
                 // Работа со связанными сущностями. Надо удалить те, которых нет и добавить новые
-                ICollection<UserRole> userRoles = context.User_Roles
+                ICollection<UserRole> userRoles = context.UserRoles
                     .Where(r => r.UserId.Equals(model.Id.Value))
                     .ToList();
 
-                context.User_Roles
+                context.UserRoles
                     .RemoveRange(userRoles
                         .Where(r => !model.Roles.Contains(r.RoleId))
                         .ToList());
@@ -281,7 +277,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
             foreach (Guid r in model.Roles)
             {
-                await context.User_Roles.AddAsync(new UserRole
+                await context.UserRoles.AddAsync(new UserRole
                 {
                     RoleId = r,
                     UserId = user.Id,
@@ -305,9 +301,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 Login = user.Login,
                 Name = user.Name,
                 GroupId = user.GroupId,
-                Group = user.UserGroup.Name,
+                Group = user.UserGroup?.Name,
                 Status = user.Status,
-                Roles = user.Roles.Select(r => r.Role.Name).ToList(),
+                Roles = user.Roles?.Select(r => r.Role.Name).ToList(),
             };
         }
     }

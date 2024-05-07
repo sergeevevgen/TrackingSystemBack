@@ -34,7 +34,7 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("UGroup");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.Lesson", b =>
@@ -49,7 +49,7 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Lessons");
+                    b.ToTable("ULesson");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.Place", b =>
@@ -64,7 +64,7 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Places");
+                    b.ToTable("UPlace");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.Role", b =>
@@ -78,7 +78,7 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("URole");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.Subject", b =>
@@ -93,6 +93,9 @@ namespace TrackingSystem.Api.Migrations
                     b.Property<Guid>("GroupId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("IsDifference")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uniqueidentifier");
 
@@ -100,6 +103,9 @@ namespace TrackingSystem.Api.Migrations
                         .HasColumnType("int");
 
                     b.Property<Guid>("PlaceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TeacherId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Type")
@@ -117,7 +123,10 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasIndex("PlaceId");
 
-                    b.ToTable("Subjects");
+                    b.HasIndex("TeacherId")
+                        .IsUnique();
+
+                    b.ToTable("USubject");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User", b =>
@@ -150,10 +159,10 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Users");
+                    b.ToTable("UUser");
                 });
 
-            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User_Role", b =>
+            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -171,10 +180,10 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("User_Roles");
+                    b.ToTable("UUserRole");
                 });
 
-            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User_Subject", b =>
+            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.UserSubject", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -198,7 +207,7 @@ namespace TrackingSystem.Api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("User_Subjects");
+                    b.ToTable("UUserSubject");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.Subject", b =>
@@ -221,11 +230,19 @@ namespace TrackingSystem.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TrackingSystem.Api.DataLayer.Models.User", "Teacher")
+                        .WithOne("Subject")
+                        .HasForeignKey("TrackingSystem.Api.DataLayer.Models.Subject", "TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Group");
 
                     b.Navigation("Lesson");
 
                     b.Navigation("Place");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User", b =>
@@ -237,7 +254,7 @@ namespace TrackingSystem.Api.Migrations
                     b.Navigation("UserGroup");
                 });
 
-            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User_Role", b =>
+            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.UserRole", b =>
                 {
                     b.HasOne("TrackingSystem.Api.DataLayer.Models.Role", "Role")
                         .WithMany("Users")
@@ -256,7 +273,7 @@ namespace TrackingSystem.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User_Subject", b =>
+            modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.UserSubject", b =>
                 {
                     b.HasOne("TrackingSystem.Api.DataLayer.Models.Subject", "Subject")
                         .WithMany("Users")
@@ -305,6 +322,9 @@ namespace TrackingSystem.Api.Migrations
             modelBuilder.Entity("TrackingSystem.Api.DataLayer.Models.User", b =>
                 {
                     b.Navigation("Roles");
+
+                    b.Navigation("Subject")
+                        .IsRequired();
 
                     b.Navigation("Subjects");
                 });

@@ -6,8 +6,9 @@ using TrackingSystem.Api.Shared.Dto.Identity;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
+using TrackingSystem.Api.Shared.IManagers.DbManagers;
+using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 using TrackingSystem.Api.Shared.SharedModels;
-using ILogger = NLog.ILogger;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {

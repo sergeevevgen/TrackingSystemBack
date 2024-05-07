@@ -2,12 +2,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using ILogger = NLog.ILogger;
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.Shared.IManagers;
 using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.BusinessLogic.DownloadLk;
+using TrackingSystem.Api.Shared.IManagers.LogicManagers;
+using TrackingSystem.Api.Shared.IManagers.DbManagers;
 
 namespace TrackingSystem.Api.AppLogic.Core
 {

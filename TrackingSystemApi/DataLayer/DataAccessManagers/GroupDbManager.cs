@@ -12,11 +12,14 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
     public class GroupDbManager : IGroupDbManager
     {
         private readonly ILogger _logger;
+        private readonly TrackingSystemContext _context;
 
         public GroupDbManager(
-            ILogger logger)
+            ILogger logger,
+            TrackingSystemContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -28,18 +31,17 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="Exception"></exception>
         public async Task Delete(GroupDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                Group element = await context.Groups
+                Group element = await _context.Groups
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value) 
                     || g.Name.Equals(model.Name), cancellationToken);
 
                 if (element != null)
                 {
-                    context.Groups.Remove(element);
-                    await context.SaveChangesAsync(cancellationToken);
+                    _context.Groups.Remove(element);
+                    await _context.SaveChangesAsync(cancellationToken);
                 }
                 else
                 {
@@ -63,10 +65,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="Exception"></exception>
         public async Task<GroupResponseDto?> GetElement(GroupDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
             try
             {
-                var element = await context.Groups
+                var element = await _context.Groups
                     .Include(g => g.Subjects)
                     .Include(g => g.Users)
                     .AsNoTracking()
@@ -91,12 +92,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="Exception"></exception>
         public async Task Insert(GroupDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await context.Groups.AddAsync(CreateModel(model, new Group()));
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.Groups.AddAsync(CreateModel(model, new Group()));
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch(Exception ex)
@@ -116,11 +116,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="Exception"></exception>
         public async Task Update(GroupDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                var element = await context.Groups
+                var element = await _context.Groups
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
 
                 if (element == null)
@@ -129,7 +128,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 }
 
                 CreateModel(model, element);
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)

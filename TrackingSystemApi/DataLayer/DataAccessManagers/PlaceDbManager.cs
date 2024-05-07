@@ -9,11 +9,14 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
     public class PlaceDbManager : IPlaceDbManager
     {
         private readonly ILogger _logger;
+        private readonly TrackingSystemContext _context;
 
         public PlaceDbManager(
-            ILogger logger)
+            ILogger logger,
+            TrackingSystemContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -25,18 +28,17 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="NotImplementedException"></exception>
         public async Task Delete(PlaceDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                Place element = await context.Places
+                Place element = await _context.Places
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value)
                     || g.Name.Equals(model.Name), cancellationToken);
 
                 if (element != null)
                 {
-                    context.Places.Remove(element);
-                    await context.SaveChangesAsync(cancellationToken);
+                    _context.Places.Remove(element);
+                    await _context.SaveChangesAsync(cancellationToken);
                 }
                 else
                 {
@@ -60,10 +62,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="NotImplementedException"></exception>
         public async Task<PlaceResponseDto?> GetElement(PlaceDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
             try
             {
-                var element = await context.Places
+                var element = await _context.Places
                     .Include(g => g.Subjects)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value)
@@ -87,12 +88,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="NotImplementedException"></exception>
         public async Task Insert(PlaceDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await context.Places.AddAsync(CreateModel(model, new Place()));
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.Places.AddAsync(CreateModel(model, new Place()));
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -112,11 +112,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <exception cref="NotImplementedException"></exception>
         public async Task Update(PlaceDto model, CancellationToken cancellationToken)
         {
-            using var context = new TrackingSystemContext();
-            using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                var element = await context.Places
+                var element = await _context.Places
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
 
                 if (element == null)
@@ -125,7 +124,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 }
 
                 CreateModel(model, element);
-                await context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
             }
             catch (Exception ex)

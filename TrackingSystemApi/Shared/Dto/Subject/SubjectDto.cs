@@ -22,6 +22,8 @@ namespace TrackingSystem.Api.Shared.Dto.Subject
 
         public Guid LessonId { get; set; }
 
-        public ICollection<Guid>? Users { get; set; }
+        public Guid TeacherId { get; set; }
+
+        public Dictionary<Guid, bool>? Users { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
-using ILogger = NLog.ILogger;
+using TrackingSystem.Api.Shared.IManagers.DbManagers;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {

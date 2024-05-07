@@ -2,7 +2,7 @@
 using System.Text;
 using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.IManagers;
-using ILogger = NLog.ILogger;
+using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {

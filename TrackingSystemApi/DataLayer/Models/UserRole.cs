@@ -8,15 +8,28 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.DataLayer.Models
 {
+    /// <summary>
+    /// Таблица для связи пользователя и роли
+    /// </summary>
+    [Table("UUserRole")]
     public class UserRole
     {
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        /// <summary>
+        /// Пользователь
+        /// </summary>
         [ForeignKey("UserId")]
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
 
+        /// <summary>
+        /// Роль
+        /// </summary>
         [ForeignKey("RoleId")]
         public Guid RoleId { get; set; }
         public virtual Role Role { get; set; }

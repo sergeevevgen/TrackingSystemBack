@@ -1,6 +1,5 @@
 ﻿using AngleSharp.Html.Parser;
 using System.Text;
-using ILogger = NLog.ILogger;
 
 namespace TrackingSystem.Api.BusinessLogic.DownloadLk
 {

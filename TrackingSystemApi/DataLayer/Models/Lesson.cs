@@ -8,14 +8,27 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.DataLayer.Models
 {
+    /// <summary>
+    /// Тип занятия
+    /// </summary>
+    [Table("ULesson")]
     public class Lesson
     {
+        /// <summary>
+        /// Идентификатор
+        /// </summary>
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        /// <summary>
+        /// Название
+        /// </summary>
         [Required]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Занятия, проходящие в данной аудитории
+        /// </summary>
         //[InverseProperty("DisciplineId")]
         public virtual ICollection<Subject> Subjects { get; set; }
     }
