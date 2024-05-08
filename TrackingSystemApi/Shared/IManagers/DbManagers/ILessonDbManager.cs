@@ -1,4 +1,4 @@
-﻿using TrackingSystem.Api.Shared.Dto.Discipline;
+﻿using TrackingSystem.Api.Shared.Dto.Lesson;
 
 namespace TrackingSystem.Api.Shared.IManagers.DbManagers
 {

@@ -41,7 +41,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserResponseDto>> CreateOrUpdate(UserDto model, CancellationToken cancellationToken);
+        Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления пользователя
@@ -49,7 +49,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<bool>> Delete(UserDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(UserDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для получения пользователя

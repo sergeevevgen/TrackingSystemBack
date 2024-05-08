@@ -12,7 +12,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<SubjectResponseDto>> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
+        Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления занятия
@@ -20,7 +20,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<bool>> Delete(SubjectDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для получения одного занятия

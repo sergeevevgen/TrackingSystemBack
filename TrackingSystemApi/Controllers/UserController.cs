@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.Shared.Dto.Identity;
 using TrackingSystem.Api.Shared.Dto.User;
+using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
@@ -15,15 +16,18 @@ namespace TrackingSystem.Api.Controllers
         private readonly IUserManager _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IIdentityManager _identityManager;
+        private readonly IParserManager _parserManager;
 
         public UserController(
             IUserManager userManager,
             IHttpContextAccessor httpContextAccessor,
-            IIdentityManager identityManager)
+            IIdentityManager identityManager,
+            IParserManager parserManager)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _identityManager = identityManager;
+            _parserManager = parserManager;
         }
 
         [HttpPost]
@@ -96,6 +100,15 @@ namespace TrackingSystem.Api.Controllers
             var message = "sss";
 
             return Ok(message);
+        }
+
+        [HttpGet("downloadTimetable/")]
+        [Authorize]
+        public async Task<IActionResult> DownLoadTimeTable()
+        {
+            var response = await _parserManager.ParseTimetable();
+
+            return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
         }
     }
 }

@@ -39,6 +39,11 @@ namespace TrackingSystem.Api.AppLogic.Core
 
             // Менеджеры
             services.AddScoped<IUserManager, UserManager>();
+            services.AddScoped<IPlaceManager, PlaceManager>();
+            services.AddScoped<IGroupManager, GroupManager>();
+            services.AddScoped<ILessonManager, LessonManager>();
+            services.AddScoped<ISubjectManager, SubjectManager>();
+
             services.AddScoped<IIdentityManager, IdentityManager>();
             services.AddScoped<IJWTAuthManager, JWTAuthManager>();
             services.AddScoped<IJWTUserManager, JWTUserManager>();
@@ -54,7 +59,6 @@ namespace TrackingSystem.Api.AppLogic.Core
             services.AddTransient<IPlaceDbManager, PlaceDbManager>();
             services.AddTransient<ISubjectDbManager, SubjectDbManager>();
             services.AddTransient<IGroupDbManager, GroupDbManager>();
-            services.AddTransient<IParserDbManager, ParserDbManager>();
         }
     }
 }

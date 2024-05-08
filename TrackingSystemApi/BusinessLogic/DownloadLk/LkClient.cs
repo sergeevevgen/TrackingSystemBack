@@ -22,6 +22,12 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             _logger = logger;
         }
 
+        /// <summary>
+        /// Метод для аутентификации
+        /// </summary>
+        /// <param name="login"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public async Task Authentication(string login, string password)
         {
             _logger.Info("Начало аутентификации");
@@ -46,6 +52,11 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             }
         }
 
+        /// <summary>
+        /// Метод отправки запроса к серверу для загрузки расписания
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public async Task GetRequestToFile(string url)
         {
             try
@@ -61,6 +72,12 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             }
         }
 
+        /// <summary>
+        /// Метод загрузки файла
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public async Task<bool> DownloadFile(int id, string url)
         {
             try
@@ -88,6 +105,10 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             }
         }
 
+        /// <summary>
+        /// Метод получения количества учителей
+        /// </summary>
+        /// <returns></returns>
         public async Task<int?> GetTeacherCount()
         {
             try
@@ -119,7 +140,12 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
             }
         }
 
-        public async Task<bool> TotalDownload(string path)
+        /// <summary>
+        /// Метод полной загрузки всех данных
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task<bool> TotalDownload()
         {
             try
             {
@@ -127,21 +153,22 @@ namespace TrackingSystem.Api.BusinessLogic.DownloadLk
 
                 if (!teachersCount.HasValue)
                 {
-                    Console.WriteLine("При попытке узнать количество учителей возникла проблема");
-                    return false;
+                    throw new Exception("При попытке узнать количество учителей возникла проблема");
                 }
 
-                Console.WriteLine($"Текущее колличество учителей: {teachersCount}");
+                _logger.Info($"Текущее колличество учителей: {teachersCount}");
 
                 bool result = false;
+
+                Directory.CreateDirectory($"{downloadFolder}");
 
                 for (int i = 1; i < teachersCount; i++)
                 {
                     bool res = await DownloadFile(i, timetableURL);
 
                     if (res)
-                    { 
-                        Console.WriteLine($"Обновление файла преподавателя с id={i}"); 
+                    {
+                        _logger.Info($"Обновление файла преподавателя с id={i}"); 
                     }
 
                     result |= res;

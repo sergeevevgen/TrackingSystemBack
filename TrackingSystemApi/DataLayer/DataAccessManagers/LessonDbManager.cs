@@ -1,8 +1,8 @@
-﻿using TrackingSystem.Api.Shared.Dto.Discipline;
-using TrackingSystem.Api.Shared.IManagers.DbManagers;
+﻿using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.DataLayer.Models;
+using TrackingSystem.Api.Shared.Dto.Lesson;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {

@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<LessonResponseDto>> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken);
+        Task<LessonResponseDto> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления типа помещения
@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<bool>> Delete(LessonDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(LessonDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для получения одного типа помещения

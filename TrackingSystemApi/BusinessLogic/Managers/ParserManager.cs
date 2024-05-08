@@ -1,7 +1,16 @@
 ﻿using AngleSharp.Html.Parser;
+using Microsoft.Extensions.Options;
 using System.Text;
+using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.BusinessLogic.DownloadLk;
+using TrackingSystem.Api.Shared.Dto.Group;
+using TrackingSystem.Api.Shared.Dto.Lesson;
+using TrackingSystem.Api.Shared.Dto.Place;
+using TrackingSystem.Api.Shared.Dto.Subject;
+using TrackingSystem.Api.Shared.Dto.User;
+using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
+using TrackingSystem.Api.Shared.SharedModels;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {
@@ -11,19 +20,42 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private const int startFileIndex = 3;
         private readonly LkClient _lkClient;
         private readonly IUserManager _userManager;
+        private readonly ILessonManager _lessonManager;
+        private readonly IGroupManager _groupManager;
+        private readonly IPlaceManager _placeManager;
+        private readonly ISubjectManager _subjectManager;
+        private readonly AppConfig _appConfig;
 
         public ParserManager(
             ILogger logger,
             LkClient lkClient,
-            IUserManager userManager)
+            IUserManager userManager,
+            ILessonManager lessonManager,
+            IGroupManager groupManager,
+            IPlaceManager placeManager,
+            ISubjectManager subjectManager,
+            IOptions<AppConfig> options)
         {
             _logger = logger;
             _lkClient = lkClient;
             _userManager = userManager;
+            _lessonManager = lessonManager;
+            _groupManager = groupManager;
+            _placeManager = placeManager;
+            _subjectManager = subjectManager;
+            _appConfig = options.Value;
         }
 
-        public async Task ParseTimetable()
+        /// <summary>
+        /// Основной метод для парсинга расписания
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ResponseModel<string>> ParseTimetable()
         {
+            await _lkClient.Authentication(_appConfig.LkLogin, _appConfig.LkPassword);
+
+            await _lkClient.TotalDownload();
+
             int? tmp = await _lkClient.GetTeacherCount();
             int endFileIndex = (int)(tmp != null ? tmp : 0);
 
@@ -35,13 +67,18 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 }
                 catch(Exception ex)
                 {
-                    _logger.Error(ex, $"Ошибка парсинга файла с расписанием c Id {i}: {ex.Message}");
-                    throw;
+                    var message = $"Ошибка парсинга файла с расписанием c Id {i}: {ex.Message}";
+                    _logger.Error(ex, message);
+                    return new ResponseModel<string> { ErrorMessage = message };
                 }
             }
+
+            _logger.Info($"Парсинг расписания прошёл успешно в {DateTime.Now}");
+
+            return new ResponseModel<string> { Data = "Расписание обновлено" };
         }
 
-        public async Task ParseTimetableForTeacher(int id)
+        private async Task ParseTimetableForTeacher(int id)
         {
             // Парсим страницу
             var html = await new HtmlParser()
@@ -59,7 +96,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             var tabels = html.GetElementsByTagName("table");
 
-            int tid = _userManager.Create(name);
+            // Создаем или получаем учителя
+            var teacher = await _userManager.CreateOrUpdate(new UserDto { Name = name }, default);
 
             for (int week = 0; week < tabels.Length; week++)
             {
@@ -72,32 +110,64 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         var item = columns[j].GetElementsByTagName("p")[0].Children[0].InnerHtml.Split("<br>");
                         if (item.Length >= 3 && item[0] != "_" && item[0] != "-" && item[0] != " ")
                         {
-                            (int did, string type) = GetOrCreateDiscipline(item[1]);
+                            // Создаем или получаем тип занятия
+                            var lesson = await FormatLesson(item[1]);
 
                             foreach (var gr in item[0].Split(","))
                             {
-                                int gid = GetOrCreateGroup(gr);
+                                // Создаем или получаем группу
+                                var group = await _groupManager.CreateOrUpdate(new GroupDto { Name = gr }, default);
 
-                                int pid = GetOrCreatePlace(item[2]);
+                                var place = await _placeManager.CreateOrUpdate(new PlaceDto { Name = item[2] }, default);
 
-                                CreateOrUpdatePair(new Subject()
+                                // Надо протестить всё это
+                                var result = await _subjectManager.CreateOrUpdate(new SubjectDto
                                 {
-                                    Groupid = gid,
-                                    Disciplineid = did,
-                                    Teacherid = tid,
-                                    PlaceId = pid,
-                                    Type = type,
-                                    Dayofweak = i - 2,
-                                    Pairnumber = j - 1, // Эту место пары - первой пары нет, есть ток вторая
-                                    Week = (firstWeek + week) % 2 == 0, // Тут мне не надо делать четной, нечетной. Тупо неделю сохраняю
-                                    Isdifference = 2
-                                });
-
+                                    GroupId = group.Id,
+                                    LessonId = lesson.data.Id,
+                                    PlaceId = place.Id,
+                                    TeacherId = teacher.Id,
+                                    Day = i - 2,
+                                    Pair = (EPairNumbers) (j - 1),
+                                    Week = firstWeek + (week % 2 != 0 ? 1 : 0),
+                                    Type = lesson.type,
+                                    IsDifference = 1
+                                }, default);
                             }
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Вспомогательный метод для парсинга названия типа занятия
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private async Task<(LessonResponseDto data, string type)> FormatLesson(string name)
+        {
+            string type = "";
+            string tmp = name.ToLower();
+
+            if (tmp.StartsWith("пр"))
+            {
+                type = "пр";
+                tmp = name.Substring(2);
+            }
+            else if (tmp.StartsWith("лек"))
+            {
+                type = "лек";
+                tmp = name.Substring(3);
+            }
+            else if (tmp.StartsWith("лаб"))
+            {
+                type = "лаб";
+                tmp = name.Substring(3);
+            }
+
+            var lessonType = await _lessonManager.CreateOrUpdate(new LessonDto { Name = tmp }, default);
+            return (lessonType, type);
         }
     }
 }

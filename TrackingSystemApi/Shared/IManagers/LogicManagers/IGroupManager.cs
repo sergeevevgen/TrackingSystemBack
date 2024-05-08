@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<GroupResponseDto>> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken);
+        Task<GroupResponseDto> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления группы
@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<bool>> Delete(GroupDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(GroupDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для получения одной группы

@@ -174,17 +174,12 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
-        public async Task<ResponseModel<UserResponseDto>> Create(UserDto model, CancellationToken cancellationToken)
+        public Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ResponseModel<UserResponseDto>> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ResponseModel<bool>> Delete(UserDto model, CancellationToken cancellationToken)
+        public Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
