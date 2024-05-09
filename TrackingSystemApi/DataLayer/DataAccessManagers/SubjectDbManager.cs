@@ -3,6 +3,7 @@ using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Models;
+using TrackingSystem.Api.Shared.Enums;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
@@ -62,19 +63,30 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 // Ищем пользователя сначала по логину, потом по идентификатору
+                
+                // Если не по идентификатору, то по всем остальным полям
                 var element = await _context.Subjects
                     .Include(s => s.Group)
                     .Include(s => s.Lesson)
                     .Include(s => s.Place)
                     .Include(s => s.Users)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(s => s.Id.Equals(model.Id.Value), cancellationToken);
+                    .FirstOrDefaultAsync(s => s.Id.Equals(model.Id.Value) 
+                    || (s.Week.Equals(model.Week) 
+                        && s.Day.Equals(model.Day) 
+                        && s.Type.Equals(model.Type) 
+                        && s.Pair.Equals(model.Pair)
+                        && s.GroupId.Equals(model.GroupId)
+                        && s.PlaceId.Equals(model.PlaceId)
+                        && s.LessonId.Equals(model.LessonId)
+                        && s.TeacherId.Equals(model.TeacherId)),
+                    cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Ошибка получения пользователя c Id {model.Id}: {ex.Message}");
+                _logger.Error(ex, $"Ошибка получения занятия c Id {model.Id}: {ex.Message}");
                 throw;
             }
         }
@@ -147,6 +159,53 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 await transaction.RollbackAsync(cancellationToken);
                 _logger.Error(ex, $"Ошибка обновления занятия c Id {model.Id}: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Метод для отметки посещения пользователя
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<bool> MarkUserSubject(SubjectUserMarkDto model, CancellationToken cancellationToken)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                // Получил элемент, который необходимо обновить
+                var element = await _context.UserSubjects
+                    .FirstOrDefaultAsync(u => u.SubjectId.Equals(model.SubjectId), cancellationToken) ?? throw new Exception($"Занятие с Id {model.SubjectId} не найдено");
+
+                // Если нет такого, то создаем новую запись
+                if (element == null)
+                {
+                    element = new()
+                    {
+                        SubjectId = model.SubjectId,
+                        IsMarked = model.Mark,
+                        MarkTime = model.MarkTime,
+                        UserId = model.PupilId,
+                    };
+                    await _context.UserSubjects
+                        .AddAsync(element, cancellationToken);
+                }
+                // Иначе обновляем поля
+                else
+                {
+                    element.MarkTime = model.MarkTime;
+                    element.IsMarked = model.Mark;
+                }
+                
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.Error(ex, $"Ошибка обновления занятия c Id {model.SubjectId}: {ex.Message}");
                 throw;
             }
         }
@@ -229,6 +288,53 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 Users = subject.Users
                     .ToDictionary(k => k.UserId, v => v.IsMarked)
             };
+        }
+
+        public async Task ChangeIsDifference(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                // Удаляем те, у которых IsDifference == 0
+                var query = _context.Subjects
+                    .Where(s => 
+                    s.Week.Equals(model.Week)).Up;
+
+                
+
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.Error(ex, $"Ошибка обновления ");
+                throw;
+            }
+        }
+
+        public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                // Удаляем те, у которых IsDifference == 0
+                var query = _context.Subjects
+                    .Where(s =>
+                    s.Week.Equals(model.Week)
+                    && s.IsDifference.Equals(EIsDifference.Expired));
+
+                _context.Subjects.RemoveRange(query);
+
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.Error(ex, $"Ошибка обновления ");
+                throw;
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using TrackingSystem.Api.Shared.Dto.Subject;
-using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.SharedModels;
 
 namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
@@ -12,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
+        Task<bool> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления занятия
@@ -44,6 +43,6 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<SubjectResponseDto>> MarkSubject(UserMarkDto model, CancellationToken cancellationToken);
+        Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken);
     }
 }

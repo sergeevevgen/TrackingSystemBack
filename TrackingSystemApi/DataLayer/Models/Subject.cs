@@ -43,7 +43,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// Было ли изменено данное занятие или нет?
         /// </summary>
         [Required]
-        public int IsDifference { get; set; }
+        public EIsDifference IsDifference { get; set; }
 
         /// <summary>
         /// Внешний ключ к группе
