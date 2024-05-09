@@ -29,7 +29,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task Delete(GroupDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(GroupDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -41,7 +41,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 if (element != null)
                 {
                     _context.Groups.Remove(element);
+
                     await _context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return true;
                 }
                 else
                 {
@@ -90,14 +94,18 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task Insert(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto> Insert(GroupDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await _context.Groups.AddAsync(CreateModel(model, new Group()));
+                Group group = new();
+
+                await _context.Groups.AddAsync(CreateModel(model, group));
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(group);
             }
             catch(Exception ex)
             {
@@ -114,22 +122,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task Update(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto> Update(GroupDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var element = await _context.Groups
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
-
-                if (element == null)
-                {
-                    throw new Exception($"Группа с Id {model.Id} не найдена");
-                }
+                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken) ?? throw new Exception($"Группа с Id {model.Id} не найдена");
 
                 CreateModel(model, element);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(element);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using System.Web.Http.Metadata;
 using TrackingSystem.Api.Shared.Dto.Subject;
+using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 using TrackingSystem.Api.Shared.SharedModels;
@@ -26,7 +27,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<bool> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken)
         {
             var element = await _storage.GetElement(new SubjectDto
             {
@@ -48,16 +49,17 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             if (model.Id.HasValue)
             {
-                model.IsDifference = 1;
-                await _storage.Update(model, cancellationToken);
+                model.IsDifference = EIsDifference.Actual;
+                element = await _storage.Update(model, cancellationToken);
                 _logger.Info($"Занятие с идентификатором {model.Id} обновлено");
             }
             else
             {
-                await _storage.Insert(model, cancellationToken);
+                element = await _storage.Insert(model, cancellationToken);
                 _logger.Info($"Создано новое занятие");
             }
-            return true;
+
+            return element;
         }
 
         /// <summary>

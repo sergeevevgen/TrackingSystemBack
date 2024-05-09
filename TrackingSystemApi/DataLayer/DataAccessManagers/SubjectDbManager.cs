@@ -26,7 +26,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task Delete(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -38,6 +38,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 {
                     _context.Subjects.Remove(element);
                     await _context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    return true;
                 }
                 else
                 {
@@ -98,7 +100,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Insert(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> Insert(SubjectDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -122,6 +124,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 await CreateModel(model, subject, _context);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(subject);
             }
             catch(Exception ex)
             {
@@ -138,22 +142,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Update(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> Update(SubjectDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var element = await _context.Subjects
-                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken);
-
-                if (element == null)
-                {
-                    throw new Exception($"Занятие с Id {model.Id} не найдено");
-                }
+                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken) ?? throw new Exception($"Занятие с Id {model.Id} не найдено");
 
                 await CreateModel(model, element, _context);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(element);
             }
             catch (Exception ex)
             {
@@ -290,17 +291,24 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             };
         }
 
+        /// <summary>
+        /// Метод для изменения IsDifference = 0 при начале нового парсинга для выбранной недели
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task ChangeIsDifference(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                // Удаляем те, у которых IsDifference == 0
-                var query = _context.Subjects
-                    .Where(s => 
-                    s.Week.Equals(model.Week)).Up;
+                // Меняем isDifference = 0
+                var query = await _context.Subjects
+                    .Where(s =>
+                    s.Week.Equals(model.Week))
+                    .ToListAsync(cancellationToken);
 
-                
+                query.ForEach(s => s.IsDifference = EIsDifference.Expired);
 
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -313,16 +321,23 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
+        /// <summary>
+        /// Метод для удаления занятий, которые не были тронуты при повторном парсинге
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                // Удаляем те, у которых IsDifference == 0
+                // Удаляем те, у которых IsDifference == 0, совпадает неделя и день недели больше, чем тот, который на данный момент
                 var query = _context.Subjects
                     .Where(s =>
                     s.Week.Equals(model.Week)
-                    && s.IsDifference.Equals(EIsDifference.Expired));
+                    && s.IsDifference.Equals(EIsDifference.Expired)
+                    && s.Day > ((int)DateTime.Today.DayOfWeek - 1 + 7) % 7);
 
                 _context.Subjects.RemoveRange(query);
 
@@ -332,7 +347,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка обновления ");
+                _logger.Error(ex, $"Ошибка удаления занятий недели #{model.Week} с {EIsDifference.Expired}");
                 throw;
             }
         }

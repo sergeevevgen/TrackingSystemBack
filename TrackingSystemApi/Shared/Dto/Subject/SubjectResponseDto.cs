@@ -15,7 +15,7 @@ namespace TrackingSystem.Api.Shared.Dto.Subject
 
         public EPairNumbers Pair { get; set; }
 
-        public int IsDifference { get; set; }
+        public EIsDifference IsDifference { get; set; }
 
         public Guid GroupId { get; set; }
 

@@ -1,8 +1,7 @@
-﻿using NLog;
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
 using System.Security.Claims;
-using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.Shared.Dto.Identity;
+using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
@@ -18,7 +17,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
     public class UserManager : IUserManager
     {
         private readonly ILogger _logger;
-        private readonly IUserDbManager _manager;
+        private readonly IUserDbManager _storage;
         private readonly IJWTAuthManager _jwtManager;
         private readonly IIdentityManager _identityManager;
 
@@ -29,7 +28,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IIdentityManager identityManager)
         {
             _logger = logger;
-            _manager = manager;
+            _storage = manager;
             _jwtManager = jwtManager;
             _identityManager = identityManager;
         }
@@ -45,7 +44,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 var userId = GetCurrentUserIdByContext(httpContextAccessor);
 
-                var userData = await _manager.FindUser(new UserFindDto
+                var userData = await _storage.FindUser(new UserFindDto
                 {
                     Id = userId,
                 }, default);
@@ -99,7 +98,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
-                var user = await _manager.FindUser(
+                var user = await _storage.FindUser(
                     new UserFindDto
                     {
                         Login = query.Login,
@@ -159,7 +158,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
-                var result = await _manager.FindUserById(request, cancellationToken);
+                var result = await _storage.FindUserById(request, cancellationToken);
 
                 if (result == null)
                     return new ResponseModel<UserFindResponseDto>() { ErrorMessage = "Не удалось найти пользователя по Id" };
@@ -174,19 +173,53 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
-        public Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var element = await _storage.GetElement(new UserDto
+            {
+                Login = model.Login
+            }, cancellationToken);
+
+            if (element != null && element.Id != model.Id)
+            {
+                _logger.Error("Уже есть пользователь с такими логином");
+                throw new Exception("Уже есть пользователь с такими логином");
+            }
+ 
+            if (model.Id.HasValue)
+            {
+                element = await _storage.Update(model, cancellationToken);
+                _logger.Info($"Пользователь с идентификатором {model.Id} обновлен");
+            }
+            else
+            {
+                element = await _storage.Insert(model, cancellationToken);
+                _logger.Info($"Создан новый пользователь");
+            }
+
+            return element;
         }
 
-        public Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _ = await _storage.GetElement(new UserDto
+            {
+                Id = model.Id,
+            }, cancellationToken) ?? throw new Exception($"Элемент с идентификатором {model.Id} не найден");
+            
+            await _storage.Delete(model, cancellationToken);
+            return true;
         }
 
-        public Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (model.Id.HasValue)
+            {
+                var data = await _storage.GetElement(model, cancellationToken);
+                return new ResponseModel<UserResponseDto> { Data = data };
+            }
+
+            return new ResponseModel<UserResponseDto> { ErrorMessage = $"Такой пользователь не найден {model.Name}" };
         }
     }
 }

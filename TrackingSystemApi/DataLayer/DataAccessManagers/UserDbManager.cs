@@ -5,6 +5,7 @@ using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using TrackingSystem.Api.DataLayer.Models;
+using AngleSharp.Dom;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
@@ -121,7 +122,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// Метод для создания пользователя (Пользователь создается самостоятельно, потом к нему уже привязываются основные сущности. Но изначально должны быть роли)
         /// </summary>
         /// <returns></returns>
-        public async Task Insert(UserDto model, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> Insert(UserDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -141,6 +142,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 await CreateModel(model, user, _context);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(user);
             }
             catch (Exception ex)
             {
@@ -156,22 +159,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task Update(UserDto model, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> Update(UserDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var element = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken);
-
-                if (element == null)
-                {
-                    throw new Exception($"Пользователь с Id {model.Id} не найден");
-                }
+                    .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken) ?? throw new Exception($"Пользователь с Id {model.Id} не найден");
 
                 await CreateModel(model, element, _context);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(element);
             }
             catch (Exception ex)
             {
@@ -187,7 +187,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task Delete(UserDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -199,6 +199,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 {
                     _context.Users.Remove(element);
                     await _context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return true;
                 }
                 else
                 {
@@ -277,11 +280,12 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
             foreach (Guid r in model.Roles)
             {
-                await context.UserRoles.AddAsync(new UserRole
-                {
-                    RoleId = r,
-                    UserId = user.Id,
-                });
+                await context.UserRoles
+                    .AddAsync(new UserRole
+                    {
+                        RoleId = r,
+                        UserId = user.Id,
+                    });
                 await context.SaveChangesAsync();
             }
 

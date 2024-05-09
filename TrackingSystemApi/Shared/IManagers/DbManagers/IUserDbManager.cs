@@ -11,11 +11,11 @@ namespace TrackingSystem.Api.Shared.IManagers.DbManagers
 
         Task<UserFindResponseDto?> FindUserById(UserFindDto request, CancellationToken cancellationToken);
 
-        Task Insert(UserDto model, CancellationToken cancellationToken);
+        Task<UserResponseDto> Insert(UserDto model, CancellationToken cancellationToken);
 
-        Task Update(UserDto model, CancellationToken cancellationToken);
+        Task<UserResponseDto> Update(UserDto model, CancellationToken cancellationToken);
 
-        Task Delete(UserDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(UserDto model, CancellationToken cancellationToken);
 
         Task<UserResponseDto?> GetElement(UserDto model, CancellationToken cancellationToken);
     }

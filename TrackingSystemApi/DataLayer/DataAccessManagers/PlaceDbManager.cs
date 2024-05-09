@@ -26,7 +26,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Delete(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(PlaceDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -38,7 +38,11 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 if (element != null)
                 {
                     _context.Places.Remove(element);
+
                     await _context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return true;
                 }
                 else
                 {
@@ -86,14 +90,18 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Insert(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<PlaceResponseDto> Insert(PlaceDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await _context.Places.AddAsync(CreateModel(model, new Place()));
+                Place place = new();
+
+                await _context.Places.AddAsync(CreateModel(model, place));
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(place);
             }
             catch (Exception ex)
             {
@@ -110,22 +118,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Update(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<PlaceResponseDto> Update(PlaceDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var element = await _context.Places
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
-
-                if (element == null)
-                {
-                    throw new Exception($"Помещение с Id {model.Id} не найдена");
-                }
+                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken) ?? throw new Exception($"Помещение с Id {model.Id} не найдена");
 
                 CreateModel(model, element);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(element);
             }
             catch (Exception ex)
             {
@@ -147,7 +152,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = place.Id,
                 Name = place.Name,
-                Subjects = place.Subjects.Select(x => x.Id).ToList(),
+                Subjects = place.Subjects
+                    .Select(x => x.Id)
+                    .ToList(),
             };
         }
     }

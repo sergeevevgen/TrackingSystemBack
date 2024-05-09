@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
+        Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken);
 
         /// <summary>
         /// Метод для удаления занятия
@@ -44,5 +44,21 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Метод для подготовки занятий к новому парсингу. Ставим isDifference = 0
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task ChangeIsDifferenceByWeek(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Метод для удаления занятий, которые были изменены в расписании. У них флаг IsDifference = 0 после парсинга
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken);
     }
 }

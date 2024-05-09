@@ -26,19 +26,23 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Delete(LessonDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(LessonDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 Lesson element = await _context.Lessons
                     .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value)
-                    || g.Name.Equals(model.Name), cancellationToken);
+                    || g.Name.Equals(model.Name),
+                    cancellationToken);
 
                 if (element != null)
                 {
                     _context.Lessons.Remove(element);
                     await _context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return true;
                 }
                 else
                 {
@@ -86,14 +90,18 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Insert(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto> Insert(LessonDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                await _context.Lessons.AddAsync(CreateModel(model, new Lesson()));
+                Lesson lesson = new();
+
+                await _context.Lessons.AddAsync(CreateModel(model, lesson));
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(lesson);
             }
             catch (Exception ex)
             {
@@ -110,22 +118,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task Update(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto> Update(LessonDto model, CancellationToken cancellationToken)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
                 var element = await _context.Lessons
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken);
-
-                if (element == null)
-                {
-                    throw new Exception($"Тип задания с Id {model.Id} не найден");
-                }
+                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value), cancellationToken) ?? throw new Exception($"Тип задания с Id {model.Id} не найден");
 
                 CreateModel(model, element);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                return CreateModel(element);
             }
             catch (Exception ex)
             {

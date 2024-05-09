@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Options;
 using System.Text;
+using System.Text.RegularExpressions;
 using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.BusinessLogic.DownloadLk;
 using TrackingSystem.Api.Shared.Dto.Group;
@@ -59,11 +60,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             int? tmp = await _lkClient.GetTeacherCount();
             int endFileIndex = (int)(tmp != null ? tmp : 0);
 
+            bool flag = true;
+
             for(int i = startFileIndex; i < endFileIndex; i++)
             {
                 try
                 {
-                    await ParseTimetableForTeacher(i);
+                    flag = await ParseTimetableForTeacher(i, flag);
                 }
                 catch(Exception ex)
                 {
@@ -78,7 +81,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new ResponseModel<string> { Data = "Расписание обновлено" };
         }
 
-        private async Task ParseTimetableForTeacher(int id)
+        private async Task<bool> ParseTimetableForTeacher(int id, bool flag)
         {
             // Парсим страницу
             var html = await new HtmlParser()
@@ -89,10 +92,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             var data = html.GetElementsByTagName("p")[0].Children[1].InnerHtml.Split("<br>");
             
             // Вытаскивание имени учителя
-            var name = System.Text.RegularExpressions.Regex.Replace(data[0], @"^\s|\s$", "");
+            var name = Regex.Replace(data[0], @"^\s|\s$", "");
 
             // Вытаскивание номера нечетной недели
-            var firstWeek = int.Parse(System.Text.RegularExpressions.Regex.Replace(data[1], @"\D", ""));
+            var firstWeek = int.Parse(Regex.Replace(data[1], @"\D", ""));
 
             var tabels = html.GetElementsByTagName("table");
 
@@ -101,6 +104,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             for (int week = 0; week < tabels.Length; week++)
             {
+                // Делаем isDifference = 0 для каждой недели
+                if (flag)
+                {
+                    await _subjectManager.ChangeIsDifferenceByWeek(new SubjectChangeIsDifferenceByWeekDto
+                    {
+                        Week = firstWeek + week
+                    }, default);
+                }
                 var rows = tabels[week].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr");
                 for (int i = 2; i < rows.Length; i++)
                 {
@@ -131,13 +142,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                                     Pair = (EPairNumbers) (j - 1),
                                     Week = firstWeek + (week % 2 != 0 ? 1 : 0),
                                     Type = lesson.type,
-                                    IsDifference = 1
+                                    IsDifference = EIsDifference.Actual
                                 }, default);
                             }
                         }
                     }
                 }
             }
+            return !flag;
         }
 
         /// <summary>
@@ -153,20 +165,25 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             if (tmp.StartsWith("пр"))
             {
                 type = "пр";
-                tmp = name.Substring(2);
+                tmp = name[2..];
             }
             else if (tmp.StartsWith("лек"))
             {
                 type = "лек";
-                tmp = name.Substring(3);
+                tmp = name[3..];
             }
             else if (tmp.StartsWith("лаб"))
             {
                 type = "лаб";
-                tmp = name.Substring(3);
+                tmp = name[3..];
             }
 
-            var lessonType = await _lessonManager.CreateOrUpdate(new LessonDto { Name = tmp }, default);
+            var lessonType = await _lessonManager
+                .CreateOrUpdate(new LessonDto 
+                { 
+                    Name = tmp
+                }, default);
+
             return (lessonType, type);
         }
     }
