@@ -213,7 +213,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken)
         {
-            if (model.Id.HasValue)
+            if (model != null)
             {
                 var data = await _storage.GetElement(model, cancellationToken);
                 return new ResponseModel<UserResponseDto> { Data = data };

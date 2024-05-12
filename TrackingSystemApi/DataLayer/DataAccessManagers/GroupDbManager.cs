@@ -75,8 +75,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     .Include(g => g.Subjects)
                     .Include(g => g.Users)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(g => g.Id.Equals(model.Id.Value) 
-                    || g.Name.Equals(model.Name), cancellationToken);
+                    .FirstOrDefaultAsync(g => 
+                    g.Id.Equals(model.Id.Value) 
+                    || g.Name.Contains(model.Name), cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }

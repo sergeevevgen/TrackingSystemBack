@@ -60,7 +60,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken)
         {
-            if (model.Id.HasValue)
+            if (model != null)
             {
                 var data = await _storage.GetElement(model, cancellationToken);
                 return new ResponseModel<GroupResponseDto> { Data = data };

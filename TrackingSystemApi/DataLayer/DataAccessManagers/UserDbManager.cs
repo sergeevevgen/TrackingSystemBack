@@ -232,7 +232,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     .Include(u => u.Roles)
                     .ThenInclude(ur => ur.Role)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.Login.Equals(model.Login) || u.Id.Equals(model.Id), cancellationToken);
+                    .FirstOrDefaultAsync(u => 
+                        u.Login.Equals(model.Login) || 
+                        u.Id.Equals(model.Id.Value) || 
+                        u.Name.Contains(model.Name), cancellationToken);
 
                 return element == null ? null : CreateModel(element); 
             }

@@ -60,6 +60,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             int? tmp = await _lkClient.GetTeacherCount();
             int endFileIndex = (int)(tmp != null ? tmp : 0);
 
+            // Флаг того, что надо isDifference текущей недели сделать = 0
             bool flag = true;
 
             for(int i = startFileIndex; i < endFileIndex; i++)
@@ -99,8 +100,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             var tabels = html.GetElementsByTagName("table");
 
-            // Создаем или получаем учителя
-            var teacher = await _userManager.CreateOrUpdate(new UserDto { Name = name }, default);
+            // Обновляем расписание только по тем учителям, что есть в бд, иначе нет
+            var teacher = await _userManager.Read(new UserDto { Name = name }, default);
+
+            if (teacher == null)
+            {
+                return flag;
+            }
 
             for (int week = 0; week < tabels.Length; week++)
             {
@@ -112,6 +118,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         Week = firstWeek + week
                     }, default);
                 }
+
                 var rows = tabels[week].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr");
                 for (int i = 2; i < rows.Length; i++)
                 {
@@ -121,26 +128,32 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         var item = columns[j].GetElementsByTagName("p")[0].Children[0].InnerHtml.Split("<br>");
                         if (item.Length >= 3 && item[0] != "_" && item[0] != "-" && item[0] != " ")
                         {
-                            // Создаем или получаем тип занятия
+                            // Создаем или получаем тип занятия - да, потому что из лдапа мы можем вытащить только группы и пользователей
                             var lesson = await FormatLesson(item[1]);
 
                             foreach (var gr in item[0].Split(","))
                             {
-                                // Создаем или получаем группу
-                                var group = await _groupManager.CreateOrUpdate(new GroupDto { Name = gr }, default);
+                                // Получаем группу, если ее нет в БД, то выходим из парсинга
+                                var group = await _groupManager.Read(new GroupDto { Name = gr }, default);
 
+                                if (group == null)
+                                {
+                                    return flag;
+                                } 
+
+                                // Помещение создаем или получаем
                                 var place = await _placeManager.CreateOrUpdate(new PlaceDto { Name = item[2] }, default);
 
                                 // Надо протестить всё это
                                 var result = await _subjectManager.CreateOrUpdate(new SubjectDto
                                 {
-                                    GroupId = group.Id,
+                                    GroupId = group.Data.Id,
                                     LessonId = lesson.data.Id,
                                     PlaceId = place.Id,
-                                    TeacherId = teacher.Id,
+                                    TeacherId = teacher.Data.Id,
                                     Day = i - 2,
                                     Pair = (EPairNumbers) (j - 1),
-                                    Week = firstWeek + (week % 2 != 0 ? 1 : 0),
+                                    Week = firstWeek + week,
                                     Type = lesson.type,
                                     IsDifference = EIsDifference.Actual
                                 }, default);
@@ -149,6 +162,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     }
                 }
             }
+
             return !flag;
         }
 
