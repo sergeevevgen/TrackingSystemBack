@@ -133,7 +133,7 @@ namespace WebApplication1.Controllers
         /// <param name="baseDn">The distinguished name of the base node at which to start the search</param>
         /// <param name="ldapFilter">An LDAP filter as defined by RFC4515</param>
         /// <returns>A flat list of dictionaries which in turn include attributes and the distinguished name (DN)</returns>
-        public List<Dictionary<string, string>> Search(string baseDn, string ldapFilter)
+        private List<Dictionary<string, string>> Search(string baseDn, string ldapFilter)
         {
             var request = new SearchRequest(baseDn, ldapFilter, SearchScope.Subtree, null);
             var response = (SearchResponse)connection.SendRequest(request);
@@ -162,7 +162,7 @@ namespace WebApplication1.Controllers
         /// make it easier to add meaningful information to the database.
         /// </summary>
         /// <param name="user">The user to add</param>
-        public void AddUser(UserModel user)
+        private void AddUser(UserModel user)
         {
             var sha1 = new SHA1Managed();
             var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(user.UserPassword)));
@@ -182,7 +182,7 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <param name="oldUid">Old user UID</param>
         /// <param name="newUid">New user UID</param>
-        public void ChangeUserUid(string oldUid, string newUid)
+        private void ChangeUserUid(string oldUid, string newUid)
         {
             var oldDn = string.Format("uid={0},ou=users,dc=example,dc=com", oldUid);
             var newDn = string.Format("uid={0},ou=users,dc=example,dc=com", newUid);
@@ -198,7 +198,7 @@ namespace WebApplication1.Controllers
         /// This method shows how to delete anything by its distinguised name (DN).
         /// </summary>
         /// <param name="dn">Distinguished name of the entry to delete</param>
-        public void delete(string dn)
+        private void Delete(string dn)
         {
             var request = new DeleteRequest(dn);
             connection.SendRequest(request);
@@ -212,7 +212,7 @@ namespace WebApplication1.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <returns>true if the credentials are valid, false otherwise</returns>
-        public bool ValidateUser(string username, string password)
+        private bool ValidateUser(string username, string password)
         {
             var sha1 = new SHA1Managed();
             var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)));
@@ -230,7 +230,7 @@ namespace WebApplication1.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <returns>true if the credentials are valid, false otherwise</returns>
-        public bool ValidateUserByBind(string username, string password)
+        private bool ValidateUserByBind(string username, string password)
         {
             bool result = true;
             var credentials = new NetworkCredential(username, password);
