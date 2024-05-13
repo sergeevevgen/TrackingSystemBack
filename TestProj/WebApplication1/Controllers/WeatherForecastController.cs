@@ -51,16 +51,25 @@ namespace WebApplication1.Controllers
         {
             var username = "attendance";
             var password = "YaLeKm+8ER+7&m&4&DA";
-            var domain = "lk.ulstu";
-            var url = "LDAP://lk.ulstu.ru:389/dc=ams,dc=ulstu,dc=ru";
-            var credentials = new NetworkCredential(username, password, domain);
-            var serverId = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
+            //var domain = "lk.ulstu";
+            //var url = "LDAP://lk.ulstu.ru:389/dc=ams,dc=ulstu,dc=ru";
+            //var credentials = new NetworkCredential(username, password, domain);
+            //var serverId = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
 
-            connection = new LdapConnection(serverId, credentials, AuthType.Basic) { AutoBind = false };
+            var ldapDirectoryIdentifier = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
+            var credentials = new NetworkCredential(username, password);
+            using var ldapConnection = new LdapConnection(ldapDirectoryIdentifier, credentials);
 
-            connection.SessionOptions.ProtocolVersion = 3;
-            connection.SessionOptions.SecureSocketLayer = true;
-            connection.Bind();
+            ldapConnection.SessionOptions.ProtocolVersion = 3;
+            ldapConnection.AuthType = AuthType.Basic;
+            ldapConnection.SessionOptions.ReferralChasing = ReferralChasingOptions.All;
+            ldapConnection.SessionOptions.SecureSocketLayer = true;
+
+            //connection = new LdapConnection(serverId, credentials, AuthType.Basic) { AutoBind = false };
+
+            //connection.SessionOptions.ProtocolVersion = 3;
+            //connection.SessionOptions.SecureSocketLayer = true;
+            //connection.Bind();
 
             var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
             foreach (Dictionary<string, string> d in result)
