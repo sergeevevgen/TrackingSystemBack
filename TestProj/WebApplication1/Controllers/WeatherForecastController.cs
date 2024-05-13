@@ -51,12 +51,12 @@ namespace WebApplication1.Controllers
         {
             var username = "attendance";
             var password = "YaLeKm+8ER+7&m&4&DA";
-            var domain = "lk.ulstu.ru:389";
+            var domain = "lk.ulstu";
             var url = "LDAP://lk.ulstu.ru:389/dc=ams,dc=ulstu,dc=ru";
             var credentials = new NetworkCredential(username, password, domain);
-            var serverId = new LdapDirectoryIdentifier(url);
+            var serverId = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
 
-            connection = new LdapConnection(serverId, credentials);
+            connection = new LdapConnection(serverId, credentials, AuthType.Ntlm);
             connection.Bind();
 
             var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
