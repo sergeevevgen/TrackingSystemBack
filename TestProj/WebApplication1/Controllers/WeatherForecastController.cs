@@ -55,7 +55,7 @@ namespace WebApplication1.Controllers
             string password = "YaLeKm+8ER+7&m&4&DA";
 
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
-            string searchFilter = "objectClass=ulstuPerson";
+            string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
 
             int ldapVersion = LdapConnection.LdapV3;
             try
