@@ -55,17 +55,19 @@ namespace WebApplication1.Controllers
             string password = "YaLeKm+8ER+7&m&4&DA";
 
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
-            string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
 
             int ldapVersion = LdapConnection.LdapV3;
             try
             {
+
                 LdapConnection conn = new LdapConnection();
 
                 conn.Connect(ldapHost, ldapPort);
                 conn.Bind(ldapVersion, loginDN, password);
 
-                string[] requiredAttributes = { "uid", "cn", "userPassword" };
+                string[] requiredAttributes = { "employmentType", "groupName", "course" };
                 ILdapSearchResults lsc = conn.Search(searchBase,
                                     LdapConnection.ScopeSub,
                                     searchFilter,
@@ -78,6 +80,10 @@ namespace WebApplication1.Controllers
                     try
                     {
                         nextEntry = lsc.Next();
+                        if (!nextEntry.Dn.Contains("e.sergeev"))
+                        {
+                            continue;
+                        }
                     }
                     catch (LdapException e)
                     {
@@ -90,6 +96,11 @@ namespace WebApplication1.Controllers
                     LdapAttributeSet attributeSet = nextEntry.GetAttributeSet();
                     System.Collections.IEnumerator ienum = attributeSet.GetEnumerator();
 
+                    if (attributeSet.Count == 0)
+                    {
+                        continue;
+                    } 
+                    
                     string UserLogin = "";
                     string UserPassword = "";
                     string UserFIO = "";
