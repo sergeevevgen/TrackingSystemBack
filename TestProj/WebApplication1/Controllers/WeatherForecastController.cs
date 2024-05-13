@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.DirectoryServices.Protocols;
 using System.Net;
 using System.Security.Cryptography;
+using Novell.Directory.Ldap;
 
 namespace WebApplication1.Controllers
 {
@@ -49,34 +49,93 @@ namespace WebApplication1.Controllers
 
         private void TestFuncLdap()
         {
-            var username = "attendance";
-            var password = "YaLeKm+8ER+7&m&4&DA";
-            //var domain = "lk.ulstu";
-            //var url = "LDAP://lk.ulstu.ru:389/dc=ams,dc=ulstu,dc=ru";
-            //var credentials = new NetworkCredential(username, password, domain);
-            //var serverId = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
+            string ldapHost = "lk.ustu";
+            int ldapPort = 389;
+            string loginDN = "cn=attendance,ou=services,dc=ams,dc=ulstu,dc=ru";
+            string password = "YaLeKm+8ER+7&m&4&DA";
 
-            var ldapDirectoryIdentifier = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
-            var credentials = new NetworkCredential(username, password);
-            connection = new LdapConnection(ldapDirectoryIdentifier, credentials);
+            string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
+            string searchFilter = "objectClass=ulstuPerson";
 
-            connection.SessionOptions.ProtocolVersion = 3;
-            connection.AuthType = AuthType.Basic;
-            connection.SessionOptions.ReferralChasing = ReferralChasingOptions.All;
-            connection.SessionOptions.SecureSocketLayer = true;
-
-            //connection = new LdapConnection(serverId, credentials, AuthType.Basic) { AutoBind = false };
-
-            //connection.SessionOptions.ProtocolVersion = 3;
-            //connection.SessionOptions.SecureSocketLayer = true;
-            //connection.Bind();
-            connection.Bind();
-
-            var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
-            foreach (Dictionary<string, string> d in result)
+            int ldapVersion = LdapConnection.LdapV3;
+            try
             {
-                Console.WriteLine(String.Join("\r\n", d.Select(x => x.Key + ": " + x.Value).ToArray()));
+                LdapConnection conn = new LdapConnection();
+
+                conn.Connect(ldapHost, ldapPort);
+                conn.Bind(ldapVersion, loginDN, password);
+
+                string[] requiredAttributes = { "uid", "cn", "userPassword" };
+                ILdapSearchResults lsc = conn.Search(searchBase,
+                                    LdapConnection.ScopeSub,
+                                    searchFilter,
+                                    requiredAttributes,
+                                    false);
+
+                while (lsc.HasMore())
+                {
+                    LdapEntry nextEntry = null;
+                    try
+                    {
+                        nextEntry = lsc.Next();
+                    }
+                    catch (LdapException e)
+                    {
+                        // Console.WriteLine("Error : " + e.LdapErrorMessage);
+                        continue;
+                    }
+                    // Console.WriteLine("\n" + nextEntry.Dn);
+
+                    // Атрибуты сущности
+                    LdapAttributeSet attributeSet = nextEntry.GetAttributeSet();
+                    System.Collections.IEnumerator ienum = attributeSet.GetEnumerator();
+
+                    string UserLogin = "";
+                    string UserPassword = "";
+                    string UserFIO = "";
+                    // Проход по атрибутам сущности
+                    while (ienum.MoveNext())
+                    {
+                        LdapAttribute attribute = (LdapAttribute)ienum.Current;
+
+                        // uid, cn, userPassword
+                        string attributeName = attribute.Name;
+                        string attributeVal = attribute.StringValue;
+
+                        if (attributeName.Contains("uid"))
+                        {
+                            UserLogin = attributeVal;
+                        }
+                        else if (attributeName.Contains("userPassword"))
+                        {
+                            UserPassword = attributeVal;
+                        }
+                        else if (attributeName.Contains("cn"))
+                        {
+                            UserFIO = attributeVal;
+                        }
+                    }
+                    Console.Write($"{UserFIO} {UserLogin} {UserPassword}");
+                    //await userLDAPService.Insert(new UserLDAP { UserFIO = UserFIO, UserLogin = UserLogin, UserPassword = UserPassword });
+                }
+                conn.Disconnect();
             }
+            catch (LdapException e)
+            {
+                // Console.WriteLine("Error :" + e.LdapErrorMessage);
+                return;
+            }
+            catch (Exception e)
+            {
+                // Console.WriteLine("Error :" + e.Message);
+                return;
+            }
+
+            //var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
+            //foreach (Dictionary<string, string> d in result)
+            //{
+            //    Console.WriteLine(String.Join("\r\n", d.Select(x => x.Key + ": " + x.Value).ToArray()));
+            //}
         }
 
         [HttpGet(Name = "TestDownload")]
@@ -146,122 +205,122 @@ namespace WebApplication1.Controllers
         /// <param name="baseDn">The distinguished name of the base node at which to start the search</param>
         /// <param name="ldapFilter">An LDAP filter as defined by RFC4515</param>
         /// <returns>A flat list of dictionaries which in turn include attributes and the distinguished name (DN)</returns>
-        private List<Dictionary<string, string>> Search(string baseDn, string ldapFilter)
-        {
-            var request = new SearchRequest(baseDn, ldapFilter, SearchScope.Subtree, null);
-            var response = (SearchResponse)connection.SendRequest(request);
+        //private List<Dictionary<string, string>> Search(string baseDn, string ldapFilter)
+        //{
+        //    var request = new SearchRequest(baseDn, ldapFilter, SearchScope.Subtree, null);
+        //    var response = (SearchResponse)connection.SendRequest(request);
 
-            var result = new List<Dictionary<string, string>>();
+        //    var result = new List<Dictionary<string, string>>();
 
-            foreach (SearchResultEntry entry in response.Entries)
-            {
-                var dic = new Dictionary<string, string>();
-                dic["DN"] = entry.DistinguishedName;
+        //    foreach (SearchResultEntry entry in response.Entries)
+        //    {
+        //        var dic = new Dictionary<string, string>();
+        //        dic["DN"] = entry.DistinguishedName;
 
-                foreach (string attrName in entry.Attributes.AttributeNames)
-                {
-                    //For simplicity, we ignore multi-value attributes
-                    dic[attrName] = string.Join(",", entry.Attributes[attrName].GetValues(typeof(string)));
-                }
+        //        foreach (string attrName in entry.Attributes.AttributeNames)
+        //        {
+        //            //For simplicity, we ignore multi-value attributes
+        //            dic[attrName] = string.Join(",", entry.Attributes[attrName].GetValues(typeof(string)));
+        //        }
 
-                result.Add(dic);
-            }
+        //        result.Add(dic);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        /// <summary>
-        /// Adds a user to the LDAP server database. This method is intentionally less generic than the search one to
-        /// make it easier to add meaningful information to the database.
-        /// </summary>
-        /// <param name="user">The user to add</param>
-        private void AddUser(UserModel user)
-        {
-            var sha1 = new SHA1Managed();
-            var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(user.UserPassword)));
+        ///// <summary>
+        ///// Adds a user to the LDAP server database. This method is intentionally less generic than the search one to
+        ///// make it easier to add meaningful information to the database.
+        ///// </summary>
+        ///// <param name="user">The user to add</param>
+        //private void AddUser(UserModel user)
+        //{
+        //    var sha1 = new SHA1Managed();
+        //    var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(user.UserPassword)));
 
-            var request = new AddRequest(user.DN, new DirectoryAttribute[] {
-                new DirectoryAttribute("uid", user.UID),
-                new DirectoryAttribute("ou", user.OU),
-                new DirectoryAttribute("userPassword", "{SHA}" + digest),
-                new DirectoryAttribute("objectClass", new string[] { "top", "account", "simpleSecurityObject" })
-            });
+        //    var request = new AddRequest(user.DN, new DirectoryAttribute[] {
+        //        new DirectoryAttribute("uid", user.UID),
+        //        new DirectoryAttribute("ou", user.OU),
+        //        new DirectoryAttribute("userPassword", "{SHA}" + digest),
+        //        new DirectoryAttribute("objectClass", new string[] { "top", "account", "simpleSecurityObject" })
+        //    });
 
-            connection.SendRequest(request);
-        }
+        //    connection.SendRequest(request);
+        //}
 
-        /// <summary>
-        /// This method shows how to modify an attribute.
-        /// </summary>
-        /// <param name="oldUid">Old user UID</param>
-        /// <param name="newUid">New user UID</param>
-        private void ChangeUserUid(string oldUid, string newUid)
-        {
-            var oldDn = string.Format("uid={0},ou=users,dc=example,dc=com", oldUid);
-            var newDn = string.Format("uid={0},ou=users,dc=example,dc=com", newUid);
+        ///// <summary>
+        ///// This method shows how to modify an attribute.
+        ///// </summary>
+        ///// <param name="oldUid">Old user UID</param>
+        ///// <param name="newUid">New user UID</param>
+        //private void ChangeUserUid(string oldUid, string newUid)
+        //{
+        //    var oldDn = string.Format("uid={0},ou=users,dc=example,dc=com", oldUid);
+        //    var newDn = string.Format("uid={0},ou=users,dc=example,dc=com", newUid);
 
-            DirectoryRequest request = new ModifyDNRequest(oldDn, "ou=users,dc=example,dc=com", "uid=" + newUid);
-            connection.SendRequest(request);
+        //    DirectoryRequest request = new ModifyDNRequest(oldDn, "ou=users,dc=example,dc=com", "uid=" + newUid);
+        //    connection.SendRequest(request);
 
-            request = new ModifyRequest(newDn, DirectoryAttributeOperation.Replace, "uid", new string[] { newUid });
-            connection.SendRequest(request);
-        }
+        //    request = new ModifyRequest(newDn, DirectoryAttributeOperation.Replace, "uid", new string[] { newUid });
+        //    connection.SendRequest(request);
+        //}
 
-        /// <summary>
-        /// This method shows how to delete anything by its distinguised name (DN).
-        /// </summary>
-        /// <param name="dn">Distinguished name of the entry to delete</param>
-        private void Delete(string dn)
-        {
-            var request = new DeleteRequest(dn);
-            connection.SendRequest(request);
-        }
+        ///// <summary>
+        ///// This method shows how to delete anything by its distinguised name (DN).
+        ///// </summary>
+        ///// <param name="dn">Distinguished name of the entry to delete</param>
+        //private void Delete(string dn)
+        //{
+        //    var request = new DeleteRequest(dn);
+        //    connection.SendRequest(request);
+        //}
 
-        /// <summary>
-        /// Searches for a user and compares the password.
-        /// We assume all users are at base DN ou=users,dc=example,dc=com and that passwords are
-        /// hashed using SHA1 (no salt) in OpenLDAP format.
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="password">Password</param>
-        /// <returns>true if the credentials are valid, false otherwise</returns>
-        private bool ValidateUser(string username, string password)
-        {
-            var sha1 = new SHA1Managed();
-            var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)));
-            var request = new CompareRequest(string.Format("uid={0},ou=users,dc=example,dc=com", username),
-                "userPassword", "{SHA}" + digest);
-            var response = (CompareResponse)connection.SendRequest(request);
-            return response.ResultCode == ResultCode.CompareTrue;
-        }
+        ///// <summary>
+        ///// Searches for a user and compares the password.
+        ///// We assume all users are at base DN ou=users,dc=example,dc=com and that passwords are
+        ///// hashed using SHA1 (no salt) in OpenLDAP format.
+        ///// </summary>
+        ///// <param name="username">Username</param>
+        ///// <param name="password">Password</param>
+        ///// <returns>true if the credentials are valid, false otherwise</returns>
+        //private bool ValidateUser(string username, string password)
+        //{
+        //    var sha1 = new SHA1Managed();
+        //    var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password)));
+        //    var request = new CompareRequest(string.Format("uid={0},ou=users,dc=example,dc=com", username),
+        //        "userPassword", "{SHA}" + digest);
+        //    var response = (CompareResponse)connection.SendRequest(request);
+        //    return response.ResultCode == ResultCode.CompareTrue;
+        //}
 
-        /// <summary>
-        /// Another way of validating a user is by performing a bind. In this case the server
-        /// queries its own database to validate the credentials. It is defined by the server
-        /// how a user is mapped to its directory.
-        /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="password">Password</param>
-        /// <returns>true if the credentials are valid, false otherwise</returns>
-        private bool ValidateUserByBind(string username, string password)
-        {
-            bool result = true;
-            var credentials = new NetworkCredential(username, password);
-            var serverId = new LdapDirectoryIdentifier(connection.SessionOptions.HostName);
+        ///// <summary>
+        ///// Another way of validating a user is by performing a bind. In this case the server
+        ///// queries its own database to validate the credentials. It is defined by the server
+        ///// how a user is mapped to its directory.
+        ///// </summary>
+        ///// <param name="username">Username</param>
+        ///// <param name="password">Password</param>
+        ///// <returns>true if the credentials are valid, false otherwise</returns>
+        //private bool ValidateUserByBind(string username, string password)
+        //{
+        //    bool result = true;
+        //    var credentials = new NetworkCredential(username, password);
+        //    var serverId = new LdapDirectoryIdentifier(connection.SessionOptions.HostName);
 
-            var conn = new LdapConnection(serverId, credentials);
-            try
-            {
-                conn.Bind();
-            }
-            catch (Exception)
-            {
-                result = false;
-            }
+        //    var conn = new LdapConnection(serverId, credentials);
+        //    try
+        //    {
+        //        conn.Bind();
+        //    }
+        //    catch (Exception)
+        //    {
+        //        result = false;
+        //    }
 
-            conn.Dispose();
+        //    conn.Dispose();
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }
