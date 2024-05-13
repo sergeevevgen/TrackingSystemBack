@@ -56,7 +56,10 @@ namespace WebApplication1.Controllers
             var credentials = new NetworkCredential(username, password, domain);
             var serverId = new LdapDirectoryIdentifier(server: "lk.ulstu.ru", 389);
 
-            connection = new LdapConnection(serverId, credentials, AuthType.Ntlm);
+            connection = new LdapConnection(serverId, credentials, AuthType.Basic) { AutoBind = false };
+
+            connection.SessionOptions.ProtocolVersion = 3;
+            connection.SessionOptions.SecureSocketLayer = true;
             connection.Bind();
 
             var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
