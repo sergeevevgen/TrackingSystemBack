@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Security.Cryptography;
-using Novell.Directory.Ldap;
+//using Novell.Directory.Ldap;
+using System.DirectoryServices.Protocols;
 
 namespace WebApplication1.Controllers
 {
@@ -38,7 +39,7 @@ namespace WebApplication1.Controllers
             .ToArray();
         }
 
-        private LdapConnection connection;
+        //private LdapConnection connection;
 
         [HttpGet(Name = "Test2")]
         public async Task<string> Test2()
@@ -47,7 +48,6 @@ namespace WebApplication1.Controllers
             return "Ok";
         }
 
-        // Можно, конечно, сделать сначала общую выгрузку по ulstuPerson, а затем уже по логину проходится по ulstuJob и ulstuPerson
         private void TestFuncLdap()
         {
             string ldapHost = "lk.ustu";
@@ -55,98 +55,148 @@ namespace WebApplication1.Controllers
             string loginDN = "cn=attendance,ou=services,dc=ams,dc=ulstu,dc=ru";
             string password = "YaLeKm+8ER+7&m&4&DA";
 
+            var server = new LdapDirectoryIdentifier(ldapHost, ldapPort);
+            var credentials = new NetworkCredential(loginDN, password);
+
+            var cn = new LdapConnection(server);
+            cn.AuthType = AuthType.Basic;
+            cn.Bind(credentials);
+
+            string filter = "(&(objectClass=ulstuCourse)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
-            //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
-            //string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
-            string searchFilter = "(objectClass=ulstuCourse)";
-            int ldapVersion = LdapConnection.LdapV3;
-            try
-            {
-
-                LdapConnection conn = new LdapConnection();
-
-                conn.Connect(ldapHost, ldapPort);
-                conn.Bind(ldapVersion, loginDN, password);
-
-                string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
-                //ILdapSearchResults lsc = conn.Search(searchBase,
-                //                    LdapConnection.ScopeSub,
-                //                    searchFilter,
-                //                    requiredAttributes,
-                //                    false);
-                ILdapSearchResults lsc = conn.Search(searchBase,
-                                    LdapConnection.ScopeSub,
-                                    searchFilter,
-                                    null,
-                                    false);
-
-                while (lsc.HasMore())
-                {
-                    LdapEntry nextEntry = null;
-                    try
-                    {
-                        nextEntry = lsc.Next();
-                        if (!nextEntry.Dn.Contains("e.sergeev"))
-                        {
-                            continue;
-                        }
-                    }
-                    catch (LdapException e)
-                    {
-                        // Console.WriteLine("Error : " + e.LdapErrorMessage);
-                        continue;
-                    }
-                    // Console.WriteLine("\n" + nextEntry.Dn);
-
-                    // Атрибуты сущности
-                    LdapAttributeSet attributeSet = nextEntry.GetAttributeSet();
-                    System.Collections.IEnumerator ienum = attributeSet.GetEnumerator();
-
-                    if (attributeSet.Count == 0)
-                    {
-                        continue;
-                    } 
-                    
-                    string UserLogin = "";
-                    string UserPassword = "";
-                    string UserFIO = "";
-                    // Проход по атрибутам сущности
-                    while (ienum.MoveNext())
-                    {
-                        LdapAttribute attribute = (LdapAttribute)ienum.Current;
-
-                        // uid, cn, userPassword
-                        string attributeName = attribute.Name;
-                        string attributeVal = attribute.StringValue;
-
-                        if (attributeName.Contains("uid"))
-                        {
-                            UserLogin = attributeVal;
-                        }
-                        else if (attributeName.Contains("userPassword"))
-                        {
-                            UserPassword = attributeVal;
-                        }
-                        else if (attributeName.Contains("cn"))
-                        {
-                            UserFIO = attributeVal;
-                        }
-                    }
-                    Console.Write($"{UserFIO} {UserLogin} {UserPassword}");
-                }
-                conn.Disconnect();
-            }
-            catch (LdapException e)
-            {
-                Console.WriteLine("Error :" + e.LdapErrorMessage);
-                return;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error :" + e.Message);
-                return;
-            }
+            Search(cn, filter, searchBase);
         }
+
+        private IEnumerable<object> Search(LdapConnection cn, string filter, string searchBase = "")
+        {
+            string[] attributes = { "cn", "userPassword", "uid", "lastName" };
+            var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
+            var resp = (SearchResponse)cn.SendRequest(req);
+
+            foreach (SearchResultEntry entry in resp.Entries)
+            {
+                var user = new
+                {
+                    Name = GetStringAttribute(entry, "cn"),
+                    Mail = GetStringAttribute(entry, "userPassword"),
+                    Company = GetStringAttribute(entry, "uid"),
+                    Location = GetStringAttribute(entry, "lastName")
+                };
+                yield return user;
+            }
+            yield break;
+        }
+
+        private string GetStringAttribute(SearchResultEntry entry, string key)
+        {
+            if (!entry.Attributes.Contains(key))
+            {
+                return string.Empty;
+            }
+            string[] rawVal = (string[])entry.Attributes[key].GetValues(typeof(string));
+            return rawVal[0];
+        }
+
+        // Можно, конечно, сделать сначала общую выгрузку по ulstuPerson, а затем уже по логину проходится по ulstuJob и ulstuPerson
+        //private void TestFuncLdap()
+        //{
+        //    string ldapHost = "lk.ustu";
+        //    int ldapPort = 389;
+        //    string loginDN = "cn=attendance,ou=services,dc=ams,dc=ulstu,dc=ru";
+        //    string password = "YaLeKm+8ER+7&m&4&DA";
+
+        //    string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
+        //    //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+        //    //string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
+        //    string searchFilter = "(objectClass=ulstuCourse)";
+        //    int ldapVersion = LdapConnection.LdapV3;
+        //    try
+        //    {
+
+        //        LdapConnection conn = new LdapConnection();
+
+        //        conn.Connect(ldapHost, ldapPort);
+        //        conn.Bind(ldapVersion, loginDN, password);
+
+        //        string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
+        //        //ILdapSearchResults lsc = conn.Search(searchBase,
+        //        //                    LdapConnection.ScopeSub,
+        //        //                    searchFilter,
+        //        //                    requiredAttributes,
+        //        //                    false);
+        //        ILdapSearchResults lsc = conn.Search(searchBase,
+        //                            LdapConnection.ScopeSub,
+        //                            searchFilter,
+        //                            null,
+        //                            false);
+
+        //        while (lsc.HasMore())
+        //        {
+        //            LdapEntry nextEntry = null;
+        //            try
+        //            {
+        //                nextEntry = lsc.Next();
+        //                if (!nextEntry.Dn.Contains("e.sergeev"))
+        //                {
+        //                    continue;
+        //                }
+        //            }
+        //            catch (LdapException e)
+        //            {
+        //                // Console.WriteLine("Error : " + e.LdapErrorMessage);
+        //                continue;
+        //            }
+        //            // Console.WriteLine("\n" + nextEntry.Dn);
+
+        //            // Атрибуты сущности
+        //            LdapAttributeSet attributeSet = nextEntry.GetAttributeSet();
+        //            System.Collections.IEnumerator ienum = attributeSet.GetEnumerator();
+
+        //            if (attributeSet.Count == 0)
+        //            {
+        //                continue;
+        //            } 
+
+        //            string UserLogin = "";
+        //            string UserPassword = "";
+        //            string UserFIO = "";
+        //            // Проход по атрибутам сущности
+        //            while (ienum.MoveNext())
+        //            {
+        //                LdapAttribute attribute = (LdapAttribute)ienum.Current;
+
+        //                // uid, cn, userPassword
+        //                string attributeName = attribute.Name;
+        //                string attributeVal = attribute.StringValue;
+
+        //                if (attributeName.Contains("uid"))
+        //                {
+        //                    UserLogin = attributeVal;
+        //                }
+        //                else if (attributeName.Contains("userPassword"))
+        //                {
+        //                    UserPassword = attributeVal;
+        //                }
+        //                else if (attributeName.Contains("cn"))
+        //                {
+        //                    UserFIO = attributeVal;
+        //                }
+        //            }
+        //            Console.Write($"{UserFIO} {UserLogin} {UserPassword}");
+        //        }
+        //        conn.Disconnect();
+        //    }
+        //    catch (LdapException e)
+        //    {
+        //        Console.WriteLine("Error :" + e.LdapErrorMessage);
+        //        return;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("Error :" + e.Message);
+        //        return;
+        //    }
+        //}
 
         [HttpGet(Name = "TestDownload")]
         public async Task Download()
