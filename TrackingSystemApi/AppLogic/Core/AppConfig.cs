@@ -65,5 +65,25 @@
         /// Пароль для доступа в lms.lk.ulstu
         /// </summary>
         public string LkPassword { get; set; } = null!;
+
+        /// <summary>
+        /// Адрес сервера LDAP
+        /// </summary>
+        public string LdapHost { get; set; } = null!;
+
+        /// <summary>
+        /// Порт сервера LDAP
+        /// </summary>
+        public int LdapPort { get; set; }
+
+        /// <summary>
+        /// Логин пользователя LDAP
+        /// </summary>
+        public string LdapLoginDn { get; set; } = null!;
+
+        /// <summary>
+        /// Пароль пользователя LDAP
+        /// </summary>
+        public string LdapPassword { get; set; } = null!;
     }
 }

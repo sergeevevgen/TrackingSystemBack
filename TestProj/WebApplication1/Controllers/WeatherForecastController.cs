@@ -48,6 +48,7 @@ namespace WebApplication1.Controllers
             return "Ok";
         }
 
+        private readonly string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
         private void TestFuncLdap()
         {
             string ldapHost = "lk.ustu";
@@ -65,15 +66,14 @@ namespace WebApplication1.Controllers
 
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             
-            string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
             object sergeev;
-            var list = SearchForUsers(cn, filter, searchBase);
+            var list = SearchForUserAccounts(cn, filter);
             var count = 0;
             foreach (var el in list)
             {
                 Console.WriteLine(el.ToString());
 
-                if (el.ToString().Contains("e.sergeev"))
+                if (el.CN.Contains("e.sergeev"))
                 {
                     sergeev = el;
                 }
@@ -84,12 +84,12 @@ namespace WebApplication1.Controllers
             object sergeev2;
             
             string filter1 = "(objectClass=ulstuCourse)";
-            var list2 = SearchForCourses(cn, filter1, searchBase);
+            var list2 = SearchForCourses(cn, filter1);
             foreach (var el in list2)
             {
                 Console.WriteLine(el.ToString());
 
-                if (el.ToString().Contains("e.sergeev"))
+                if (el.CN.Contains("e.sergeev"))
                 {
                     sergeev2 = el;
                 }
@@ -99,11 +99,11 @@ namespace WebApplication1.Controllers
             object sergeev3;
            
             string filter2 = "(objectClass=ulstuJob)";
-            var list3 = SearchForJobs(cn, filter2, searchBase);
+            var list3 = SearchForJobs(cn, filter2);
             foreach (var el in list3)
             {
                 Console.WriteLine(el.ToString());
-                if (el.ToString().Contains("e.sergeev"))
+                if (el.CN.Contains("e.sergeev"))
                 {
                     sergeev3 = el;
                 }
@@ -113,62 +113,85 @@ namespace WebApplication1.Controllers
             cn.Dispose();
         }
 
-        private IEnumerable<object> SearchForUsers(LdapConnection cn, string filter, string searchBase)
+        /// <summary>
+        /// Метод для вытаскивания аккаунтов пользователей из LDAP
+        /// </summary>
+        /// <param name="cn"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        private IEnumerable<UserFromLdapDto> SearchForUserAccounts(LdapConnection cn, string filter)
         {
-            string[] attributes = { "cn", "userPassword", "uid", "lastName" };
+            string[] attributes = { "cn", "userPassword", "uid", "firstName", "lastName", "middleName" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
             var resp = (SearchResponse)cn.SendRequest(req);
 
             foreach (SearchResultEntry entry in resp.Entries)
             {
-                var user = new
+                var user = new UserFromLdapDto
                 {
-                    Name = GetStringAttribute(entry, "cn"),
-                    Mail = GetStringAttribute(entry, "userPassword"),
-                    Company = GetStringAttribute(entry, "uid"),
-                    Location = GetStringAttribute(entry, "lastName")
+                    CN = GetStringAttribute(entry, "cn"),
+                    Password = GetStringAttribute(entry, "userPassword"),
+                    UID = GetStringAttribute(entry, "uid"),
+                    FirstName = GetStringAttribute(entry, "firstName"),
+                    LastName = GetStringAttribute(entry, "lastName"),
+                    MiddleName = GetStringAttribute(entry, "middleName")
                 };
                 yield return user;
             }
             yield break;
         }
 
-        private IEnumerable<object> SearchForCourses(LdapConnection cn, string filter, string searchBase)
+        /// <summary>
+        /// Метод для вытаскивания информации по обучению пользователя из LDAP
+        /// </summary>
+        /// <param name="cn"></param>
+        /// <param name="filter"></param>
+        /// <param name="searchBase"></param>
+        /// <returns></returns>
+        private IEnumerable<UserGroupLdapDto> SearchForCourses(LdapConnection cn, string filter)
         {
-            string[] attributes = { "cn", "course", "currentState", "faculty", "groupName" };
+            string[] attributes = { "course", "currentState", "faculty", "groupName", "specialty" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
             var resp = (SearchResponse)cn.SendRequest(req);
 
             foreach (SearchResultEntry entry in resp.Entries)
             {
-                var user = new
+                var user = new UserGroupLdapDto
                 {
-                    Name = entry.DistinguishedName,
+                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
                     Course = GetStringAttribute(entry, "course"),
                     CurrentState = GetStringAttribute(entry, "currentState"),
                     Faculty = GetStringAttribute(entry, "faculty"),
-                    GroupName = GetStringAttribute(entry, "groupName")
+                    GroupName = GetStringAttribute(entry, "groupName"),
+                    Specialty = GetStringAttribute(entry, "specialty")
                 };
                 yield return user;
             }
             yield break;
         }
 
-        private IEnumerable<object> SearchForJobs(LdapConnection cn, string filter, string searchBase)
+        /// <summary>
+        /// Метод для вытаскивания информации по работе пользователя из LDAP
+        /// </summary>
+        /// <param name="cn"></param>
+        /// <param name="filter"></param>
+        /// <param name="searchBase"></param>
+        /// <returns></returns>
+        private IEnumerable<UserJobLdapDto> SearchForJobs(LdapConnection cn, string filter)
         {
-            string[] attributes = { "cn", "department", "departmentID", "employmentType", "jobStake" };
+            string[] attributes = { "jobTitle", "jobStake", "employmentType", "jobType" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
             var resp = (SearchResponse)cn.SendRequest(req);
 
             foreach (SearchResultEntry entry in resp.Entries)
             {
-                var user = new
+                var user = new UserJobLdapDto
                 {
-                    Name = entry.DistinguishedName,
-                    Department = GetStringAttribute(entry, "department"),
-                    DepartmentID = GetStringAttribute(entry, "departmentID"),
-                    EmploymentType = GetStringAttribute(entry, "employmentType"),
+                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
+                    JobTitle = GetStringAttribute(entry, "jobTitle"),
                     JobStake = GetStringAttribute(entry, "jobStake"),
+                    EmploymentType = GetStringAttribute(entry, "employmentType"),
+                    JobType = GetStringAttribute(entry, "jobType")
                 };
                 yield return user;
             }
