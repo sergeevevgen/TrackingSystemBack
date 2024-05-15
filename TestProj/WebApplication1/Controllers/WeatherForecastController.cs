@@ -69,10 +69,15 @@ namespace WebApplication1.Controllers
                 conn.Bind(ldapVersion, loginDN, password);
 
                 string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
+                //ILdapSearchResults lsc = conn.Search(searchBase,
+                //                    LdapConnection.ScopeSub,
+                //                    searchFilter,
+                //                    requiredAttributes,
+                //                    false);
                 ILdapSearchResults lsc = conn.Search(searchBase,
                                     LdapConnection.ScopeSub,
                                     searchFilter,
-                                    requiredAttributes,
+                                    null,
                                     false);
 
                 while (lsc.HasMore())
