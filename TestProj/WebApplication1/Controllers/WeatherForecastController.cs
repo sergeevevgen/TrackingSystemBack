@@ -64,11 +64,56 @@ namespace WebApplication1.Controllers
             cn.Bind(credentials);
 
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
-            Search(cn, filter, searchBase);
+            object sergeev;
+            var list = SearchForUsers(cn, filter, searchBase);
+            var count = 0;
+            foreach (var el in list)
+            {
+                Console.WriteLine(el.ToString());
+
+                if (el.ToString().Contains("e.sergeev"))
+                {
+                    sergeev = el;
+                }
+
+                count++;
+            }
+
+            object sergeev2;
+            
+            string filter1 = "(objectClass=ulstuCourse)";
+            var list2 = SearchForCourses(cn, filter1, searchBase);
+            foreach (var el in list2)
+            {
+                Console.WriteLine(el.ToString());
+
+                if (el.ToString().Contains("e.sergeev"))
+                {
+                    sergeev2 = el;
+                }
+                count++;
+            }
+
+            object sergeev3;
+           
+            string filter2 = "(objectClass=ulstuJob)";
+            var list3 = SearchForJobs(cn, filter2, searchBase);
+            foreach (var el in list3)
+            {
+                Console.WriteLine(el.ToString());
+                if (el.ToString().Contains("e.sergeev"))
+                {
+                    sergeev3 = el;
+                }
+                count++;
+            }
+
+            cn.Dispose();
         }
 
-        private IEnumerable<object> Search(LdapConnection cn, string filter, string searchBase = "")
+        private IEnumerable<object> SearchForUsers(LdapConnection cn, string filter, string searchBase)
         {
             string[] attributes = { "cn", "userPassword", "uid", "lastName" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
@@ -88,7 +133,49 @@ namespace WebApplication1.Controllers
             yield break;
         }
 
-        private string GetStringAttribute(SearchResultEntry entry, string key)
+        private IEnumerable<object> SearchForCourses(LdapConnection cn, string filter, string searchBase)
+        {
+            string[] attributes = { "cn", "course", "currentState", "faculty", "groupName" };
+            var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
+            var resp = (SearchResponse)cn.SendRequest(req);
+
+            foreach (SearchResultEntry entry in resp.Entries)
+            {
+                var user = new
+                {
+                    Name = entry.DistinguishedName,
+                    Course = GetStringAttribute(entry, "course"),
+                    CurrentState = GetStringAttribute(entry, "currentState"),
+                    Faculty = GetStringAttribute(entry, "faculty"),
+                    GroupName = GetStringAttribute(entry, "groupName")
+                };
+                yield return user;
+            }
+            yield break;
+        }
+
+        private IEnumerable<object> SearchForJobs(LdapConnection cn, string filter, string searchBase)
+        {
+            string[] attributes = { "cn", "department", "departmentID", "employmentType", "jobStake" };
+            var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
+            var resp = (SearchResponse)cn.SendRequest(req);
+
+            foreach (SearchResultEntry entry in resp.Entries)
+            {
+                var user = new
+                {
+                    Name = entry.DistinguishedName,
+                    Department = GetStringAttribute(entry, "department"),
+                    DepartmentID = GetStringAttribute(entry, "departmentID"),
+                    EmploymentType = GetStringAttribute(entry, "employmentType"),
+                    JobStake = GetStringAttribute(entry, "jobStake"),
+                };
+                yield return user;
+            }
+            yield break;
+        }
+
+        private static string GetStringAttribute(SearchResultEntry entry, string key)
         {
             if (!entry.Attributes.Contains(key))
             {
