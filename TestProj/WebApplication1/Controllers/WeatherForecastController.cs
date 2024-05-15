@@ -47,6 +47,7 @@ namespace WebApplication1.Controllers
             return "Ok";
         }
 
+        // Можно, конечно, сделать сначала общую выгрузку по ulstuPerson, а затем уже по логину проходится по ulstuJob и ulstuPerson
         private void TestFuncLdap()
         {
             string ldapHost = "lk.ustu";
@@ -57,7 +58,7 @@ namespace WebApplication1.Controllers
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
             //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             //string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
-            string searchFilter = "(objectClass=*)";
+            string searchFilter = "(objectClass=ulstuCourse)";
             int ldapVersion = LdapConnection.LdapV3;
             try
             {
