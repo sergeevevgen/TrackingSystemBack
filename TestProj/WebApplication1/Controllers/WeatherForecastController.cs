@@ -62,7 +62,7 @@ namespace WebApplication1.Controllers
             cn.AuthType = AuthType.Basic;
             cn.Bind(credentials);
 
-            string filter = "(&(objectClass=ulstuCourse)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
             Search(cn, filter, searchBase);
         }
