@@ -56,8 +56,8 @@ namespace WebApplication1.Controllers
 
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
             //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
-            string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
-
+            //string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
+            string searchFilter = "(objectClass=*)";
             int ldapVersion = LdapConnection.LdapV3;
             try
             {
@@ -127,26 +127,19 @@ namespace WebApplication1.Controllers
                         }
                     }
                     Console.Write($"{UserFIO} {UserLogin} {UserPassword}");
-                    //await userLDAPService.Insert(new UserLDAP { UserFIO = UserFIO, UserLogin = UserLogin, UserPassword = UserPassword });
                 }
                 conn.Disconnect();
             }
             catch (LdapException e)
             {
-                // Console.WriteLine("Error :" + e.LdapErrorMessage);
+                Console.WriteLine("Error :" + e.LdapErrorMessage);
                 return;
             }
             catch (Exception e)
             {
-                // Console.WriteLine("Error :" + e.Message);
+                Console.WriteLine("Error :" + e.Message);
                 return;
             }
-
-            //var result = Search("ou=accounts,dc=ams,dc=ulstu,dc=ru", "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))");
-            //foreach (Dictionary<string, string> d in result)
-            //{
-            //    Console.WriteLine(String.Join("\r\n", d.Select(x => x.Key + ": " + x.Value).ToArray()));
-            //}
         }
 
         [HttpGet(Name = "TestDownload")]
