@@ -68,7 +68,7 @@ namespace WebApplication1.Controllers
                 conn.Connect(ldapHost, ldapPort);
                 conn.Bind(ldapVersion, loginDN, password);
 
-                string[] requiredAttributes = { "employmentType", "groupName", "course" };
+                string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
                 ILdapSearchResults lsc = conn.Search(searchBase,
                                     LdapConnection.ScopeSub,
                                     searchFilter,
