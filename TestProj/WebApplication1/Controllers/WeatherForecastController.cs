@@ -59,6 +59,7 @@ namespace WebApplication1.Controllers
             var credentials = new NetworkCredential(loginDN, password);
 
             var cn = new LdapConnection(server);
+            cn.SessionOptions.ProtocolVersion = 3;
             cn.AuthType = AuthType.Basic;
             cn.Bind(credentials);
 
