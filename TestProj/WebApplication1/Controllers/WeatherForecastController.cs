@@ -56,9 +56,9 @@ namespace WebApplication1.Controllers
             string password = "YaLeKm+8ER+7&m&4&DA";
 
             string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
-            //string searchFilter = "(&(|(objectClass=ulstuPerson)(objectClass=ulstuJob)(objectClass=ulstuCourse))(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            string searchFilter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             //string searchFilter = "(|(objectClass=ulstuJob)(objectClass=ulstuCourse))";
-            string searchFilter = "(objectClass=ulstuCourse)";
+            //string searchFilter = "(objectClass=ulstuJob)";
             int ldapVersion = LdapConnection.LdapV3;
             try
             {
@@ -68,20 +68,22 @@ namespace WebApplication1.Controllers
                 conn.Connect(ldapHost, ldapPort);
                 conn.Bind(ldapVersion, loginDN, password);
 
-                string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
-                //ILdapSearchResults lsc = conn.Search(searchBase,
-                //                    LdapConnection.ScopeSub,
-                //                    searchFilter,
-                //                    requiredAttributes,
-                //                    false);
+                //string[] requiredAttributes = { "groupName", "course", "faculty", "entryDN" };
+                //string[] requiredAttributes = { "department", "employmentType", "jobDataSource", "jobStake" };
+                string[] requiredAttributes = { "cn", "uid", "userPassword", "firstName" };
                 ILdapSearchResults lsc = conn.Search(searchBase,
                                     LdapConnection.ScopeSub,
                                     searchFilter,
-                                    null,
+                                    requiredAttributes,
                                     false);
-
+                int count = 0;
                 while (lsc.HasMore())
                 {
+                    if (count < lsc.Count)
+                    {
+                        count = lsc.Count;
+                    }
+                   
                     LdapEntry nextEntry = null;
                     try
                     {
@@ -134,6 +136,7 @@ namespace WebApplication1.Controllers
                     }
                     Console.Write($"{UserFIO} {UserLogin} {UserPassword}");
                 }
+                Console.WriteLine(count);
                 conn.Disconnect();
             }
             catch (LdapException e)
