@@ -3,6 +3,8 @@ using System.DirectoryServices.Protocols;
 using System.Net;
 using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.Shared.Dto.User;
+using TrackingSystem.Api.Shared.Enums;
+using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {
@@ -10,16 +12,49 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
     {
         private readonly ILogger _logger;
         private readonly AppConfig _appConfig;
-
+        private readonly IUserManager _manager;
         // Базовая строка поиска в LDAP
         private readonly string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
 
-        public LdapManager(ILogger logger, IOptions<AppConfig> options)
+        public LdapManager(
+            ILogger logger, 
+            IOptions<AppConfig> options,
+            IUserManager manager)
         {
             _logger = logger;
             _appConfig = options.Value;
+            _manager = manager;
         }
 
+        public async Task CanAuthorize(UserLoginDto dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                //user=f'uid={username},ou={LDAP_OU_TEXT},dc={LDAP_BASE_DOMAIN}',
+                string s = "dc=ams,dc=ulstu,dc=ru";
+                // Подключение к серверу LDAP
+                var server = new LdapDirectoryIdentifier(_appConfig.LdapHost, _appConfig.LdapPort);
+
+                // Креды для доступа к серверу
+                var credentials = new NetworkCredential($"uid={dto.Login},ou=services,{s}", dto.Password);
+
+                // Создаем подключение к серверу LDAP
+                var cn = new LdapConnection(server);
+                cn.SessionOptions.ProtocolVersion = 3;
+                cn.AuthType = AuthType.Basic;
+                cn.Bind(credentials);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Возникла ошибка в процессе авторизации с LDAP {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Метод для синхронизации с Ldap
+        /// </summary>
+        /// <returns></returns>
         public async Task SynchWithLdap()
         {
             _logger.Info("Начало синхронизации с LDAP");
@@ -36,7 +71,76 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 cn.AuthType = AuthType.Basic;
                 cn.Bind(credentials);
 
-                
+                // Главный лист с пользователями
+                var mainList = new List<UserLdapDto>();
+
+                // Лист с аккаунтами
+                var listAccounts = SearchForUserAccounts(cn);
+
+                // Лист с инфой об учёбе
+                var listCourse = SearchForCourses(cn);
+
+                // Лист с инфой о работе
+                var listJob = SearchForJobs(cn);
+
+                // Добавляем элементы в главный лист
+                foreach(var element in listAccounts)
+                {
+                    mainList.Add(new UserLdapDto
+                    {
+                        UserLogin = element.UID,
+                        Password = element.Password,
+                        FirstName = element.FirstName,
+                        LastName = element.LastName,
+                        MiddleName = element.MiddleName
+                    });
+                }
+
+                // Вытаскиваем элементы из листа с учёбой
+                var courseList = new List<UserGroupLdapDto>();
+                foreach(var element in listCourse)
+                {
+                    courseList.Add(element);
+                }
+
+                // Вытаскиваем элементы из листа с работой
+                var jobList = new List<UserJobLdapDto>();
+                foreach(var element in listJob)
+                {
+                    jobList.Add(element);
+                }
+
+                // Сливаем их вместе
+                foreach (var c in courseList)
+                {
+                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(c.UID));
+
+                    if (user != null)
+                    {
+                        user.Role = ERoles.Pupil;
+                        user.Group = c.GroupName;
+                        user.Status = EStatus.Is_Studying;
+                    }
+                }
+
+                foreach (var job in jobList)
+                {
+                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID));
+
+                    if (user != null)
+                    {
+                        user.Role = ERoles.Teacher;
+                        user.Group = null;
+                        user.Status = null;
+                    }
+                }
+
+                foreach (var user in mainList)
+                {
+                    await _manager.CreateOrUpdateFromLdap(user, default);
+                }
+
+                cn.Dispose();
             }
             catch (Exception ex)
             {
@@ -92,7 +196,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 var user = new UserGroupLdapDto
                 {
-                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
+                    UID = entry.DistinguishedName.Split(",")[1].Split("=")[1],
                     Course = GetStringAttribute(entry, "course"),
                     CurrentState = GetStringAttribute(entry, "currentState"),
                     Faculty = GetStringAttribute(entry, "faculty"),
@@ -122,7 +226,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 var user = new UserJobLdapDto
                 {
-                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
+                    UID = entry.DistinguishedName.Split(",")[1].Split("=")[1],
                     JobTitle = GetStringAttribute(entry, "jobTitle"),
                     JobStake = GetStringAttribute(entry, "jobStake"),
                     EmploymentType = GetStringAttribute(entry, "employmentType"),

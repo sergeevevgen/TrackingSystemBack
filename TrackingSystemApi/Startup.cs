@@ -50,6 +50,10 @@ namespace TrackingSystem.Api
                     { "AppConfig:EnableSsl", appConfig.EnableSsl.ToString() },
                     { "AppConfig:LkLogin", appConfig.LkLogin },
                     { "AppConfig:LkPassword", appConfig.LkPassword },
+                    { "AppConfig:LdapHost", appConfig.LdapHost },
+                    { "AppConfig:LdapPort", appConfig.LdapPort.ToString() },
+                    { "AppConfig:LdapLoginDn", appConfig.LdapLoginDn },
+                    { "AppConfig:LdapPassword", appConfig.LdapPassword },
                 });
 
             var configuration = configBuilder.Build();
@@ -203,6 +207,17 @@ namespace TrackingSystem.Api
                 appConfig.EnableSsl = enableSsl;
             }
 
+            appConfig.LdapHost = Environment.GetEnvironmentVariable("LDAP_HOST") ?? appConfig.LdapHost;
+
+            if (int.TryParse(Environment.GetEnvironmentVariable("LDAP_PORT"), out int ldapPort))
+            {
+                appConfig.LdapPort = ldapPort;
+            }
+
+            appConfig.LdapLoginDn = Environment.GetEnvironmentVariable("LDAP_LOGIN_DN") ?? appConfig.LdapLoginDn;
+
+            appConfig.LdapPassword = Environment.GetEnvironmentVariable("LDAP_PASSWORD") ?? appConfig.LdapPassword;
+
             Configuration["AppConfig:DBConnectionString"] = appConfig.DBConnectionString;
             Configuration["AppConfig:JWTIssuer"] = appConfig.JWTIssuer;
             Configuration["AppConfig:JWTAudience"] = appConfig.JWTAudience;
@@ -215,6 +230,10 @@ namespace TrackingSystem.Api
             Configuration["AppConfig:EnableSsl"] = appConfig.EnableSsl.ToString();
             Configuration["AppConfig:LkLogin"] = appConfig.LkLogin;
             Configuration["AppConfig:LkPassword"] = appConfig.LkPassword;
+            Configuration["AppConfig:LdapHost"] = appConfig.LdapHost;
+            Configuration["AppConfig:LdapPort"] = appConfig.LdapPort.ToString();
+            Configuration["AppConfig:LdapLoginDn"] = appConfig.LdapLoginDn;
+            Configuration["AppConfig:LdapPassword"] = appConfig.LdapPassword;
 
             return appConfig;
         }

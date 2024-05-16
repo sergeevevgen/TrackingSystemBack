@@ -9,7 +9,11 @@ namespace TrackingSystem.Api.Shared.Dto.User
     {
         public Guid? Id { get; set; }
 
-        public string? Name { get; set; }
+        public string? FirstName { get; set; }
+
+        public string? LastName { get; set; }
+
+        public string? MiddleName { get; set; }
 
         public string? Login { get; set; }
 
@@ -19,6 +23,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public EStatus Status { get; set; }
 
-        public ICollection<Guid>? Roles { get; set; }
+        public Guid Role { get; set; }
     }
 }

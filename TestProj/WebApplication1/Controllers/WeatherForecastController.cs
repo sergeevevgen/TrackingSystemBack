@@ -44,8 +44,35 @@ namespace WebApplication1.Controllers
         [HttpGet(Name = "Test2")]
         public async Task<string> Test2()
         {
-            TestFuncLdap();
+            Auth();
             return "Ok";
+        }
+
+        private void Auth()
+        {
+            try
+            {
+                //user=f'uid={username},ou={LDAP_OU_TEXT},dc={LDAP_BASE_DOMAIN}',
+                string s = "dc=ams,dc=ulstu,dc=ru";
+                string login = "e.sergeev";
+                string password = "9bdd6862";
+                // Подключение к серверу LDAP
+                var server = new LdapDirectoryIdentifier("lk.ustu", 389);
+
+                // Креды для доступа к серверу
+                var credentials = new NetworkCredential($"uid={login},ou=services,{s}", password);
+
+                // Создаем подключение к серверу LDAP
+                var cn = new LdapConnection(server);
+                cn.SessionOptions.ProtocolVersion = 3;
+                cn.AuthType = AuthType.Basic;
+                cn.Bind(credentials);
+            }
+            catch (Exception ex)
+            {
+                //_logger.Error(ex, $"Возникла ошибка в процессе авторизации с LDAP {ex.Message}");
+                throw;
+            }
         }
 
         private readonly string searchBase = "ou=accounts,dc=ams,dc=ulstu,dc=ru";
@@ -64,7 +91,7 @@ namespace WebApplication1.Controllers
             cn.AuthType = AuthType.Basic;
             cn.Bind(credentials);
 
-            HashSet<UserLdapDto> mainList = new HashSet<UserLdapDto>();
+            List<UserLdapDto> mainList = new List<UserLdapDto>();
             // Главный лист со всем аккаунтами
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             // Можно создать аккаунты, полученные здесь

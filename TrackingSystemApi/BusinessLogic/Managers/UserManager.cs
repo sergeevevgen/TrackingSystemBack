@@ -1,5 +1,6 @@
 ﻿using System.Security.Authentication;
 using System.Security.Claims;
+using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Identity;
 using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
@@ -20,17 +21,23 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IUserDbManager _storage;
         private readonly IJWTAuthManager _jwtManager;
         private readonly IIdentityManager _identityManager;
+        private readonly IGroupDbManager _groupManager;
+        private readonly IRoleDbManager _roleManager;
 
         public UserManager(
             ILogger logger,
             IUserDbManager manager,
             IJWTAuthManager jwtManager,
-            IIdentityManager identityManager)
+            IIdentityManager identityManager,
+            IGroupDbManager groupManager,
+            IRoleDbManager roleManager)
         {
             _logger = logger;
             _storage = manager;
             _jwtManager = jwtManager;
             _identityManager = identityManager;
+            _groupManager = groupManager;
+            _roleManager = roleManager;
         }
 
         /// <summary>
@@ -200,6 +207,44 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
+        public async Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken)
+        {
+            var element = await _storage.GetElement(new UserDto
+            {
+                Login = model.UserLogin
+            }, cancellationToken);
+
+            // Надо вытащить роль и айди группу
+            var newModel = new UserDto
+            {
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                MiddleName = model.MiddleName,
+                Login = model.UserLogin,
+                Password = model.Password,
+                Status = model.Status ?? EStatus.Is_Dropped,
+                Role = _roleManager.GetElement(model.Role).Value,
+                GroupId = (await _groupManager.GetElement(new GroupDto
+                {
+                    Name = model.Group
+                }, default)).Id
+            };
+
+            if (element != null)
+            {
+                newModel.Id = element.Id;
+
+                element = await _storage.Update(newModel, cancellationToken);
+                _logger.Info($"Пользователь {model.UserLogin} обновлен");
+                return element;
+            }
+            
+            element = await _storage.Insert(newModel, cancellationToken);
+            _logger.Info($"Создан новый пользователь");
+
+            return element;
+        }
+
         public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
         {
             _ = await _storage.GetElement(new UserDto
@@ -219,7 +264,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 return new ResponseModel<UserResponseDto> { Data = data };
             }
 
-            return new ResponseModel<UserResponseDto> { ErrorMessage = $"Такой пользователь не найден {model.Name}" };
+            return new ResponseModel<UserResponseDto> { ErrorMessage = $"Такой пользователь не найден {model.Login}" };
         }
     }
 }

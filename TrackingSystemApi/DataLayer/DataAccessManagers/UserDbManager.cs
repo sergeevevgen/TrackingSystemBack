@@ -129,7 +129,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 User user = new()
                 {
-                    Name = model.Name,                   
+                    FirstName = model.FirstName,                   
+                    LastName = model.LastName,
+                    MiddleName = model.MiddleName,
                     Login = model.Login,
                     Password = model.Password,
                     GroupId = model.GroupId,
@@ -235,7 +237,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     .FirstOrDefaultAsync(u => 
                         u.Login.Equals(model.Login) || 
                         u.Id.Equals(model.Id.Value) || 
-                        u.Name.Contains(model.Name), cancellationToken);
+                        u.LastName.Contains(model.LastName), cancellationToken);
 
                 return element == null ? null : CreateModel(element); 
             }
@@ -256,7 +258,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         {
             if (model.Id.HasValue)
             {
-                user.Name = model.Name;
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.MiddleName = model.MiddleName;
                 user.Login = model.Login;
                 user.Password = model.Password;
                 user.GroupId = model.GroupId;
@@ -269,19 +273,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                 context.UserRoles
                     .RemoveRange(userRoles
-                        .Where(r => !model.Roles.Contains(r.RoleId))
+                        .Where(r => !model.Role.Contains(r.RoleId))
                         .ToList());
 
                 await context.SaveChangesAsync();
 
                 foreach (UserRole ur in userRoles)
                 {
-                    model.Roles.Remove(ur.RoleId);
+                    model.Role.Remove(ur.RoleId);
                 }
                 await context.SaveChangesAsync();
             }
 
-            foreach (Guid r in model.Roles)
+            foreach (Guid r in model.Role)
             {
                 await context.UserRoles
                     .AddAsync(new UserRole
@@ -306,7 +310,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = user.Id,
                 Login = user.Login,
-                Name = user.Name,
+                Name = user.LastName + " " + user.FirstName[0] + ". " + user.MiddleName[0] + ".",
                 GroupId = user.GroupId,
                 Group = user.UserGroup?.Name,
                 Status = user.Status,

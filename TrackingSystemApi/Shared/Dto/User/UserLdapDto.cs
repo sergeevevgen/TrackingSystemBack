@@ -4,7 +4,11 @@ namespace TrackingSystem.Api.Shared.Dto.User
 {
     public class UserLdapDto
     {
-        public string? UserName { get; set; }
+        public string? FirstName { get; set; }
+
+        public string? LastName { get; set; }
+
+        public string? MiddleName { get; set; }
 
         public string? UserLogin { get; set; }
 
@@ -12,8 +16,8 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public string? Group { get; set; }
 
-        public EStatus Status { get; set; }
+        public EStatus? Status { get; set; }
 
-        public ICollection<ERoles> Roles { get; set; }
+        public ERoles Role { get; set; }
     }
 }

@@ -58,5 +58,13 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Метод для обновления или создания пользователя из Ldap
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken);
     }
 }
