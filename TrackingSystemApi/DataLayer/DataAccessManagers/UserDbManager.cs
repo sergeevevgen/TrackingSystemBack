@@ -45,8 +45,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                     result = await _context.Users
                            .Where(
-                            u => u.Login.ToLower() == login &&
-                            u.Password == query.Password)
+                            u => u.Login.ToLower() == login) //&&
+                            //u.Password == query.Password)
                            .Select(u => new UserResponseDto
                            {
                                Id = u.Id,

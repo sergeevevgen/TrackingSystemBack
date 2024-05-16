@@ -108,18 +108,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
-                //var user = await _storage.FindUser(
-                //    new UserFindDto
-                //    {
-                //        Login = query.Login,
-                //        Password = query.Password,
-                //    },
-                //    cancellationToken);
-                var user = new UserResponseDto
-                {
-                    Login = query.Login,
-                    Id = Guid.NewGuid()
-                };
+                // Проверяем подключение к LDAP, пожтому на пароли пофик
+                var user = await _storage.FindUser(
+                    new UserFindDto
+                    {
+                        Login = query.Login,
+                        //Password = query.Password,
+                    },
+                    cancellationToken);
 
                 var result = _ldapManager.CanAuthorize(query);
 
