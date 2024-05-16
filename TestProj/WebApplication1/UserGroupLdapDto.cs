@@ -2,7 +2,7 @@
 {
     public class UserGroupLdapDto
     {
-        public string? CN { get; set; }
+        public string? UID { get; set; }
 
         public string? Course { get; set; }
 

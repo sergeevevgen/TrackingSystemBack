@@ -2,7 +2,7 @@
 {
     public class UserJobLdapDto
     {
-        public string? CN { get; set; }
+        public string? UID { get; set; }
 
         public string? JobTitle { get; set; }
 

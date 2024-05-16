@@ -64,52 +64,56 @@ namespace WebApplication1.Controllers
             cn.AuthType = AuthType.Basic;
             cn.Bind(credentials);
 
+            List<UserLdapDto> mainList = new List<UserLdapDto>();
+            // Главный лист со всем аккаунтами
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
-            
-            object sergeev;
-            var list = SearchForUserAccounts(cn, filter);
-            var count = 0;
-            foreach (var el in list)
+            var list = SearchForUserAccounts(cn, filter);        
+
+            // Лист с инфой об учебе
+            filter = "(objectClass=ulstuCourse)";
+            var list2 = SearchForCourses(cn, filter);
+
+            // Лист с инфой о работе
+            filter = "(objectClass=ulstuJob)";
+            var list3 = SearchForJobs(cn, filter);
+
+            foreach (var ci in list2)
             {
-                Console.WriteLine(el.ToString());
-
-                if (el.CN.Contains("e.sergeev"))
+                var matchingAcc = list.FirstOrDefault(ac => ac.UID.Equals(ci.UID));
+                
+                if (matchingAcc != null)
                 {
-                    sergeev = el;
+                    mainList.Add(new UserLdapDto
+                    {
+                        UserLogin = ci.UID,
+                        Group = ci.GroupName,
+                        Password = matchingAcc.Password,
+                        Roles = new List<ERoles>((int)ERoles.Pupil),
+                        Status = EStatus.Is_Studying,
+                        UserName = matchingAcc.CN                     
+                    });
                 }
-
-                count++;
             }
 
-            object sergeev2;
-            
-            string filter1 = "(objectClass=ulstuCourse)";
-            var list2 = SearchForCourses(cn, filter1);
-            foreach (var el in list2)
+            foreach (var job in list3)
             {
-                Console.WriteLine(el.ToString());
+                var matchingAcc = list.FirstOrDefault(ac => ac.UID.Equals(job.UID));
 
-                if (el.CN.Contains("e.sergeev"))
+                if (matchingAcc != null)
                 {
-                    sergeev2 = el;
+                    mainList.Add(new UserLdapDto
+                    {
+                        UserLogin = job.UID,
+                        Password = matchingAcc.Password,
+                        Roles = new List<ERoles>((int)ERoles.Teacher),
+                        UserName = matchingAcc.CN
+                    });
                 }
-                count++;
             }
 
-            object sergeev3;
-           
-            string filter2 = "(objectClass=ulstuJob)";
-            var list3 = SearchForJobs(cn, filter2);
-            foreach (var el in list3)
-            {
-                Console.WriteLine(el.ToString());
-                if (el.CN.Contains("e.sergeev"))
-                {
-                    sergeev3 = el;
-                }
-                count++;
-            }
+            Console.WriteLine(mainList.Where(e => e.UserLogin.Equals("e.balandina")));
 
+            Console.ReadLine();
             cn.Dispose();
         }
 
@@ -158,7 +162,7 @@ namespace WebApplication1.Controllers
             {
                 var user = new UserGroupLdapDto
                 {
-                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
+                    UID = entry.DistinguishedName.Split(",")[1].Split("=")[1], // TODO - надо вытаскивать логин
                     Course = GetStringAttribute(entry, "course"),
                     CurrentState = GetStringAttribute(entry, "currentState"),
                     Faculty = GetStringAttribute(entry, "faculty"),
@@ -187,7 +191,7 @@ namespace WebApplication1.Controllers
             {
                 var user = new UserJobLdapDto
                 {
-                    CN = entry.DistinguishedName, // TODO - надо вытаскивать логин
+                    UID = entry.DistinguishedName.Split(",")[1].Split("=")[1], // TODO - надо вытаскивать логин
                     JobTitle = GetStringAttribute(entry, "jobTitle"),
                     JobStake = GetStringAttribute(entry, "jobStake"),
                     EmploymentType = GetStringAttribute(entry, "employmentType"),
