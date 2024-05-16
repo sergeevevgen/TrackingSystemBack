@@ -52,7 +52,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                Id = u.Id,
                                Login = u.Login,
                                Roles = u.Roles.Select(t => t.Role.Name).ToList(), // TODO
-                               Name = u.Name,
+                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
                            })
@@ -71,7 +71,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                Id = u.Id,
                                Login = u.Login,
                                Roles = u.Roles.Select(t => t.Role.Name).ToList(), // TODO
-                               Name = u.Name,
+                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
                            })
@@ -105,7 +105,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                 .Select(u => new UserFindResponseDto
                                 {
                                     Login = u.Login,
-                                    Name = u.Name,
+                                    Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
                                 })
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(cancellationToken);
@@ -273,28 +273,28 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                 context.UserRoles
                     .RemoveRange(userRoles
-                        .Where(r => !model.Role.Contains(r.RoleId))
+                        .Where(r => !model.Role.Equals(r.RoleId))
                         .ToList());
 
                 await context.SaveChangesAsync();
 
                 foreach (UserRole ur in userRoles)
                 {
-                    model.Role.Remove(ur.RoleId);
+                    //model.Role.Remove(ur.RoleId);
                 }
                 await context.SaveChangesAsync();
             }
 
-            foreach (Guid r in model.Role)
-            {
+            //foreach (Guid r in model.Role)
+            //{
                 await context.UserRoles
                     .AddAsync(new UserRole
                     {
-                        RoleId = r,
+                        RoleId = model.Role,
                         UserId = user.Id,
                     });
                 await context.SaveChangesAsync();
-            }
+            //}
 
             return user;
         }

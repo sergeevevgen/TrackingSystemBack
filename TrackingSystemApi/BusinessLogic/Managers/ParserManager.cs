@@ -101,7 +101,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             var tabels = html.GetElementsByTagName("table");
 
             // Обновляем расписание только по тем учителям, что есть в бд, иначе нет
-            var teacher = await _userManager.Read(new UserDto { Name = name }, default);
+            var teacher = await _userManager.Read(new UserDto { LastName = name }, default);
 
             if (teacher == null)
             {
