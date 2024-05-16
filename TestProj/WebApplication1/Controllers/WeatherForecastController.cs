@@ -64,7 +64,7 @@ namespace WebApplication1.Controllers
             cn.AuthType = AuthType.Basic;
             cn.Bind(credentials);
 
-            List<UserLdapDto> mainList = new List<UserLdapDto>();
+            HashSet<UserLdapDto> mainList = new HashSet<UserLdapDto>();
             // Главный лист со всем аккаунтами
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
             // Можно создать аккаунты, полученные здесь
@@ -86,42 +86,51 @@ namespace WebApplication1.Controllers
                 {
                     UserLogin = el.UID,
                     Password = el.Password,
-                    UserName = el.CN,
-                   
+                    UserName = el.CN,                    
                 });
             }
+            //count = 10355
 
-            foreach (var ci in list2)
+            var courseList = new List<UserGroupLdapDto>();
+            foreach (var el in list2)
             {
-                var matchingAcc = list.FirstOrDefault(ac => ac.UID.Equals(ci.UID));
+                courseList.Add(el);
+            }
+            var l = courseList.Select(c => c.UID).Distinct().ToList();
+
+            //count = 9123
+            //distinct = 8422
+
+            var jobList = new List<UserJobLdapDto>();
+            foreach(var el in list3)
+            {
+                jobList.Add(el);
+            }
+            var bl = jobList.Select(c => c.UID).Distinct().ToList(); 
+            //count = 1867
+            //distinct = 1354
+
+            foreach (var course in courseList)
+            {
+                var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(course.UID));
                 
-                if (matchingAcc != null)
+                if (user != null)
                 {
-                    mainList.Add(new UserLdapDto
-                    {
-                        UserLogin = ci.UID,
-                        Group = ci.GroupName,
-                        Password = matchingAcc.Password,
-                        Roles = new List<ERoles> { ERoles.Pupil },
-                        Status = EStatus.Is_Studying,
-                        UserName = matchingAcc.CN                     
-                    });
+                    user.Role = ERoles.Pupil;
+                    user.Group = course.GroupName;
+                    user.Status = EStatus.Is_Studying;
                 }
             }
 
-            foreach (var job in list3)
+            foreach (var job in jobList)
             {
-                var matchingAcc = list.FirstOrDefault(ac => ac.UID.Equals(job.UID));
+                var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID));
 
-                if (matchingAcc != null)
+                if (user != null)
                 {
-                    mainList.Add(new UserLdapDto
-                    {
-                        UserLogin = job.UID,
-                        Password = matchingAcc.Password,
-                        Roles = new List<ERoles> { ERoles.Teacher },
-                        UserName = matchingAcc.CN
-                    });
+                    user.Role = ERoles.Teacher;
+                    user.Group = null;
+                    user.Status = null;
                 }
             }
 

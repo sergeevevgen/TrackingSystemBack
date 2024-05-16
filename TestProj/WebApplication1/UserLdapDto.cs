@@ -1,6 +1,6 @@
 ﻿namespace WebApplication1
 {
-    public class UserLdapDto
+    public class UserLdapDto : IEquatable<UserLdapDto>
     {
         public string? UserName { get; set; }
 
@@ -10,8 +10,20 @@
 
         public string? Group { get; set; }
 
-        public EStatus Status { get; set; }
+        public EStatus? Status { get; set; }
 
-        public ICollection<ERoles>? Roles { get; set; }
+        public ERoles Role { get; set; }
+
+        public bool Equals(UserLdapDto? other)
+        {
+            if (other == null) return false;
+
+            return UserLogin == other.UserLogin;
+        }
+
+        public override int GetHashCode()
+        {
+            return UserLogin?.GetHashCode() ?? 0;
+        }
     }
 }
