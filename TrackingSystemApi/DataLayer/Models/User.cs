@@ -44,8 +44,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Статус пользователя в системе
         /// </summary>
-        [Required]
-        public EStatus Status { get; set; }
+        public EStatus? Status { get; set; }
 
         /// <summary>
         /// Связь один-к-одному для учителя и занятия

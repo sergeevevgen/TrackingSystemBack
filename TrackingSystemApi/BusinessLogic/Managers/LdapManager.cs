@@ -113,6 +113,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <returns></returns>
         private IEnumerable<UserJobLdapDto> SearchForJobs(LdapConnection cn)
         {
+            string filter = "(objectClass=ulstuJob)";
             string[] attributes = { "jobTitle", "jobStake", "employmentType", "jobType" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
             var resp = (SearchResponse)cn.SendRequest(req);
