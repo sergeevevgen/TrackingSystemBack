@@ -8,7 +8,7 @@ using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {
-    public class LdapManager
+    public class LdapManager : ILdapManager
     {
         private readonly ILogger _logger;
         private readonly AppConfig _appConfig;
@@ -26,23 +26,29 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _manager = manager;
         }
 
-        public async Task CanAuthorize(UserLoginDto dto, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Метод для авторизации в LDAP
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public bool CanAuthorize(UserLoginDto dto)
         {
             try
             {
-                //user=f'uid={username},ou={LDAP_OU_TEXT},dc={LDAP_BASE_DOMAIN}',
-                string s = "dc=ams,dc=ulstu,dc=ru";
                 // Подключение к серверу LDAP
                 var server = new LdapDirectoryIdentifier(_appConfig.LdapHost, _appConfig.LdapPort);
 
                 // Креды для доступа к серверу
-                var credentials = new NetworkCredential($"uid={dto.Login},ou=services,{s}", dto.Password);
+                var credentials = new NetworkCredential($"uid={dto.Login},{searchBase}", dto.Password);
 
                 // Создаем подключение к серверу LDAP
                 var cn = new LdapConnection(server);
                 cn.SessionOptions.ProtocolVersion = 3;
                 cn.AuthType = AuthType.Basic;
                 cn.Bind(credentials);
+
+                return true;
             }
             catch (Exception ex)
             {

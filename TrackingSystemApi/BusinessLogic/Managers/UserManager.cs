@@ -23,6 +23,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IIdentityManager _identityManager;
         private readonly IGroupDbManager _groupManager;
         private readonly IRoleDbManager _roleManager;
+        private readonly ILdapManager _ldapManager;
 
         public UserManager(
             ILogger logger,
@@ -30,7 +31,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IJWTAuthManager jwtManager,
             IIdentityManager identityManager,
             IGroupDbManager groupManager,
-            IRoleDbManager roleManager)
+            IRoleDbManager roleManager,
+            ILdapManager ldapManager)
         {
             _logger = logger;
             _storage = manager;
@@ -38,6 +40,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _identityManager = identityManager;
             _groupManager = groupManager;
             _roleManager = roleManager;
+            _ldapManager = ldapManager;
         }
 
         /// <summary>
@@ -113,8 +116,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     },
                     cancellationToken);
 
-                if (user == null)
-                    return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин / пароль" };
+                var result = _ldapManager.CanAuthorize(query);
+
+                if (user == null || !result)
+                    return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин/пароль" };
 
                 var identity = await _identityManager.CreateIdentity(
                     new CreateIdentityCommand

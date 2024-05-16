@@ -49,6 +49,7 @@ namespace TrackingSystem.Api.AppLogic.Core
             services.AddScoped<IJWTUserManager, JWTUserManager>();
             services.AddScoped<ISecurityTokenValidator, JwtSecurityTokenHandler>();
             services.AddScoped<IParserManager, ParserManager>();
+            services.AddScoped<ILdapManager, LdapManager>();
         }
 
         public static void AddAllTransients(this IServiceCollection services)
