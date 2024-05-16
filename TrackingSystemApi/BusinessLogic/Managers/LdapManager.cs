@@ -8,7 +8,7 @@ using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.BusinessLogic.Managers
 {
-    public class LdapManager : ILdapManager
+    public class LdapManager : ILdapDownloadManager
     {
         private readonly ILogger _logger;
         private readonly AppConfig _appConfig;
@@ -24,37 +24,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _logger = logger;
             _appConfig = options.Value;
             _manager = manager;
-        }
-
-        /// <summary>
-        /// Метод для авторизации в LDAP
-        /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public bool CanAuthorize(UserLoginDto dto)
-        {
-            try
-            {
-                // Подключение к серверу LDAP
-                var server = new LdapDirectoryIdentifier(_appConfig.LdapHost, _appConfig.LdapPort);
-
-                // Креды для доступа к серверу
-                var credentials = new NetworkCredential($"uid={dto.Login},{searchBase}", dto.Password);
-
-                // Создаем подключение к серверу LDAP
-                var cn = new LdapConnection(server);
-                cn.SessionOptions.ProtocolVersion = 3;
-                cn.AuthType = AuthType.Basic;
-                cn.Bind(credentials);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, $"Возникла ошибка в процессе авторизации с LDAP {ex.Message}");
-                throw;
-            }
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IIdentityManager _identityManager;
         private readonly IGroupDbManager _groupManager;
         private readonly IRoleDbManager _roleManager;
-        private readonly ILdapManager _ldapManager;
+        private readonly ILdapAuthManager _ldapManager;
 
         public UserManager(
             ILogger logger,
@@ -32,7 +32,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IIdentityManager identityManager,
             IGroupDbManager groupManager,
             IRoleDbManager roleManager,
-            ILdapManager ldapManager)
+            ILdapAuthManager ldapManager)
         {
             _logger = logger;
             _storage = manager;
@@ -108,13 +108,18 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
-                var user = await _storage.FindUser(
-                    new UserFindDto
-                    {
-                        Login = query.Login,
-                        Password = query.Password,
-                    },
-                    cancellationToken);
+                //var user = await _storage.FindUser(
+                //    new UserFindDto
+                //    {
+                //        Login = query.Login,
+                //        Password = query.Password,
+                //    },
+                //    cancellationToken);
+                var user = new UserResponseDto
+                {
+                    Login = query.Login,
+                    Id = Guid.NewGuid()
+                };
 
                 var result = _ldapManager.CanAuthorize(query);
 
