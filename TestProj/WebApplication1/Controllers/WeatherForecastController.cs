@@ -67,15 +67,29 @@ namespace WebApplication1.Controllers
             List<UserLdapDto> mainList = new List<UserLdapDto>();
             // Главный лист со всем аккаунтами
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
+            // Можно создать аккаунты, полученные здесь
             var list = SearchForUserAccounts(cn, filter);        
 
             // Лист с инфой об учебе
             filter = "(objectClass=ulstuCourse)";
+            // Затем уже получаем группы отсюда, сравниваем с uid (логин). У таких аккаунтов ставим группу и роль
             var list2 = SearchForCourses(cn, filter);
 
             // Лист с инфой о работе
             filter = "(objectClass=ulstuJob)";
+            // Затем уже получаем инфу о работе отсюда, сравниваем с uid (логин). У таких аккаунтов ставим роль Учитель, а группу обращаем в null 
             var list3 = SearchForJobs(cn, filter);
+
+            foreach (var el in list)
+            {
+                mainList.Add(new UserLdapDto
+                {
+                    UserLogin = el.UID,
+                    Password = el.Password,
+                    UserName = el.CN,
+                   
+                });
+            }
 
             foreach (var ci in list2)
             {
@@ -88,7 +102,7 @@ namespace WebApplication1.Controllers
                         UserLogin = ci.UID,
                         Group = ci.GroupName,
                         Password = matchingAcc.Password,
-                        Roles = new List<ERoles>((int)ERoles.Pupil),
+                        Roles = new List<ERoles> { ERoles.Pupil },
                         Status = EStatus.Is_Studying,
                         UserName = matchingAcc.CN                     
                     });
@@ -105,7 +119,7 @@ namespace WebApplication1.Controllers
                     {
                         UserLogin = job.UID,
                         Password = matchingAcc.Password,
-                        Roles = new List<ERoles>((int)ERoles.Teacher),
+                        Roles = new List<ERoles> { ERoles.Teacher },
                         UserName = matchingAcc.CN
                     });
                 }
