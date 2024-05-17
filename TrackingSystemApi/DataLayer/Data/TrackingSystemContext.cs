@@ -17,13 +17,9 @@ namespace TrackingSystem.Api.DataLayer.Data
 
         public virtual DbSet<Group>? Groups { get; set; }
 
-        public virtual DbSet<Role>? Roles { get; set; }
-
         public virtual DbSet<Place>? Places { get; set; }
 
         public virtual DbSet<Subject>? Subjects { get; set; }
-
-        public virtual DbSet<UserRole>? UserRoles { get; set; }
 
         public virtual DbSet<UserSubject>? UserSubjects { get; set; }
 

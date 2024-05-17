@@ -20,7 +20,7 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Роли
         /// </summary>
-        public List<ERoles>? Roles { get; set; }
+        public ERoles Role { get; set; }
 
         /// <summary>
         /// ФИО пользователя

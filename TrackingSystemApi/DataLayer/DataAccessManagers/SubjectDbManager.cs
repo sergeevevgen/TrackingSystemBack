@@ -26,7 +26,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -60,7 +60,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<SubjectResponseDto?> GetElement(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto?> GetElement(SubjectDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<SubjectResponseDto> Insert(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> Insert(SubjectDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -142,7 +142,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<SubjectResponseDto> Update(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> Update(SubjectDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -170,7 +170,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<bool> MarkUserSubject(SubjectUserMarkDto model, CancellationToken cancellationToken)
+        public async Task<bool> MarkUserSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -297,7 +297,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task ChangeIsDifference(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        public async Task ChangeIsDifference(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -327,7 +327,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try

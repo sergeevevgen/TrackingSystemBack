@@ -22,7 +22,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IJWTAuthManager _jwtManager;
         private readonly IIdentityManager _identityManager;
         private readonly IGroupDbManager _groupManager;
-        private readonly IRoleDbManager _roleManager;
         private readonly ILdapAuthManager _ldapManager;
 
         public UserManager(
@@ -31,7 +30,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IJWTAuthManager jwtManager,
             IIdentityManager identityManager,
             IGroupDbManager groupManager,
-            IRoleDbManager roleManager,
             ILdapAuthManager ldapManager)
         {
             _logger = logger;
@@ -39,7 +37,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _jwtManager = jwtManager;
             _identityManager = identityManager;
             _groupManager = groupManager;
-            _roleManager = roleManager;
             _ldapManager = ldapManager;
         }
 
@@ -104,7 +101,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <returns></returns>
         public async Task<ResponseModel<UserLoginResponseDto>> UserLoginAsync(
             UserLoginDto query,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -167,7 +164,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken)
+        public async Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -186,7 +183,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
-        public async Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new UserDto
             {
@@ -213,15 +210,20 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
-        public async Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken)
+        public async Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new UserDto
             {
                 Login = model.UserLogin
             }, cancellationToken);
 
-            // Надо вытащить роль и айди группу
-            var newModel = new UserDto
+            var groupId = (await _groupManager.GetElement(new GroupDto
+            {
+                Name = model.Group
+            }, default)).Id;
+
+        // Надо вытащить роль и айди группу
+        var newModel = new UserDto
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -229,11 +231,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Login = model.UserLogin,
                 Password = model.Password,
                 Status = model.Status ?? EStatus.Is_Dropped,
-                Role = _roleManager.GetElement(model.Role).Value,
-                GroupId = (await _groupManager.GetElement(new GroupDto
-                {
-                    Name = model.Group
-                }, default)).Id
+                Role = model.Role,
+                GroupId = groupId
             };
 
             if (element != null)
@@ -251,7 +250,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
-        public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken = default)
         {
             _ = await _storage.GetElement(new UserDto
             {
@@ -262,7 +261,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return true;
         }
 
-        public async Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken = default)
         {
             if (model != null)
             {

@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<LessonResponseDto> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken);
+        Task<LessonResponseDto> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для удаления типа помещения
@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> Delete(LessonDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(LessonDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения одного типа помещения
@@ -27,7 +27,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken);
+        Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения типов помещений по идентификаторам
@@ -35,6 +35,6 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<List<LessonResponseDto>>> ReadAll(List<LessonDto> model, CancellationToken cancellationToken);
+        Task<ResponseModel<List<LessonResponseDto>>> ReadAll(List<LessonDto> model, CancellationToken cancellationToken = default);
     }
 }

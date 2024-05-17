@@ -27,7 +27,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<SubjectResponseDto> CreateOrUpdate(SubjectDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new SubjectDto
             {
@@ -68,7 +68,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task ChangeIsDifferenceByWeek(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        public async Task ChangeIsDifferenceByWeek(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken)
+        public async Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(SubjectDto model, CancellationToken cancellationToken = default)
         {
             _ = await _storage.GetElement(new SubjectDto
             {
@@ -126,7 +126,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -145,7 +145,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<SubjectResponseDto>> Read(SubjectDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<SubjectResponseDto>> Read(SubjectDto model, CancellationToken cancellationToken = default)
         {
             if (model.Id.HasValue)
             {
@@ -162,7 +162,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseModel<List<SubjectResponseDto>>> ReadAll(List<SubjectDto> model, CancellationToken cancellationToken)
+        public Task<ResponseModel<List<SubjectResponseDto>>> ReadAll(List<SubjectDto> model, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

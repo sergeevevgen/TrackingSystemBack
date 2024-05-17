@@ -28,7 +28,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ClaimsIdentity> CreateIdentity(
             CreateIdentityCommand query,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
-        public Task<ResponseModel<RefreshTokenResponseDTO>> RefreshToken(RefreshTokenCommand command, CancellationToken cancellationToken)
+        public Task<ResponseModel<RefreshTokenResponseDTO>> RefreshToken(RefreshTokenCommand command, CancellationToken cancellationToken = default)
         {
             try
             {

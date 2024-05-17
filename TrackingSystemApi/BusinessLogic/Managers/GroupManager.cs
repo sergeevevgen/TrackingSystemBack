@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _storage = manager;
         }
 
-        public async Task<GroupResponseDto> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new GroupDto
             {
@@ -46,7 +46,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
-        public async Task<bool> Delete(GroupDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(GroupDto model, CancellationToken cancellationToken = default)
         {
             _ = await _storage.GetElement(new GroupDto
             {
@@ -58,7 +58,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return true;
         }
 
-        public async Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken = default)
         {
             if (model != null)
             {
@@ -69,7 +69,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new ResponseModel<GroupResponseDto> { ErrorMessage = $"Такая группа не найдена {model.Name}" };
         }
 
-        public Task<ResponseModel<List<GroupResponseDto>>> ReadAll(List<GroupDto> model, CancellationToken cancellationToken)
+        public Task<ResponseModel<List<GroupResponseDto>>> ReadAll(List<GroupDto> model, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

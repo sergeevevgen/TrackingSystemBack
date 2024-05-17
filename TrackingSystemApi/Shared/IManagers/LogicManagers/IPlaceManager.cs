@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<PlaceResponseDto> CreateOrUpdate(PlaceDto model, CancellationToken cancellationToken);
+        Task<PlaceResponseDto> CreateOrUpdate(PlaceDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для удаления помещения
@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> Delete(PlaceDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(PlaceDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения одного помещения
@@ -27,7 +27,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<PlaceResponseDto>> Read(PlaceDto model, CancellationToken cancellationToken);
+        Task<ResponseModel<PlaceResponseDto>> Read(PlaceDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения помещений по идентификаторам
@@ -35,6 +35,6 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<PlaceResponseDto>> ReadAll(List<PlaceDto> model, CancellationToken cancellationToken);
+        Task<ResponseModel<PlaceResponseDto>> ReadAll(List<PlaceDto> model, CancellationToken cancellationToken = default);
     }
 }

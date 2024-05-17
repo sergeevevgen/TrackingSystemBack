@@ -25,7 +25,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="query"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserLoginResponseDto>> UserLoginAsync(UserLoginDto query, CancellationToken cancellationToken);
+        Task<ResponseModel<UserLoginResponseDto>> UserLoginAsync(UserLoginDto query, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Получение пользователя по идентификатору
@@ -33,7 +33,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken);
+        Task<ResponseModel<UserFindResponseDto>> FindUserById(UserFindDto request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для создания пользователя
@@ -41,7 +41,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken);
+        Task<UserResponseDto> CreateOrUpdate(UserDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для удаления пользователя
@@ -49,7 +49,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> Delete(UserDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(UserDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения пользователя
@@ -57,7 +57,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken);
+        Task<ResponseModel<UserResponseDto>> Read(UserDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для обновления или создания пользователя из Ldap
@@ -65,6 +65,6 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken);
+        Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken = default);
     }
 }

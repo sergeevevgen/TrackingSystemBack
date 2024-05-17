@@ -61,7 +61,6 @@ namespace TrackingSystem.Api.AppLogic.Core
             services.AddTransient<IPlaceDbManager, PlaceDbManager>();
             services.AddTransient<ISubjectDbManager, SubjectDbManager>();
             services.AddTransient<IGroupDbManager, GroupDbManager>();
-            services.AddTransient<IRoleDbManager, RoleDbManager>();
         }
     }
 }

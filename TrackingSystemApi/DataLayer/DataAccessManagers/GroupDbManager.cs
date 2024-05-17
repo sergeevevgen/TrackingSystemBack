@@ -29,7 +29,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<bool> Delete(GroupDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(GroupDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -67,7 +67,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<GroupResponseDto?> GetElement(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto?> GetElement(GroupDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<GroupResponseDto> Insert(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto> Insert(GroupDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -123,7 +123,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<GroupResponseDto> Update(GroupDto model, CancellationToken cancellationToken)
+        public async Task<GroupResponseDto> Update(GroupDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try

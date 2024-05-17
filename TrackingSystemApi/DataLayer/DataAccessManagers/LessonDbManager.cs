@@ -26,7 +26,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> Delete(LessonDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(LessonDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -64,7 +64,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<LessonResponseDto?> GetElement(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto?> GetElement(LessonDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<LessonResponseDto> Insert(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto> Insert(LessonDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -119,7 +119,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<LessonResponseDto> Update(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto> Update(LessonDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try

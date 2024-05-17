@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<GroupResponseDto> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken);
+        Task<GroupResponseDto> CreateOrUpdate(GroupDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для удаления группы
@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> Delete(GroupDto model, CancellationToken cancellationToken);
+        Task<bool> Delete(GroupDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения одной группы
@@ -27,7 +27,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken);
+        Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для получения групп по идентификаторам
@@ -35,6 +35,6 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<List<GroupResponseDto>>> ReadAll(List<GroupDto> model, CancellationToken cancellationToken);
+        Task<ResponseModel<List<GroupResponseDto>>> ReadAll(List<GroupDto> model, CancellationToken cancellationToken = default);
     }
 }

@@ -6,8 +6,8 @@ namespace TrackingSystem.Api.Shared.IManagers
 {
     public interface IIdentityManager
     {
-        Task<ClaimsIdentity> CreateIdentity(CreateIdentityCommand query, CancellationToken cancellationToken);
+        Task<ClaimsIdentity> CreateIdentity(CreateIdentityCommand query, CancellationToken cancellationToken = default);
 
-        Task<ResponseModel<RefreshTokenResponseDTO>> RefreshToken(RefreshTokenCommand command, CancellationToken cancellationToken);
+        Task<ResponseModel<RefreshTokenResponseDTO>> RefreshToken(RefreshTokenCommand command, CancellationToken cancellationToken = default);
     }
 }

@@ -23,6 +23,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public EStatus Status { get; set; }
 
-        public Guid Role { get; set; }
+        public ERoles Role { get; set; }
     }
 }

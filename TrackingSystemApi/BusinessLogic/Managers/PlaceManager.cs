@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _storage = manager;
         }
 
-        public async Task<PlaceResponseDto> CreateOrUpdate(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<PlaceResponseDto> CreateOrUpdate(PlaceDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new PlaceDto
             {
@@ -46,7 +46,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
-        public async Task<bool> Delete(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(PlaceDto model, CancellationToken cancellationToken = default)
         {
             _ = await _storage.GetElement(new PlaceDto
             {
@@ -58,7 +58,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return true;
         }
 
-        public async Task<ResponseModel<PlaceResponseDto>> Read(PlaceDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<PlaceResponseDto>> Read(PlaceDto model, CancellationToken cancellationToken = default)
         {
             if (model.Id.HasValue)
             {
@@ -69,7 +69,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new ResponseModel<PlaceResponseDto> { ErrorMessage = $"Такое помещение не найдено {model.Name}" };
         }
 
-        public Task<ResponseModel<PlaceResponseDto>> ReadAll(List<PlaceDto> model, CancellationToken cancellationToken)
+        public Task<ResponseModel<PlaceResponseDto>> ReadAll(List<PlaceDto> model, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

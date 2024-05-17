@@ -18,16 +18,19 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Имя
         /// </summary>
+        [Required]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Фамилия
         /// </summary>
+        [Required]
         public string LastName { get; set; }
 
         /// <summary>
         /// Отчество
         /// </summary>
+        [Required]
         public string MiddleName { get; set; }
 
         /// <summary>
@@ -62,10 +65,10 @@ namespace TrackingSystem.Api.DataLayer.Models
         public virtual Subject Subject { get; set; } = null!;
 
         /// <summary>
-        /// Связь с ролями
+        /// Есть два типа роли: Учитель и ученик
         /// </summary>
-        //[InverseProperty("UserId")]
-        public virtual ICollection<UserRole>? Roles { get; set; }
+        [Required]
+        public ERoles Role { get; set; }
 
         /// <summary>
         /// Связь с занятиями для проставления отметок

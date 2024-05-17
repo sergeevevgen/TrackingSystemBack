@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _storage = manager;
         }
 
-        public async Task<LessonResponseDto> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken)
+        public async Task<LessonResponseDto> CreateOrUpdate(LessonDto model, CancellationToken cancellationToken = default)
         {
             var element = await _storage.GetElement(new LessonDto
             {
@@ -46,7 +46,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return element;
         }
 
-        public async Task<bool> Delete(LessonDto model, CancellationToken cancellationToken)
+        public async Task<bool> Delete(LessonDto model, CancellationToken cancellationToken = default)
         {
             _ = await _storage.GetElement(new LessonDto
             {
@@ -58,7 +58,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return true;
         }
 
-        public async Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken)
+        public async Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken = default)
         {
             if (model.Id.HasValue)
             {
@@ -69,7 +69,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new ResponseModel<LessonResponseDto> { ErrorMessage = $"Такой тип занятия не найден {model.Name}" };
         }
 
-        public Task<ResponseModel<List<LessonResponseDto>>> ReadAll(List<LessonDto> model, CancellationToken cancellationToken)
+        public Task<ResponseModel<List<LessonResponseDto>>> ReadAll(List<LessonDto> model, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
