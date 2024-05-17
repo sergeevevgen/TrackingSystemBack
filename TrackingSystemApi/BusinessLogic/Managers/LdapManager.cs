@@ -64,7 +64,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     mainList.Add(new UserLdapDto
                     {
                         UserLogin = element.UID,
-                        Password = element.Password,
                         FirstName = element.FirstName,
                         LastName = element.LastName,
                         MiddleName = element.MiddleName
@@ -133,7 +132,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private IEnumerable<UserFromLdapDto> SearchForUserAccounts(LdapConnection cn)
         {
             string filter = "(&(objectClass=ulstuPerson)(accountStatus=active)(!(iduniv=SYSTEMACC)))";
-            string[] attributes = { "cn", "userPassword", "uid", "firstName", "lastName", "middleName" };
+            string[] attributes = { "cn", "uid", "firstName", "lastName", "middleName" };
             var req = new SearchRequest(searchBase, filter, SearchScope.Subtree, attributes);
             var resp = (SearchResponse)cn.SendRequest(req);
 
@@ -142,7 +141,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 var user = new UserFromLdapDto
                 {
                     CN = GetStringAttribute(entry, "cn"),
-                    Password = GetStringAttribute(entry, "userPassword"),
                     UID = GetStringAttribute(entry, "uid"),
                     FirstName = GetStringAttribute(entry, "firstName"),
                     LastName = GetStringAttribute(entry, "lastName"),

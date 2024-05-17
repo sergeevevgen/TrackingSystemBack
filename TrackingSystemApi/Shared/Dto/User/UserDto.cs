@@ -17,8 +17,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public string? Login { get; set; }
 
-        public string? Password { get; set; }
-
         public Guid? GroupId { get; set; }
 
         public EStatus Status { get; set; }

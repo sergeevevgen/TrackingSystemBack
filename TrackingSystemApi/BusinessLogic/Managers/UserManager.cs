@@ -109,8 +109,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 var user = await _storage.FindUser(
                     new UserFindDto
                     {
-                        Login = query.Login,
-                        //Password = query.Password,
+                        Login = query.Login
                     },
                     cancellationToken);
 
@@ -222,14 +221,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Name = model.Group
             }, default)).Id;
 
-        // Надо вытащить роль и айди группу
-        var newModel = new UserDto
+            // Надо вытащить роль и айди группу
+            var newModel = new UserDto
             {
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 MiddleName = model.MiddleName,
                 Login = model.UserLogin,
-                Password = model.Password,
                 Status = model.Status ?? EStatus.Is_Dropped,
                 Role = model.Role,
                 GroupId = groupId

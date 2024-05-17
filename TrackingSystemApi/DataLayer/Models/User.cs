@@ -41,13 +41,6 @@ namespace TrackingSystem.Api.DataLayer.Models
         public string Login { get; set; }
 
         /// <summary>
-        /// Пароль
-        /// </summary>
-        [Required]
-        [StringLength(450)]
-        public string Password { get; set; }
-
-        /// <summary>
         /// Внешний ключ к группе
         /// </summary>
         [ForeignKey("GroupId")]

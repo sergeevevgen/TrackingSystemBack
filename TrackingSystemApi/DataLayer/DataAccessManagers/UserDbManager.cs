@@ -39,7 +39,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 UserResponseDto? result = null;
 
                 // Фильтр по логину
-                if (!string.IsNullOrEmpty(query.Login) && !string.IsNullOrEmpty(query.Password))
+                if (!string.IsNullOrEmpty(query.Login))
                 {
                     var login = query.Login.ToLower();
 
@@ -52,7 +52,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                Id = u.Id,
                                Login = u.Login,
                                Role = u.Role,
-                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
+                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName[0] + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
                                GroupId = u.GroupId,
@@ -72,7 +72,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                Id = u.Id,
                                Login = u.Login,
                                Role = u.Role,
-                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
+                               Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName[0] + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
                                GroupId = u.GroupId,
@@ -252,7 +252,6 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             user.LastName = model.LastName;
             user.MiddleName = model.MiddleName;
             user.Login = model.Login;
-            user.Password = model.Password;
             user.GroupId = model.GroupId;
             user.Status = model.Status;
             user.Role = model.Role;

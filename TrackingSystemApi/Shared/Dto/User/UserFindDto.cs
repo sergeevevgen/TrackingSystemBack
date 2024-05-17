@@ -22,10 +22,5 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// Имя пользователя
         /// </summary>
         public string? Login { get; init; }
-
-        /// <summary>
-        /// Пароль
-        /// </summary>
-        public string? Password { get; init; }
     }
 }
