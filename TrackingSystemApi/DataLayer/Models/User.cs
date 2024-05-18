@@ -55,7 +55,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Связь один-к-одному для учителя и занятия
         /// </summary>
-        public virtual Subject Subject { get; set; } = null!;
+        public virtual ICollection<Subject>? TeacherSubjects { get; set; } = null!;
 
         /// <summary>
         /// Есть два типа роли: Учитель и ученик
