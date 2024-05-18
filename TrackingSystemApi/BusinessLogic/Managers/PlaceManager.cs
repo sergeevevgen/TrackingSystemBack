@@ -60,13 +60,16 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ResponseModel<PlaceResponseDto>> Read(PlaceDto model, CancellationToken cancellationToken = default)
         {
-            if (model.Id.HasValue)
-            {
+            try
+            {                
                 var data = await _storage.GetElement(model, cancellationToken);
-                return new ResponseModel<PlaceResponseDto> { Data = data };
-            }
 
-            return new ResponseModel<PlaceResponseDto> { ErrorMessage = $"Такое помещение не найдено {model.Name}" };
+                return new ResponseModel<PlaceResponseDto> { Data = data };            
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel<PlaceResponseDto> { ErrorMessage = ex.Message };
+            }
         }
 
         public Task<ResponseModel<PlaceResponseDto>> ReadAll(List<PlaceDto> model, CancellationToken cancellationToken = default)

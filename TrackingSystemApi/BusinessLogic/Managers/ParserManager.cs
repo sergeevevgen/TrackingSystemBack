@@ -199,7 +199,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Name = name
             }, default);
 
-            if (place.IsSuccess)
+            if (place.IsSuccess && place.Data != null)
             {
                 return place.Data.Id;
             }
@@ -241,7 +241,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Name = tmp
             });
 
-            if (lesson.IsSuccess)
+            if (lesson.IsSuccess && lesson.Data != null)
             {
                 return (lesson.Data, type);
             }
