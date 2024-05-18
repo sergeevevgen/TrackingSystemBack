@@ -4,6 +4,7 @@ using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.Enums;
+using TrackingSystem.Api.Shared.Dto.User;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
@@ -166,7 +167,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
         /// <summary>
         /// Метод для отметки посещения пользователя
-        /// </summary>
+        /// </summary> Продумать логику!!!!!
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
@@ -348,6 +349,42 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 await transaction.RollbackAsync(cancellationToken);
                 _logger.Error(ex, $"Ошибка удаления занятий недели #{model.Week} с {EIsDifference.Expired}");
+                throw;
+            }
+        }
+
+        public async Task<UserGetTimetableResponseDto> GetGroupTimetable(GroupGetTimetableDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Получаем текущую неделю
+                var week = await _context.Infos.FirstOrDefaultAsync(cancellationToken);
+
+                var query = await (from subjects in _context.Subjects
+                                   join lessons in _context.Lessons on subjects.LessonId equals lessons.Id
+                                   join places in _context.Places on subjects.PlaceId equals places.Id
+                                   join groups in _context.Groups on subjects.GroupId equals groups.Id
+                                   where groups.Id.Equals(model.GroupId) && subjects.Week.Equals(week.Week)
+                                   select new TimetableResponseDto
+                                   {
+                                       Day = subjects.Day,
+                                       GroupName = groups.Name,
+                                       LessonName = lessons.Name,
+                                       Number = subjects.Pair,
+                                       PlaceName = places.Name,
+                                       TeacherName = subjects.Teacher.LastName + " " + subjects.Teacher.FirstName[0] + ". " + subjects.Teacher.MiddleName[0] + ".",
+                                       Type = subjects.Type,
+                                   }).ToListAsync(cancellationToken);
+
+                return new UserGetTimetableResponseDto
+                {
+                    Week = week.Week,
+                    Timetable = query,
+                };
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения занятий для группы с идентификатором {model.GroupId}");
                 throw;
             }
         }

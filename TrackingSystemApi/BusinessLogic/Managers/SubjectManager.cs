@@ -1,5 +1,6 @@
 ﻿using System.Web.Http.Metadata;
 using TrackingSystem.Api.Shared.Dto.Subject;
+using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
@@ -130,6 +131,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
+                model.MarkTime = DateTime.Now;
+                model.Mark = true;
                 var result = await _storage.MarkUserSubject(model, cancellationToken);
                 return new ResponseModel<string> { Data = $"Пользователь с идентификатором {model.PupilId} отметился на занятии с идентификатором {model.SubjectId}" };
             }
@@ -165,6 +168,26 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         public Task<ResponseModel<List<SubjectResponseDto>>> ReadAll(List<SubjectDto> model, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableToday(GroupGetTimetableDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = await _storage.GetGroupTimetable(model, cancellationToken);
+
+                if (result == null || result.Timetable.Count <= 0)
+                {
+                    return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для группы {model.GroupId}" };
+                }
+
+                return new ResponseModel<UserGetTimetableResponseDto> { Data = result };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, ex.Message);
+                return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = ex.Message };
+            }
         }
     }
 }

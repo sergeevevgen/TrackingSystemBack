@@ -23,6 +23,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IIdentityManager _identityManager;
         private readonly IGroupDbManager _groupManager;
         private readonly ILdapAuthManager _ldapManager;
+        private readonly ISubjectDbManager _subjectDbManager;
 
         public UserManager(
             ILogger logger,
@@ -30,7 +31,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IJWTAuthManager jwtManager,
             IIdentityManager identityManager,
             IGroupDbManager groupManager,
-            ILdapAuthManager ldapManager)
+            ILdapAuthManager ldapManager,
+            ISubjectDbManager subjectDbManager)
         {
             _logger = logger;
             _storage = manager;
@@ -38,6 +40,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _identityManager = identityManager;
             _groupManager = groupManager;
             _ldapManager = ldapManager;
+            _subjectDbManager = subjectDbManager;
         }
 
         /// <summary>

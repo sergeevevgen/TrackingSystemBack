@@ -2,14 +2,13 @@ version: '3.8'
 
 services:
     app:
-        image: zhenya/api
-        build:
-            context: .
-            dockerfile: /TrackingSystemApi/Dockerfile
+        image: evgeniis73/trackingsystemapi:latest
         ports:
-            - "7001:7001"
+            - "7001:80"
         depends_on:
             - db
+        environment:
+            - DB_CONNECTION_STRING=Data Source=db;Initial Catalog=TrackingSystem;User Id=sa;Password=YourPassword123;Trust Server Certificate=true;
     db:
         image: "mcr.microsoft.com/mssql/server"
         ports:

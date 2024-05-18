@@ -8,7 +8,7 @@ namespace TrackingSystem.Api.Shared.Enums
 {
     public enum ERoles
     {
-        Pupil,
-        Teacher,
+        Pupil = 0,
+        Teacher = 1,
     }
 }

@@ -8,7 +8,7 @@ namespace TrackingSystem.Api.DataLayer.Data
         public TrackingSystemContext(DbContextOptions<TrackingSystemContext> options)
         : base(options)
         {
-            Database.EnsureCreated();
+            //Database.EnsureCreated();
         }
 
         public virtual DbSet<Lesson>? Lessons { get; set; }
@@ -22,6 +22,8 @@ namespace TrackingSystem.Api.DataLayer.Data
         public virtual DbSet<Subject>? Subjects { get; set; }
 
         public virtual DbSet<UserSubject>? UserSubjects { get; set; }
+
+        public virtual DbSet<Info>? Infos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
