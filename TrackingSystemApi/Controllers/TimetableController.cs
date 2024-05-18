@@ -14,17 +14,20 @@ namespace TrackingSystem.Api.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserManager _userManager;
         private readonly ISubjectManager _subjectManager;
+        private readonly ILdapDownloadManager _ldapDownloadManager;
 
         public TimetableController(
             IUserManager userManager,
             IParserManager parserManager,
             IHttpContextAccessor httpContextAccessor,
-            ISubjectManager subjectManager)
+            ISubjectManager subjectManager,
+            ILdapDownloadManager ldapDownloadManager)
         {
             _parserManager = parserManager;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _subjectManager = subjectManager;
+            _ldapDownloadManager = ldapDownloadManager;
         }
 
         [HttpGet("mark/{id:guid}")]
@@ -78,9 +81,10 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpGet("downloadTimetable")]
-        [Authorize(Roles = "Teacher")]
+        [AllowAnonymous]
         public async Task<IActionResult> DownLoadTimeTable()
         {
+            await _ldapDownloadManager.SynchWithLdap();
             var response = await _parserManager.ParseTimetable();
 
             return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
