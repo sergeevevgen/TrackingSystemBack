@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.Dto.User;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
@@ -65,25 +66,43 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         {
             try
             {
-                // Ищем пользователя сначала по логину, потом по идентификатору
-                
                 // Если не по идентификатору, то по всем остальным полям
-                var element = await _context.Subjects
-                    .Include(s => s.Group)
-                    .Include(s => s.Lesson)
-                    .Include(s => s.Place)
-                    .Include(s => s.Users)
+                var query = _context.Subjects
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(s => s.Id.Equals(model.Id.Value) 
-                    || (s.Week.Equals(model.Week) 
-                        && s.Day.Equals(model.Day) 
-                        && s.Type.Equals(model.Type) 
-                        && s.Pair.Equals(model.Pair)
-                        && s.GroupId.Equals(model.GroupId)
-                        && s.PlaceId.Equals(model.PlaceId)
-                        && s.LessonId.Equals(model.LessonId)
-                        && s.TeacherId.Equals(model.TeacherId)),
-                    cancellationToken);
+                    .AsQueryable();
+
+                if (model.Id.HasValue)
+                {
+                    query = query.Where(s => s.Id.Equals(model.Id.Value))
+                        .Include(s => s.Group)
+                        .Include(s => s.Lesson)
+                        .Include(s => s.Place)
+                        .Include(s => s.Users);
+                }
+                else if (!string.IsNullOrEmpty(model.Type))
+                {
+                    query = query
+                        .Where(s =>
+                            s.Week.Equals(model.Week) &&
+                            s.Day.Equals(model.Day) &&
+                            s.Type.Equals(model.Type) &&
+                            s.Pair.Equals(model.Pair) &&
+                            s.GroupId.Equals(model.GroupId) &&
+                            s.PlaceId.Equals(model.PlaceId) &&
+                            s.LessonId.Equals(model.LessonId) &&
+                            s.TeacherId.Equals(model.TeacherId)
+                        )
+                        .Include(s => s.Group)
+                        .Include(s => s.Lesson)
+                        .Include(s => s.Place)
+                        .Include(s => s.Users);
+                }
+                else
+                {
+                    return null;
+                }
+                    
+                var element = await query.FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }

@@ -68,12 +68,24 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         {
             try
             {
-                var element = await _context.Lessons
-                    .Include(g => g.Subjects)
+                var query = _context.Lessons
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(g =>
-                        g.Id.Equals(model.Id.Value)
-                        || g.Name.Contains(model.Name), cancellationToken);
+                    .AsQueryable();
+
+                if (model.Id.HasValue)
+                {
+                    query = query.Where(l => l.Id.Equals(model.Id.Value)).Include(g => g.Subjects);
+                }
+                else if (!string.IsNullOrEmpty(model.Name))
+                {
+                    query = query.Where(l => l.Name.Contains(model.Name)).Include(g => g.Subjects);
+                }
+                else
+                {
+                    return null;
+                }
+
+                var element = await query.FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }
@@ -153,7 +165,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = lesson.Id,
                 Name = lesson.Name,
-                Subjects = lesson.Subjects.Select(x => x.Id).ToList(),
+                Subjects = lesson.Subjects?.Select(x => x.Id).ToList(),
             };
         }
     }

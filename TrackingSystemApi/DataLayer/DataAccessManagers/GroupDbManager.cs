@@ -70,18 +70,20 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 var query = _context.Groups
-                    .Include(g => g.Subjects)
-                    .Include(g => g.Users)
                     .AsNoTracking()
                     .AsQueryable();
 
                 if (model.Id.HasValue)
                 {
-                    query = query.Where(g => g.Id == model.Id.Value);
+                    query = query.Where(g => g.Id == model.Id.Value)
+                        .Include(g => g.Subjects)
+                        .Include(g => g.Users);
                 }
                 else if (!string.IsNullOrEmpty(model.Name))
                 {
-                    query = query.Where(g => g.Name.Equals(model.Name));
+                    query = query.Where(g => g.Name.Equals(model.Name))
+                        .Include(g => g.Subjects)
+                        .Include(g => g.Users);
                 }
                 else
                 {
@@ -168,8 +170,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = group.Id,
                 Name = group.Name,
-                Users = group.Users.Select(x => x.Id).ToList(),
-                Subjects = group.Subjects.Select(x => x.Id).ToList(),
+                Users = group.Users?.Select(x => x.Id).ToList(),
+                Subjects = group.Subjects?.Select(x => x.Id).ToList(),
             };
         }
     }

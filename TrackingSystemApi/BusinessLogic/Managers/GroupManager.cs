@@ -60,13 +60,16 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ResponseModel<GroupResponseDto>> Read(GroupDto model, CancellationToken cancellationToken = default)
         {
-            if (model != null)
+            try
             {
                 var data = await _storage.GetElement(model, cancellationToken);
+
                 return new ResponseModel<GroupResponseDto> { Data = data };
             }
-
-            return new ResponseModel<GroupResponseDto> { ErrorMessage = $"Такая группа не найдена {model.Name}" };
+            catch(Exception ex)
+            {
+                return new ResponseModel<GroupResponseDto> { ErrorMessage = ex.Message};
+            }
         }
 
         public Task<ResponseModel<List<GroupResponseDto>>> ReadAll(List<GroupDto> model, CancellationToken cancellationToken = default)

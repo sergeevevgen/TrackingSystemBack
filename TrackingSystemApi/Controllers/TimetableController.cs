@@ -84,7 +84,7 @@ namespace TrackingSystem.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> DownLoadTimeTable()
         {
-            await _ldapDownloadManager.SynchWithLdap();
+            //await _ldapDownloadManager.SynchWithLdap();
             var response = await _parserManager.ParseTimetable();
 
             return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);

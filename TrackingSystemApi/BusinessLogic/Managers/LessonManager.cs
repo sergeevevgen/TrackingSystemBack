@@ -60,13 +60,16 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken = default)
         {
-            if (model.Id.HasValue)
+            try
             {
                 var data = await _storage.GetElement(model, cancellationToken);
+
                 return new ResponseModel<LessonResponseDto> { Data = data };
             }
-
-            return new ResponseModel<LessonResponseDto> { ErrorMessage = $"Такой тип занятия не найден {model.Name}" };
+            catch (Exception ex)
+            {
+                return new ResponseModel<LessonResponseDto> { ErrorMessage = ex.Message};
+            }
         }
 
         public Task<ResponseModel<List<LessonResponseDto>>> ReadAll(List<LessonDto> model, CancellationToken cancellationToken = default)

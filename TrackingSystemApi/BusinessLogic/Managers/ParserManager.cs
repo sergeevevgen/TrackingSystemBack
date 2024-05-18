@@ -93,7 +93,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             var data = html.GetElementsByTagName("p")[0].Children[1].InnerHtml.Split("<br>");
             
             // Вытаскивание имени учителя
-            var name = Regex.Replace(data[0], @"^\s|\s$", "");
+            var (LastName, FirstNameInitial, MiddleNameInitial) = ParseFullName(Regex.Replace(data[0], @"^\s|\s$", ""));
 
             // Вытаскивание номера нечетной недели
             var firstWeek = int.Parse(Regex.Replace(data[1], @"\D", ""));
@@ -101,7 +101,12 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             var tabels = html.GetElementsByTagName("table");
 
             // Обновляем расписание только по тем учителям, что есть в бд, иначе нет
-            var teacher = await _userManager.Read(new UserDto { LastName = name }, default);
+            var teacher = await _userManager.Read(new UserDto 
+            {
+                LastName = LastName,
+                FirstName = FirstNameInitial,
+                MiddleName = MiddleNameInitial
+            }, default);
 
             if (teacher == null)
             {
@@ -136,20 +141,19 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                                 // Получаем группу, если ее нет в БД, то выходим из парсинга
                                 var group = await _groupManager.Read(new GroupDto { Name = gr }, default);
 
-                                if (group == null)
+                                if (!group.IsSuccess || group.Data == null)
                                 {
                                     return flag;
-                                } 
+                                }
 
-                                // Помещение создаем или получаем
-                                var place = await _placeManager.CreateOrUpdate(new PlaceDto { Name = item[2] }, default);
+                                var placeId = await FormatPlace(item[2]);
 
-                                // Надо протестить всё это
+                                //Тестим 19.05.24
                                 var result = await _subjectManager.CreateOrUpdate(new SubjectDto
                                 {
                                     GroupId = group.Data.Id,
                                     LessonId = lesson.data.Id,
-                                    PlaceId = place.Id,
+                                    PlaceId = placeId,
                                     TeacherId = teacher.Data.Id,
                                     Day = i - 2,
                                     Pair = (EPairNumbers) (j - 1),
@@ -164,6 +168,46 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
 
             return !flag;
+        }
+
+        /// <summary>
+        /// Метод для парсинга имени
+        /// </summary>
+        /// <param name="fullName"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        private (string LastName, string FirstNameInitial, string MiddleNameInitial) ParseFullName(string fullName)
+        {
+            var parts = fullName.Replace(".", "").Split(' ');
+            if (parts.Length != 3)
+            {
+                throw new ArgumentException("Invalid full name format");
+            }
+
+            return (parts[0], parts[1], parts[2]);
+        }
+
+        /// <summary>
+        /// Метод для форматирования помещения
+        /// </summary>
+        /// <returns></returns>
+        private async Task<Guid> FormatPlace(string name)
+        {
+            // Помещение создаем или получаем
+            var place = await _placeManager.Read(new PlaceDto
+            {
+                Name = name
+            }, default);
+
+            if (place.IsSuccess)
+            {
+                return place.Data.Id;
+            }
+
+            var placeId = (await _placeManager
+                .CreateOrUpdate(new PlaceDto { Name = name }, default)).Id;
+
+            return placeId;
         }
 
         /// <summary>
@@ -192,11 +236,21 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 tmp = name[3..];
             }
 
+            var lesson = await _lessonManager.Read(new LessonDto
+            {
+                Name = tmp
+            });
+
+            if (lesson.IsSuccess)
+            {
+                return (lesson.Data, type);
+            }
+
             var lessonType = await _lessonManager
-                .CreateOrUpdate(new LessonDto 
-                { 
-                    Name = tmp
-                }, default);
+                   .CreateOrUpdate(new LessonDto
+                   {
+                       Name = tmp
+                   }, default);
 
             return (lessonType, type);
         }

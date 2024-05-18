@@ -239,6 +239,15 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 else if (!string.IsNullOrEmpty(model.LastName))
                 {
                     query = query.Where(u => u.LastName.Contains(model.LastName));
+                    if (!string.IsNullOrEmpty(model.FirstName))
+                    {
+                        query = query.Where(u => u.FirstName.StartsWith(model.FirstName));
+                    }
+
+                    if (!string.IsNullOrEmpty(model.MiddleName))
+                    {
+                        query = query.Where(u => u.MiddleName.StartsWith(model.MiddleName));
+                    }
                 }
                 else
                 {
@@ -286,7 +295,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = user.Id,
                 Login = user.Login,
-                Name = user.LastName + " " + user.FirstName[0] + ". " + user.MiddleName[0] + ".",
+                Name = (!string.IsNullOrEmpty(user.LastName) ? user.LastName : "")
+                + " " + (!string.IsNullOrEmpty(user.FirstName) ? user.FirstName[0] : "")
+                + ". " + (!string.IsNullOrEmpty(user.MiddleName) ? user.MiddleName[0] : "") + ".",
                 GroupId = user.GroupId,
                 Group = user.UserGroup?.Name,
                 Status = user.Status,
