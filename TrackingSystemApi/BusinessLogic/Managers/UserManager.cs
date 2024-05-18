@@ -267,7 +267,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 return group.Id;
             }
 
-            var newGroup = await _groupManager.Insert(new GroupDto { Name = groupName });
+            var newGroup = await _groupManager.Insert(new GroupDto { Name = groupName }, cancellationToken);
 
             return newGroup.Id;
         }
