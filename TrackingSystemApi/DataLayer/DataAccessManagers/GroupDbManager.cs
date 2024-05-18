@@ -47,10 +47,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                     return true;
                 }
-                else
-                {
-                    throw new Exception("Элемент не найден");
-                }
+
+                throw new Exception("Элемент не найден");
             }
             catch (Exception ex)
             {
