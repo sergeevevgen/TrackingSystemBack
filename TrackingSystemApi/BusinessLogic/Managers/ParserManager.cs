@@ -61,14 +61,21 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             int? tmp = await _lkClient.GetTeacherCount();
             int endFileIndex = (int)(tmp != null ? tmp : 0);
 
-            // Флаг того, что надо isDifference текущей недели сделать = 0
-            bool flag = true;
+            var res = await GetWeek();
 
-            for(int i = startFileIndex; i < endFileIndex; i++)
+            for (int i = 0; i < res.Item2; i++)
+            {
+                await _subjectManager.ChangeIsDifferenceByWeek(new SubjectChangeIsDifferenceByWeekDto
+                {
+                    Week = res.Item1 + i,
+                }, default);
+            }                
+
+            for (int i = startFileIndex; i < endFileIndex; i++)
             {
                 try
                 {
-                    flag = await ParseTimetableForTeacher(i, flag);
+                    await ParseTimetableForTeacher(i);
                 }
                 catch(Exception ex)
                 {
@@ -83,7 +90,29 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new ResponseModel<string> { Data = "Расписание обновлено" };
         }
 
-        private async Task<bool> ParseTimetableForTeacher(int id, bool flag)
+        /// <summary>
+        /// Метод для получения недели из парсинга и их количества на странице
+        /// </summary>
+        /// <returns></returns>
+        private async Task<(int, int)> GetWeek()
+        {
+            // Парсим страницу
+            var html = await new HtmlParser()
+                .ParseDocumentAsync(File.ReadAllText($"{_lkClient.downloadFolder}{3}.html",
+                Encoding.GetEncoding("windows-1251")));
+
+            // Парсинг блока
+            var data = html.GetElementsByTagName("p")[0].Children[1].InnerHtml.Split("<br>");
+
+            // Вытаскивание номера нечетной недели
+            var firstWeek = int.Parse(Regex.Replace(data[1], @"\D", ""));
+
+            var tabels = html.GetElementsByTagName("table");
+
+            return (firstWeek, tabels.Length);
+        }
+
+        private async Task ParseTimetableForTeacher(int id)
         {
             // Парсим страницу
             var html = await new HtmlParser()
@@ -92,9 +121,17 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             // Парсинг блока
             var data = html.GetElementsByTagName("p")[0].Children[1].InnerHtml.Split("<br>");
-            
-            // Вытаскивание имени учителя
-            var (LastName, FirstNameInitial, MiddleNameInitial) = ParseFullName(Regex.Replace(data[0], @"^\s|\s$", ""));
+
+            string LastName, FirstNameInitial, MiddleNameInitial;
+            try
+            {
+                // Вытаскивание имени учителя
+                (LastName, FirstNameInitial, MiddleNameInitial) = ParseFullName(Regex.Replace(data[0], @"^\s|\s$", ""));
+            }
+            catch
+            {
+                return;
+            }
 
             // Вытаскивание номера нечетной недели
             var firstWeek = int.Parse(Regex.Replace(data[1], @"\D", ""));
@@ -111,20 +148,11 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             if (!teacher.IsSuccess || teacher.Data == null)
             {
-                return flag;
+                return;
             }
 
             for (int week = 0; week < tabels.Length; week++)
             {
-                // Делаем isDifference = 0 для каждой недели
-                if (flag)
-                {
-                    await _subjectManager.ChangeIsDifferenceByWeek(new SubjectChangeIsDifferenceByWeekDto
-                    {
-                        Week = firstWeek + week
-                    }, default);
-                }
-
                 var rows = tabels[week].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr");
                 for (int i = 2; i < rows.Length; i++)
                 {
@@ -144,7 +172,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                                 if (!group.IsSuccess || group.Data == null)
                                 {
-                                    return flag;
+                                    return;
                                 }
 
                                 var placeId = await FormatPlace(item[2]);
@@ -168,7 +196,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 }
             }
 
-            return !flag;
+            return;
         }
 
         /// <summary>

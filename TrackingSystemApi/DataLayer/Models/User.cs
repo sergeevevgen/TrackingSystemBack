@@ -53,7 +53,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         public EStatus? Status { get; set; }
 
         /// <summary>
-        /// Связь один-к-одному для учителя и занятия
+        /// Связь один-ко-многим для учителя и занятия
         /// </summary>
         public virtual ICollection<Subject>? TeacherSubjects { get; set; } = null!;
 

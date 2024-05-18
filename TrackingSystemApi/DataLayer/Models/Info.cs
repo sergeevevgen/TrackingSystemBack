@@ -14,6 +14,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Тут будет храниться текущая неделя
         /// </summary>
+        [Required]
         public int Week { get; set; }
     }
 }

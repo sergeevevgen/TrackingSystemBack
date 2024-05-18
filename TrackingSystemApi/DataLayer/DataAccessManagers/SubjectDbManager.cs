@@ -381,6 +381,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 // Получаем текущую неделю
                 var week = await _context.Infos.FirstOrDefaultAsync(cancellationToken);
+                if (week == null)
+                {
+                    return null;
+                }
 
                 var query = await (from subjects in _context.Subjects
                                    join lessons in _context.Lessons on subjects.LessonId equals lessons.Id
