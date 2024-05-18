@@ -180,9 +180,9 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 var result = await _storage.GetGroupTimetable(model, cancellationToken);
 
-                if (result == null || result.Timetable.Count <= 0)
+                if (result.Timetable.Count <= 0)
                 {
-                    return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для группы {model.GroupId}" };
+                    return new ResponseModel<UserGetTimetableResponseDto> { Data = null };
                 }
 
                 return new ResponseModel<UserGetTimetableResponseDto> { Data = result };
@@ -190,7 +190,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             catch (Exception ex)
             {
                 _logger.Error(ex, ex.Message);
-                return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = ex.Message };
+                return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для группы {model.GroupId}" + ex.Message };
             }
         }
     }
