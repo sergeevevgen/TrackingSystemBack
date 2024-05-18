@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrackingSystem.Api.Shared.Enums;
 
 namespace TrackingSystem.Api.Shared.Dto.Identity
 {
@@ -11,7 +12,7 @@ namespace TrackingSystem.Api.Shared.Dto.Identity
     /// Создание сущности Identity пользователя
     /// по логину и паролю
     /// </summary>
-    public class CreateIdentityCommand
+    public class CreateIdentityDto
     {
         /// <summary>
         /// Id пользователя
@@ -28,6 +29,6 @@ namespace TrackingSystem.Api.Shared.Dto.Identity
         /// <summary>
         /// Роль
         /// </summary>
-        public string Role { get; init; } = null!;
+        public ERoles Role { get; init; }
     }
 }

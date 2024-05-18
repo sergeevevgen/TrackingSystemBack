@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -71,6 +72,13 @@ namespace TrackingSystem.Api
 
             services.AddSession();
 
+            services.AddHangfire(configuration =>
+            {
+                configuration.UseSqlServerStorage(appConfig.DBConnectionString);
+            });
+
+            services.AddHangfireServer();
+
             services
                 .AddAuthentication(x =>
                 {
@@ -104,7 +112,7 @@ namespace TrackingSystem.Api
                 });
 
                 // Создание и добавление требования безопасности
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -155,10 +163,14 @@ namespace TrackingSystem.Api
                .AllowCredentials()
              );
 
+            app.UseHangfireDashboard("/dashboard");
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            RecurringJob.AddOrUpdate("test", () => Console.WriteLine("test"), Cron.Minutely);
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()

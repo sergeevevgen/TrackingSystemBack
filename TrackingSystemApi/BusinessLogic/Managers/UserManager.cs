@@ -113,17 +113,18 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     },
                     cancellationToken);
 
-                var result = _ldapManager.CanAuthorize(query);
+                //var result = _ldapManager.CanAuthorize(query);
+                var result = true;
 
                 if (user == null || !result)
                     return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин/пароль" };
 
-                var identity = await _identityManager.CreateIdentity(
-                    new CreateIdentityCommand
+                var identity = _identityManager.CreateIdentity(
+                    new CreateIdentityDto
                     {
                         Login = user.Login,
                         UserId = user.Id,
-                        // Role = TODO
+                        Role = user.Role
                     },
                     cancellationToken);
 
@@ -135,6 +136,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     identity.Claims,
                     EJwtTokenType.Refresh);
 
+                // Тут надо посмотреть в каком Claims лежит Role
                 var response = new ResponseModel<UserLoginResponseDto>
                 {
                     Data = new UserLoginResponseDto
@@ -143,7 +145,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         RefreshToken = refreshToken,
                         Name = identity.Name,
                         Id = identity.Claims.Last().Value,
-                        //TODO role
+                        Role = identity.Claims.ElementAt(1).Value,
                     }
                 };
 
@@ -216,12 +218,12 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Login = model.UserLogin
             }, cancellationToken);
 
+            // Надо айди группы
             var groupId = (await _groupManager.GetElement(new GroupDto
             {
                 Name = model.Group
             }, default)).Id;
-
-            // Надо вытащить роль и айди группу
+            
             var newModel = new UserDto
             {
                 FirstName = model.FirstName,

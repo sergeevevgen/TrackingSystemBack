@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.Shared.Dto.Identity
 {
-    public class RefreshTokenCommand
+    public class RefreshTokenDto
     {
-        [Required(ErrorMessage = "поле должно быть заполнено")]
+        [Required(ErrorMessage = "Поле должно быть заполнено")]
         public string TokenHash { get; init; } = null!;
     }
 }

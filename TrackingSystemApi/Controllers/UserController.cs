@@ -9,7 +9,7 @@ using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.Controllers
 {
-    [Route("/api/v1/[controller]/[action]")]
+    [Route("/api/v1/[controller]/")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -30,7 +30,7 @@ namespace TrackingSystem.Api.Controllers
             _parserManager = parserManager;
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> LoginAsync(
             [FromBody] UserLoginDto query,
@@ -47,16 +47,16 @@ namespace TrackingSystem.Api.Controllers
                 return BadRequest(response.ErrorMessage);
         }
 
-        [HttpPost]
+        [HttpPost("refreshToken")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshToken(
-            [FromBody] RefreshTokenCommand command,
+            [FromBody] RefreshTokenDto command,
             CancellationToken token)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _identityManager.RefreshToken(command, token);
+            var response = _identityManager.RefreshToken(command, token);
             if (response.IsSuccess)
                 return Ok(response.Data);
             else
@@ -94,7 +94,7 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpGet("timetable/today")]
-        [Authorize]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> TimetableToday()
         {
             var message = "sss";
@@ -102,7 +102,16 @@ namespace TrackingSystem.Api.Controllers
             return Ok(message);
         }
 
-        [HttpGet("downloadTimetable/")]
+        [HttpGet("test")]
+        [Authorize(Roles = "Pupil")]
+        public async Task<IActionResult> Test()
+        {
+            var message = "good access";
+
+            return Ok(message);
+        }
+
+        [HttpGet("downloadTimetable")]
         [Authorize]
         public async Task<IActionResult> DownLoadTimeTable()
         {

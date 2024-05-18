@@ -29,6 +29,11 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Токен обновления
         /// </summary>
-        public string RefreshToken { get; init; } = null!;     
+        public string RefreshToken { get; init; } = null!;
+        
+        /// <summary>
+        /// Роль
+        /// </summary>
+        public string Role { get; init; } = null!;
     }
 }

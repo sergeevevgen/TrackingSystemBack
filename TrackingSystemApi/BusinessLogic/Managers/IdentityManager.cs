@@ -26,8 +26,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _jwtAuthManager = jWTAuthManager;
         }
 
-        public async Task<ClaimsIdentity> CreateIdentity(
-            CreateIdentityCommand query,
+        public ClaimsIdentity CreateIdentity(
+            CreateIdentityDto query,
             CancellationToken cancellationToken = default)
         {
             try
@@ -41,9 +41,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 var claims = new List<Claim>
                 {
-                    new(ClaimsIdentity.DefaultNameClaimType, query.Login), 
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, query.Login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, query.Role.ToString()),
                     //new(ClaimsIdentity.DefaultRoleClaimType, user.Role.GetValueOrDefault().ToString()), TODO
-                    new("Id", query.UserId.ToString())
+                    new Claim("Id", query.UserId.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(
@@ -52,7 +53,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
 
-                return await Task.FromResult(claimsIdentity);
+                return claimsIdentity;
             }
             catch (Exception ex)
             {
@@ -61,7 +62,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
-        public Task<ResponseModel<RefreshTokenResponseDTO>> RefreshToken(RefreshTokenCommand command, CancellationToken cancellationToken = default)
+        public ResponseModel<RefreshTokenResponseDTO> RefreshToken(RefreshTokenDto command, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -69,28 +70,29 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 var principal = _jwtUserManager.GetPrincipalFromExpiredToken(command.TokenHash);
 
                 if (principal == null)
-                    return Task.FromResult(new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = "Неверный refresh токен." });
+                    return new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = "Неверный refresh токен" };
 
                 if (principal.Identity is not ClaimsIdentity identity)
-                    return Task.FromResult(new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = "Ошибка получения сущности пользователя" });
+                    return new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = "Ошибка получения сущности пользователя" };
 
                 var accessToken = _jwtAuthManager.GenerateToken(identity.Claims, EJwtTokenType.Access);
 
-                return Task.FromResult(new ResponseModel<RefreshTokenResponseDTO>
+                return new ResponseModel<RefreshTokenResponseDTO>
                 {
                     Data = new RefreshTokenResponseDTO
                     {
                         AccessToken = accessToken,
                         Id = identity.Claims.Last().Value,
                         Login = identity.Name,
+                        Role = identity.Claims.ElementAt(1).Value,
                     }
-                });
+                };
             }
             catch (Exception ex)
             {
                 var errorMessage = "Ошибка обновления токена";
                 _logger.Error(ex, errorMessage);
-                return Task.FromResult(new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = errorMessage });
+                return new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = errorMessage };
             }
         }
     }
