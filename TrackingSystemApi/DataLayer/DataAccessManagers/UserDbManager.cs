@@ -256,28 +256,6 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
-        public async Task<UserResponseDto?> GetElementForLdap(UserDto model, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                // Ищем пользователя сначала по логину, потом по идентификатору
-                var element = await _context.Users
-                    .Include(u => u.UserGroup)
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(u =>
-                        u.Login.Equals(model.Login) ||
-                        u.Id.Equals(model.Id.Value) ||
-                        u.LastName.Contains(model.LastName), cancellationToken);
-
-                return element == null ? null : CreateModel(element);
-            }
-            catch (Exception ex)
-            {
-                //_logger.Error(ex, $"Ошибка получения пользователя c Id {model.Id}: {ex.Message}");
-                return null;
-            }
-        }
-
         /// <summary>
         /// Метод для биндинга полей dto и модели db
         /// </summary>

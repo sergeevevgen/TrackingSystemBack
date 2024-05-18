@@ -222,92 +222,54 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 Login = model.UserLogin
             }, cancellationToken);
 
-            // Если нет, то создаем
+            // Получаем или создаем группу
+            var groupId = await GetOrCreateGroupId(model.Group, cancellationToken);
+
+            // Создаем пользователя для вставки или обновления в БД
+            var user = new UserDto
+            {
+                Id = element?.Id,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                MiddleName = model.MiddleName,
+                Login = model.UserLogin,
+                Status = model.Status ?? (string.IsNullOrEmpty(model.Group) ? null : EStatus.Is_Dropped),
+                Role = model.Role,
+                GroupId = groupId
+            };
+
             if (element == null)
             {
-                // Если есть группа, то это ученик
-                if (!string.IsNullOrEmpty(model.Group))
-                {
-                    // Надо айди группы - если нет, то создать
-                    var groupId = (await _groupManager.GetElement(new GroupDto
-                    {
-                        Name = model.Group
-                    }, default))?.Id;
-
-                    // Если айди группы null, то создаем такую группу
-                    if (groupId == null)
-                    {
-                        // Получаем айди новой группы
-                        var group = await _groupManager.Insert(new GroupDto
-                        {
-                            Name = model.Group
-                        });
-
-                        _logger.Info($"Создана новая группа {group.}");
-
-                        // Создаем нового пользователя ученика
-                        var newModel = new UserDto
-                        {
-                            FirstName = model.FirstName,
-                            LastName = model.LastName,
-                            MiddleName = model.MiddleName,
-                            Login = model.UserLogin,
-                            Status = model.Status ?? EStatus.Is_Dropped,
-                            Role = model.Role,
-                            GroupId = group.Id,
-                        };
-
-                        _logger.Info($"Создан новый пользователь");
-                        return await _storage.Insert(newModel, cancellationToken);
-                    }
-
-                    // Иначе берем этот айди
-                    var newModel = new UserDto
-                    {
-                        FirstName = model.FirstName,
-                        LastName = model.LastName,
-                        MiddleName = model.MiddleName,
-                        Login = model.UserLogin,
-                        Status = model.Status ?? EStatus.Is_Dropped,
-                        Role = model.Role,
-                        GroupId = groupId,
-                    };
-
-                    _logger.Info($"Создан новый пользователь");
-                    return await _storage.Insert(newModel, cancellationToken);
-                }
-
-                // Если группа пуста, то это учитель
-                var newModel = new UserDto
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    MiddleName = model.MiddleName,
-                    Login = model.UserLogin,
-                    Status = null,
-                    Role = model.Role,
-                    GroupId = null,
-                };
-
-                _logger.Info($"Создан новый пользователь");
-                return await _storage.Insert(newModel, cancellationToken);
+                return await _storage.Insert(user, cancellationToken);
             }
-
-
-            
-            
-
-            if (element != null)
+            else
             {
-                newModel.Id = element.Id;
-
-                element = await _storage.Update(newModel, cancellationToken);
-                _logger.Info($"Пользователь {model.UserLogin} обновлен");
-                return element;
+                return await _storage.Update(user, cancellationToken);
             }
-            
+        }
 
-            return element;
+        /// <summary>
+        /// Метод для создание или получения группы
+        /// </summary>
+        /// <param name="groupName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task<Guid?> GetOrCreateGroupId(string groupName, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return null;
+            }
+
+            var group = await _groupManager.GetElement(new GroupDto { Name = groupName }, cancellationToken);
+            if (group != null)
+            {
+                return group.Id;
+            }
+
+            var newGroup = await _groupManager.Insert(new GroupDto { Name = groupName });
+
+            return newGroup.Id;
         }
 
         public async Task<bool> Delete(UserDto model, CancellationToken cancellationToken = default)

@@ -111,7 +111,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 foreach (var user in mainList)
                 {
-                    await _manager.CreateOrUpdateFromLdap(user, default);
+                    await _manager.CreateOrUpdateFromLdap(user);
                 }
 
                 cn.Dispose();
