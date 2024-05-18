@@ -223,15 +223,31 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 // Ищем пользователя сначала по логину, потом по идентификатору
-                var element = await _context.Users
+                var query = _context.Users
                     .Include(u => u.UserGroup)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(u => 
-                        u.Login.Equals(model.Login) || 
-                        u.Id.Equals(model.Id.Value) || 
-                        u.LastName.Contains(model.LastName), cancellationToken);
+                    .AsQueryable();
 
-                return element == null ? null : CreateModel(element); 
+                if (!string.IsNullOrEmpty(model.Login))
+                {
+                    query = query.Where(u => u.Login.Equals(model.Login));
+                }
+                else if (model.Id.HasValue)
+                {
+                    query = query.Where(u => u.Id == model.Id.Value);
+                }
+                else if (!string.IsNullOrEmpty(model.LastName))
+                {
+                    query = query.Where(u => u.LastName.Contains(model.LastName));
+                }
+                else
+                {
+                    return null;
+                }
+
+                var element = await query.FirstOrDefaultAsync(cancellationToken);
+
+                return element == null ? null : CreateModel(element);
             }
             catch (Exception ex)
             {

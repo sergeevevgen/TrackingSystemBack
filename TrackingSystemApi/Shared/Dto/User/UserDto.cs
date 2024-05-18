@@ -19,7 +19,7 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public Guid? GroupId { get; set; }
 
-        public EStatus Status { get; set; }
+        public EStatus? Status { get; set; }
 
         public ERoles Role { get; set; }
     }

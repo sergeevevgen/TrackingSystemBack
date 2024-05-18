@@ -216,27 +216,86 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
         public async Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken = default)
         {
+            // Проверяем, есть ли такой пользователь
             var element = await _storage.GetElement(new UserDto
             {
                 Login = model.UserLogin
             }, cancellationToken);
 
-            // Надо айди группы
-            var groupId = (await _groupManager.GetElement(new GroupDto
+            // Если нет, то создаем
+            if (element == null)
             {
-                Name = model.Group
-            }, default)).Id;
+                // Если есть группа, то это ученик
+                if (!string.IsNullOrEmpty(model.Group))
+                {
+                    // Надо айди группы - если нет, то создать
+                    var groupId = (await _groupManager.GetElement(new GroupDto
+                    {
+                        Name = model.Group
+                    }, default))?.Id;
+
+                    // Если айди группы null, то создаем такую группу
+                    if (groupId == null)
+                    {
+                        // Получаем айди новой группы
+                        var group = await _groupManager.Insert(new GroupDto
+                        {
+                            Name = model.Group
+                        });
+
+                        _logger.Info($"Создана новая группа {group.}");
+
+                        // Создаем нового пользователя ученика
+                        var newModel = new UserDto
+                        {
+                            FirstName = model.FirstName,
+                            LastName = model.LastName,
+                            MiddleName = model.MiddleName,
+                            Login = model.UserLogin,
+                            Status = model.Status ?? EStatus.Is_Dropped,
+                            Role = model.Role,
+                            GroupId = group.Id,
+                        };
+
+                        _logger.Info($"Создан новый пользователь");
+                        return await _storage.Insert(newModel, cancellationToken);
+                    }
+
+                    // Иначе берем этот айди
+                    var newModel = new UserDto
+                    {
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        MiddleName = model.MiddleName,
+                        Login = model.UserLogin,
+                        Status = model.Status ?? EStatus.Is_Dropped,
+                        Role = model.Role,
+                        GroupId = groupId,
+                    };
+
+                    _logger.Info($"Создан новый пользователь");
+                    return await _storage.Insert(newModel, cancellationToken);
+                }
+
+                // Если группа пуста, то это учитель
+                var newModel = new UserDto
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    MiddleName = model.MiddleName,
+                    Login = model.UserLogin,
+                    Status = null,
+                    Role = model.Role,
+                    GroupId = null,
+                };
+
+                _logger.Info($"Создан новый пользователь");
+                return await _storage.Insert(newModel, cancellationToken);
+            }
+
+
             
-            var newModel = new UserDto
-            {
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                MiddleName = model.MiddleName,
-                Login = model.UserLogin,
-                Status = model.Status ?? EStatus.Is_Dropped,
-                Role = model.Role,
-                GroupId = groupId
-            };
+            
 
             if (element != null)
             {
@@ -247,8 +306,6 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 return element;
             }
             
-            element = await _storage.Insert(newModel, cancellationToken);
-            _logger.Info($"Создан новый пользователь");
 
             return element;
         }
