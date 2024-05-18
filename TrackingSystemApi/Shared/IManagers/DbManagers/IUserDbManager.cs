@@ -18,5 +18,7 @@ namespace TrackingSystem.Api.Shared.IManagers.DbManagers
         Task<bool> Delete(UserDto model, CancellationToken cancellationToken = default);
 
         Task<UserResponseDto?> GetElement(UserDto model, CancellationToken cancellationToken = default);
+
+        Task<UserResponseDto?> GetElementForLdap(UserDto model, CancellationToken cancellationToken = default);
     }
 }
