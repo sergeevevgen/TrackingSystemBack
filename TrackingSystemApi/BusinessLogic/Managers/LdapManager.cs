@@ -92,8 +92,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     if (user != null)
                     {
                         user.Role = ERoles.Pupil;
-                        user.Group = c.GroupName;
-                        user.Status = EStatus.Is_Studying;
+                        user.Group = !string.IsNullOrEmpty(c.GroupName) ? c.GroupName : null;
+                        user.Status = !string.IsNullOrEmpty(c.GroupName) ? EStatus.Is_Studying : EStatus.Is_Dropped;
                     }
                 }
 
