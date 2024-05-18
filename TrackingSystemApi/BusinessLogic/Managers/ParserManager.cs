@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.BusinessLogic.DownloadLk;
+using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Lesson;
 using TrackingSystem.Api.Shared.Dto.Place;
@@ -108,7 +109,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 MiddleName = MiddleNameInitial
             }, default);
 
-            if (teacher == null)
+            if (!teacher.IsSuccess || teacher.Data == null)
             {
                 return flag;
             }
@@ -149,18 +150,18 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                                 var placeId = await FormatPlace(item[2]);
 
                                 //Тестим 19.05.24
-                                var result = await _subjectManager.CreateOrUpdate(new SubjectDto
+                                await FormatSubject(new SubjectDto
                                 {
                                     GroupId = group.Data.Id,
                                     LessonId = lesson.data.Id,
                                     PlaceId = placeId,
                                     TeacherId = teacher.Data.Id,
                                     Day = i - 2,
-                                    Pair = (EPairNumbers) (j - 1),
+                                    Pair = (EPairNumbers)(j - 1),
                                     Week = firstWeek + week,
                                     Type = lesson.type,
                                     IsDifference = EIsDifference.Actual
-                                }, default);
+                                });
                             }
                         }
                     }
@@ -176,7 +177,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="fullName"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        private (string LastName, string FirstNameInitial, string MiddleNameInitial) ParseFullName(string fullName)
+        private static (string LastName, string FirstNameInitial, string MiddleNameInitial) ParseFullName(string fullName)
         {
             var parts = fullName.Replace(".", "").Split(' ');
             if (parts.Length != 3)
@@ -208,6 +209,25 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 .CreateOrUpdate(new PlaceDto { Name = name }, default)).Id;
 
             return placeId;
+        }
+
+        /// <summary>
+        /// Метод для форматирования помещения
+        /// </summary>
+        /// <returns></returns>
+        private async Task FormatSubject(SubjectDto dto)
+        {
+            var subject = await _subjectManager.Read(dto, default);
+
+            if (subject.IsSuccess && subject.Data != null)
+            {
+                dto.Id = subject.Data.Id;
+                await _subjectManager.CreateOrUpdate(dto, default);
+
+                return;
+            }
+
+            await _subjectManager.CreateOrUpdate(dto);
         }
 
         /// <summary>

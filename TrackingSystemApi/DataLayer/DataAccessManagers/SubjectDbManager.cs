@@ -272,16 +272,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 await context.SaveChangesAsync();
             }
 
-            foreach (var u in model.Users)
+            if (model.Users != null)
             {
-                await context.UserSubjects.AddAsync(new UserSubject
+                foreach (var u in model.Users)
                 {
-                    SubjectId = subject.Id,
-                    UserId = u.Key,
-                    IsMarked = u.Value,
-                    MarkTime = DateTime.Now
-                });
-                await context.SaveChangesAsync();
+                    await context.UserSubjects.AddAsync(new UserSubject
+                    {
+                        SubjectId = subject.Id,
+                        UserId = u.Key,
+                        IsMarked = u.Value,
+                        MarkTime = DateTime.Now
+                    });
+                    await context.SaveChangesAsync();
+                }
             }
 
             return subject;
@@ -306,7 +309,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 IsDifference = subject.IsDifference,
                 Pair = subject.Pair,
                 Type = subject.Type,
-                Users = subject.Users
+                Users = subject.Users?
                     .ToDictionary(k => k.UserId, v => v.IsMarked)
             };
         }

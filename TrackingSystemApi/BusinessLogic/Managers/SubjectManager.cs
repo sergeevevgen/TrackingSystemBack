@@ -150,12 +150,16 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <returns></returns>
         public async Task<ResponseModel<SubjectResponseDto>> Read(SubjectDto model, CancellationToken cancellationToken = default)
         {
-            if (model.Id.HasValue)
+            try
             {
                 var data = await _storage.GetElement(model, cancellationToken);
+
                 return new ResponseModel<SubjectResponseDto> { Data = data };
             }
-            return new ResponseModel<SubjectResponseDto> { ErrorMessage = $"Такое занятие не найдено" };
+            catch (Exception ex)
+            {
+                return new ResponseModel<SubjectResponseDto> { ErrorMessage = ex.Message };
+            }
         }
 
         /// <summary>
