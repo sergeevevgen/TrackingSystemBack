@@ -82,7 +82,7 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpGet("downloadTimetable")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DownLoadTimeTable()
         {
             //await _ldapDownloadManager.SynchWithLdap();
