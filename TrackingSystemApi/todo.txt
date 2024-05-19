@@ -64,3 +64,5 @@
 
 
 Для бекапа - надо в SSMS сделать бекап и, так как у меня проброшены volume, то создастся он в файле с проектом
+Далее перекинуть это в новый контейнер
+docker cp E:\Диплом\server-side\TrackingSystem\data\TrackingSystem.bak 63140e49c18a:/var/opt/mssql/backup/TrackingSystem.bak

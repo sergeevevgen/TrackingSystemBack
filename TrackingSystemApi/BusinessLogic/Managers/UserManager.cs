@@ -1,5 +1,7 @@
-﻿using System.Security.Authentication;
+﻿using Microsoft.Extensions.Options;
+using System.Security.Authentication;
 using System.Security.Claims;
+using TrackingSystem.Api.AppLogic.Core;
 using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Identity;
 using TrackingSystem.Api.Shared.Dto.Subject;
@@ -24,6 +26,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly IGroupDbManager _groupManager;
         private readonly ILdapAuthManager _ldapManager;
         private readonly ISubjectDbManager _subjectDbManager;
+        private readonly AppConfig _config;
 
         public UserManager(
             ILogger logger,
@@ -32,7 +35,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             IIdentityManager identityManager,
             IGroupDbManager groupManager,
             ILdapAuthManager ldapManager,
-            ISubjectDbManager subjectDbManager)
+            ISubjectDbManager subjectDbManager,
+            IOptions<AppConfig> options)
         {
             _logger = logger;
             _storage = manager;
@@ -41,6 +45,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _groupManager = groupManager;
             _ldapManager = ldapManager;
             _subjectDbManager = subjectDbManager;
+            _config = options.Value;
         }
 
         /// <summary>
@@ -116,10 +121,24 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     },
                     cancellationToken);
 
-                //var result = _ldapManager.CanAuthorize(query);
-                var result = true;
+                if (user == null)
+                {
+                    return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин/пароль" };
+                }
 
-                if (user == null || !result)
+                bool result = false;
+
+                if (user.Role == ERoles.Admin && query.Password.Equals(_config.AdminPassword))
+                {
+                    result = true;
+                }
+                else
+                {
+                    result = true; // раскомментить и убрать
+                    //result = _ldapManager.CanAuthorize(query);
+                }   
+
+                if (!result)
                     return new ResponseModel<UserLoginResponseDto> { ErrorMessage = "Неправильный логин/пароль" };
 
                 var identity = _identityManager.CreateIdentity(
@@ -292,6 +311,26 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
 
             return new ResponseModel<UserResponseDto> { ErrorMessage = $"Такой пользователь не найден {model.Login}" };
+        }
+
+        public async Task<ResponseModel<bool>> ChangeInfo(InfoChangeDto dto, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = await _subjectDbManager.ChangeInfo(dto);
+
+                if (result)
+                {
+                    return new ResponseModel<bool> { Data = true };
+                }
+
+                return new ResponseModel<bool> { ErrorMessage = "Не удалось обновить инфу" };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                return new ResponseModel<bool> { ErrorMessage = ex.Message };
+            }
         }
     }
 }

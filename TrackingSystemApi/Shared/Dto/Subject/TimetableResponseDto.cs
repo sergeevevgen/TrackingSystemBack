@@ -1,6 +1,6 @@
 ﻿using TrackingSystem.Api.Shared.Enums;
 
-namespace TrackingSystem.Api.Shared.Dto.User
+namespace TrackingSystem.Api.Shared.Dto.Subject
 {
     public class TimetableResponseDto
     {

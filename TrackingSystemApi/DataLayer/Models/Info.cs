@@ -14,7 +14,11 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Тут будет храниться текущая неделя
         /// </summary>
-        [Required]
         public int Week { get; set; }
+
+        /// <summary>
+        /// Время максимального отклонения при отметке на занятии
+        /// </summary>
+        public TimeSpan AllowedDeviation { get; set; }
     }
 }

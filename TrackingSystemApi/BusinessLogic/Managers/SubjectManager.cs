@@ -1,4 +1,4 @@
-﻿using System.Web.Http.Metadata;
+﻿using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
@@ -12,13 +12,27 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
     {
         private readonly ILogger _logger;
         private readonly ISubjectDbManager _storage;
+        private readonly IGroupDbManager _groupStorage;
+        private readonly Dictionary<EPairNumbers, SubjectTimeSlotDto> SubjectsTime = new Dictionary<EPairNumbers, SubjectTimeSlotDto>
+        {
+            { EPairNumbers.First, new SubjectTimeSlotDto { StartTime = new TimeSpan(8, 30, 0), EndTime = new TimeSpan(9, 50, 0) } },
+            { EPairNumbers.Second, new SubjectTimeSlotDto { StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 20, 0) } },
+            { EPairNumbers.Third, new SubjectTimeSlotDto { StartTime = new TimeSpan(11, 30, 0), EndTime = new TimeSpan(12, 50, 0) } },
+            { EPairNumbers.Fourth, new SubjectTimeSlotDto { StartTime = new TimeSpan(13, 30, 0), EndTime = new TimeSpan(14, 50, 0) } },
+            { EPairNumbers.Fifth, new SubjectTimeSlotDto { StartTime = new TimeSpan(15, 0, 0), EndTime = new TimeSpan(16, 20, 0) } },
+            { EPairNumbers.Sixth, new SubjectTimeSlotDto { StartTime = new TimeSpan(16, 30, 0), EndTime = new TimeSpan(17, 50, 0) } },
+            { EPairNumbers.Seventh, new SubjectTimeSlotDto { StartTime = new TimeSpan(18, 0, 0), EndTime = new TimeSpan(19, 20, 0) } },
+            { EPairNumbers.Eighth, new SubjectTimeSlotDto { StartTime = new TimeSpan(19, 30, 0), EndTime = new TimeSpan(20, 50, 0) } },
+        };
 
         public SubjectManager(
             ILogger logger,
-            ISubjectDbManager storage)
+            ISubjectDbManager storage,
+            IGroupDbManager dbStorage)
         {
             _logger = logger;
             _storage = storage;
+            _groupStorage = dbStorage;
         }
 
         /// <summary>
@@ -131,15 +145,77 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         {
             try
             {
+                var subject = await _storage.GetElement(new SubjectDto
+                {
+                    Id = model.SubjectId,
+                });
+
                 model.MarkTime = DateTime.Now;
                 model.Mark = true;
+
+                // Вытаскиваем инфу
+                var info = await _storage.GetInfo();
+
+                if (subject == null)
+                {
+                    return new ResponseModel<string> { ErrorMessage = $"Занятие с {model.SubjectId} не найдено" };
+                }
+
+                if (!subject.GroupId.Equals(model.GroupId))
+                {
+                    return new ResponseModel<string> { ErrorMessage = $"У данного пользователя другая группа" };
+                }
+
+                if (!subject.Week.Equals(info.Week))
+                {
+                    return new ResponseModel<string> { ErrorMessage = $"Не та неделя" };
+                }
+
+                if (!IsMatchingDay(subject.Day, model.MarkTime.DayOfWeek))
+                {
+                    return new ResponseModel<string> { ErrorMessage = $"Не тот день" };
+                }                
+
+                if (!CheckTimeMark(model.MarkTime, subject.Pair, info.AllowedDeviation))
+                {
+                    return new ResponseModel<string> { ErrorMessage = $"Время на отметку на занятии прошло, вы опоздали" };
+                }
+
                 var result = await _storage.MarkUserSubject(model, cancellationToken);
+
                 return new ResponseModel<string> { Data = $"Пользователь с идентификатором {model.PupilId} отметился на занятии с идентификатором {model.SubjectId}" };
             }
             catch (Exception ex)
             {
                 return new ResponseModel<string> { ErrorMessage = ex.Message };
             } 
+        }
+
+        private static bool IsMatchingDay(int customDay, DayOfWeek dayOfWeek)
+        {
+            // Преобразование DayOfWeek в ваш формат, где понедельник - это 0
+            int dayOfWeekIndex = (int)dayOfWeek - 1;
+            if (dayOfWeekIndex < 0)
+            {
+                dayOfWeekIndex = 6; // Если Sunday (6), корректируем на Saturday (6)
+            }
+
+            // Сравниваем преобразованный индекс с вашим значением
+            return customDay == dayOfWeekIndex;
+        }
+
+        /// <summary>
+        /// Метод для проверки времени отметки
+        /// </summary>
+        /// <param name="markTime"></param>
+        /// <param name="number"></param>
+        private bool CheckTimeMark(DateTime markTime, EPairNumbers number, TimeSpan allowedDeviation)
+        {
+            var startTime = SubjectsTime[number].StartTime;
+
+            var markT = markTime.ToLocalTime().TimeOfDay;
+
+            return markT >= startTime && markT <= startTime + allowedDeviation;
         }
 
         /// <summary>
@@ -174,7 +250,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             throw new NotImplementedException();
         }
 
-        public async Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableToday(GroupGetTimetableDto model, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Метод получения расписания для текущей недели для ученика по его (GroupId)
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableCurrentWeek(GroupGetTimetableDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -191,6 +273,32 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 _logger.Error(ex, ex.Message);
                 return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для группы {model.GroupId}" + ex.Message };
+            }
+        }
+
+        /// <summary>
+        /// Метод получения расписания для учителя по его TeacherId
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableCurrentWeekTeacher(TeacherGetTimetableDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var result = await _storage.GetTeacherTimetable(model, cancellationToken);
+
+                if (result.Timetable.Count <= 0)
+                {
+                    return new ResponseModel<UserGetTimetableResponseDto> { Data = null };
+                }
+
+                return new ResponseModel<UserGetTimetableResponseDto> { Data = result };
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, ex.Message);
+                return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для учителя {model.TeacherId}" + ex.Message };
             }
         }
     }

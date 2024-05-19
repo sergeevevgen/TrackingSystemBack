@@ -1,4 +1,5 @@
-﻿using TrackingSystem.Api.Shared.Dto.Subject;
+﻿using TrackingSystem.Api.Shared.Dto.Group;
+using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.SharedModels;
 
@@ -63,9 +64,17 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Метод для получения расписания на сегодня по пользователю
+        /// Метод для получения расписания на текущую неделю для ученика
         /// </summary>
         /// <returns></returns>
-        Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableToday(GroupGetTimetableDto model, CancellationToken cancellationToken = default);
+        Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableCurrentWeek(GroupGetTimetableDto model, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Метод для получения расписания для учителя на текущую неделю
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableCurrentWeekTeacher(TeacherGetTimetableDto model, CancellationToken cancellationToken = default);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace TrackingSystem.Api.Shared.Dto.User
+﻿using TrackingSystem.Api.Shared.Dto.Subject;
+
+namespace TrackingSystem.Api.Shared.Dto.User
 {
     public class UserGetTimetableResponseDto
     {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.Shared.Dto.Identity;
+using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers;
@@ -47,13 +48,14 @@ namespace TrackingSystem.Api.Controllers
         [HttpPost("refreshToken")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshToken(
-            [FromBody] RefreshTokenDto command,
+            [FromBody] RefreshTokenDto refreshDto,
             CancellationToken token)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = _identityManager.RefreshToken(command, token);
+            var response = _identityManager.RefreshToken(refreshDto, token);
+
             if (response.IsSuccess)
                 return Ok(response.Data);
             else
@@ -71,14 +73,29 @@ namespace TrackingSystem.Api.Controllers
         [Authorize]
         public async Task<IActionResult> GetUserById([FromRoute] Guid id)
         {
-            var command = new UserFindDto { Id = id };
+            var userDto = new UserFindDto { Id = id };
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _userManager.FindUserById(command, default);
+            var response = await _userManager.FindUserById(userDto, default);
 
             return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
+        }
+
+        [HttpGet("changeInfo")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ChangeInfo(
+            [FromBody] InfoChangeDto dto)
+        {
+            var response = await _userManager.ChangeInfo(dto);
+
+            if (response.IsSuccess)
+            {
+                return Ok("Успешно изменено");
+            }
+
+            return BadRequest(response.ErrorMessage);
         }
     }
 }

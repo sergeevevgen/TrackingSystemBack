@@ -6,6 +6,8 @@
 
         public Guid PupilId { get; set; }
 
+        public Guid GroupId { get; set; }
+
         public bool Mark { get; set; }
 
         public DateTime MarkTime { get; set; }

@@ -6,6 +6,7 @@ using TrackingSystem.Api.DataLayer.Models;
 using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.Dto.User;
 using Microsoft.IdentityModel.Tokens;
+using TrackingSystem.Api.Shared.Dto.Group;
 
 namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 {
@@ -197,7 +198,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 // Получил элемент, который необходимо обновить
                 var element = await _context.UserSubjects
-                    .FirstOrDefaultAsync(u => u.SubjectId.Equals(model.SubjectId), cancellationToken) ?? throw new Exception($"Занятие с Id {model.SubjectId} не найдено");
+                    .FirstOrDefaultAsync(u => u.SubjectId.Equals(model.SubjectId), cancellationToken);
 
                 // Если нет такого, то создаем новую запись
                 if (element == null)
@@ -209,6 +210,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                         MarkTime = model.MarkTime,
                         UserId = model.PupilId,
                     };
+
+
                     await _context.UserSubjects
                         .AddAsync(element, cancellationToken);
                 }
@@ -375,6 +378,12 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
+        /// <summary>
+        /// Метод получения расписания ученика
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<UserGetTimetableResponseDto> GetGroupTimetable(GroupGetTimetableDto model, CancellationToken cancellationToken = default)
         {
             try
@@ -411,6 +420,100 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch(Exception ex)
             {
                 _logger.Error(ex, $"Ошибка получения занятий для группы с идентификатором {model.GroupId}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Метод получения расписания учителя
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<UserGetTimetableResponseDto> GetTeacherTimetable(TeacherGetTimetableDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Получаем текущую неделю
+                var info = await GetInfo(cancellationToken);
+                if (info == null)
+                {
+                    return null;
+                }
+
+                var query = await(from subjects in _context.Subjects
+                                  join lessons in _context.Lessons on subjects.LessonId equals lessons.Id
+                                  join places in _context.Places on subjects.PlaceId equals places.Id
+                                  join groups in _context.Groups on subjects.GroupId equals groups.Id
+                                  where subjects.TeacherId.Equals(model.TeacherId) && subjects.Week.Equals(info.Week)
+                                  select new TimetableResponseDto
+                                  {
+                                      Day = subjects.Day,
+                                      GroupName = groups.Name,
+                                      LessonName = lessons.Name,
+                                      Number = subjects.Pair,
+                                      PlaceName = places.Name,
+                                      TeacherName = subjects.Teacher.LastName + " " + subjects.Teacher.FirstName[0] + ". " + subjects.Teacher.MiddleName[0] + ".",
+                                      Type = subjects.Type,
+                                  }).ToListAsync(cancellationToken);
+
+                return new UserGetTimetableResponseDto
+                {
+                    Week = info.Week,
+                    Timetable = query,
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения занятий для учителя с идентификатором {model.TeacherId}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Метод получения инфы
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<InfoResponseDto> GetInfo(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var info = await _context.Infos.FirstOrDefaultAsync();
+
+                return new InfoResponseDto
+                {
+                    AllowedDeviation = info.AllowedDeviation,
+                    Week = info.Week,
+                };
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения информационной сущности");
+                throw;
+            }
+        }
+
+        public async Task<bool> ChangeInfo(InfoChangeDto model, CancellationToken cancellationToken = default)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var element = await _context.Infos
+                    .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception($"Инфа не найдена");
+
+                element.AllowedDeviation = model.AllowedDeviation;
+                element.Week = model.Week;
+
+                await _context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.Error(ex, $"Ошибка обновления инфы");
                 throw;
             }
         }

@@ -10,5 +10,6 @@ namespace TrackingSystem.Api.Shared.Enums
     {
         Pupil = 0,
         Teacher = 1,
+        Admin = 99
     }
 }

@@ -9,6 +9,7 @@ using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.BusinessLogic.DownloadLk;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
+using Hangfire;
 
 namespace TrackingSystem.Api.AppLogic.Core
 {

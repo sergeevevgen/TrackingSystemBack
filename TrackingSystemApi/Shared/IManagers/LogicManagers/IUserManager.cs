@@ -1,4 +1,5 @@
-﻿using TrackingSystem.Api.Shared.Dto.User;
+﻿using TrackingSystem.Api.Shared.Dto.Subject;
+using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.SharedModels;
 
 namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
@@ -66,5 +67,13 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<UserResponseDto> CreateOrUpdateFromLdap(UserLdapDto model, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Метод для изменения инфы
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<ResponseModel<bool>> ChangeInfo(InfoChangeDto dto, CancellationToken cancellationToken = default);
     }
 }

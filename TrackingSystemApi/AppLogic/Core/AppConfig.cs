@@ -85,5 +85,10 @@
         /// Пароль пользователя LDAP
         /// </summary>
         public string LdapPassword { get; set; } = null!;
+
+        /// <summary>
+        /// Пароль админа
+        /// </summary>
+        public string AdminPassword { get; set; } = null!;
     }
 }

@@ -12,10 +12,9 @@ namespace TrackingSystem.Api.Shared.Enums
         Second = 1,
         Third = 2,
         Fourth = 3,
-        Five = 4,
+        Fifth = 4,
         Sixth = 5,
-        Seven = 6,
-        Eight = 7,
-        Nine = 8,
+        Seventh = 6,
+        Eighth = 7,
     }
 }

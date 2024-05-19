@@ -13,6 +13,7 @@ using TrackingSystem.Api.BusinessLogic.Managers;
 using TrackingSystem.Api.DataLayer.Data;
 using TrackingSystem.Api.DataLayer.DataAccessManagers;
 using TrackingSystem.Api.Shared.IManagers;
+using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api
 {
@@ -55,6 +56,7 @@ namespace TrackingSystem.Api
                     { "AppConfig:LdapPort", appConfig.LdapPort.ToString() },
                     { "AppConfig:LdapLoginDn", appConfig.LdapLoginDn },
                     { "AppConfig:LdapPassword", appConfig.LdapPassword },
+                     { "AppConfig:AdminPassword", appConfig.AdminPassword },
                 });
 
             var configuration = configBuilder.Build();
@@ -170,7 +172,17 @@ namespace TrackingSystem.Api
                 endpoints.MapControllers();
             });
 
-            RecurringJob.AddOrUpdate("test", () => Console.WriteLine("test"), Cron.Minutely);
+            //// Job для синхронизации с Ldap один раз в месяц
+            //RecurringJob.AddOrUpdate<ILdapDownloadManager>(
+            //"SyncWithLdap",
+            //x => x.SynchWithLdap(),
+            //"0 0 * * *");
+
+            //// Job для парсинга расписания один раз в день ночью
+            //RecurringJob.AddOrUpdate<IParserManager>(
+            //    "ParseTimetable",
+            //    x => x.ParseTimetable(),
+            //    "0 0 1 * *");
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()
@@ -230,6 +242,8 @@ namespace TrackingSystem.Api
 
             appConfig.LdapPassword = Environment.GetEnvironmentVariable("LDAP_PASSWORD") ?? appConfig.LdapPassword;
 
+            appConfig.AdminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? appConfig.AdminPassword;
+
             Configuration["AppConfig:DBConnectionString"] = appConfig.DBConnectionString;
             Configuration["AppConfig:JWTIssuer"] = appConfig.JWTIssuer;
             Configuration["AppConfig:JWTAudience"] = appConfig.JWTAudience;
@@ -246,6 +260,7 @@ namespace TrackingSystem.Api
             Configuration["AppConfig:LdapPort"] = appConfig.LdapPort.ToString();
             Configuration["AppConfig:LdapLoginDn"] = appConfig.LdapLoginDn;
             Configuration["AppConfig:LdapPassword"] = appConfig.LdapPassword;
+            Configuration["AppConfig:AdminPassword"] = appConfig.AdminPassword;
 
             return appConfig;
         }

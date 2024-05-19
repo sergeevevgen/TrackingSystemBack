@@ -1,4 +1,5 @@
-﻿using TrackingSystem.Api.Shared.Dto.Subject;
+﻿using TrackingSystem.Api.Shared.Dto.Group;
+using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 
 namespace TrackingSystem.Api.Shared.IManagers.DbManagers
@@ -20,5 +21,11 @@ namespace TrackingSystem.Api.Shared.IManagers.DbManagers
         Task DeleteExpired(SubjectChangeIsDifferenceByWeekDto model, CancellationToken cancellationToken = default);
 
         Task<UserGetTimetableResponseDto> GetGroupTimetable(GroupGetTimetableDto model, CancellationToken cancellationToken = default);
+
+        Task<UserGetTimetableResponseDto> GetTeacherTimetable(TeacherGetTimetableDto model, CancellationToken cancellationToken = default);
+
+        Task<InfoResponseDto> GetInfo(CancellationToken cancellationToken = default);
+
+        Task<bool> ChangeInfo(InfoChangeDto model, CancellationToken cancellationToken = default);
     }
 }

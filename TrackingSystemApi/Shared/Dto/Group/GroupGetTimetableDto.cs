@@ -1,4 +1,4 @@
-﻿namespace TrackingSystem.Api.Shared.Dto.User
+﻿namespace TrackingSystem.Api.Shared.Dto.Group
 {
     public class GroupGetTimetableDto
     {

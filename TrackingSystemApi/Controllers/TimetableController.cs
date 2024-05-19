@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
+using TrackingSystem.Api.Shared.Enums;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
 
 namespace TrackingSystem.Api.Controllers
@@ -30,32 +32,9 @@ namespace TrackingSystem.Api.Controllers
             _ldapDownloadManager = ldapDownloadManager;
         }
 
-        [HttpGet("mark/{id:guid}")]
+        [HttpGet("timetable/current")]
         [Authorize(Roles = "Pupil")]
-        public async Task<IActionResult> MarkLesson([FromRoute] Guid id)
-        {
-            var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
-
-            if (!TryValidateModel(user))
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _subjectManager.MarkSubject(new SubjectUserMarkDto
-            {
-                SubjectId = id,
-                PupilId = user.Id,
-            });
-
-            if (response.IsSuccess)
-                return Ok(response.Data);
-            else
-                return BadRequest(response.ErrorMessage);
-        }
-
-        [HttpGet("timetable/today")]
-        [Authorize(Roles = "Pupil")]
-        public async Task<IActionResult> TimetableToday()
+        public async Task<IActionResult> TimetableCurrentWeek()
         {
             var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
 
@@ -69,7 +48,7 @@ namespace TrackingSystem.Api.Controllers
                 return BadRequest();
             }
 
-            var response = await _subjectManager.GetTimetableToday(new GroupGetTimetableDto
+            var response = await _subjectManager.GetTimetableCurrentWeek(new GroupGetTimetableDto
             {
                 GroupId = user.GroupId.Value
             });
@@ -80,14 +59,37 @@ namespace TrackingSystem.Api.Controllers
                 return BadRequest(response.ErrorMessage);
         }
 
+        [HttpGet("timetableTeacher/current")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> TimetableCurrentWeekTeacher()
+        {
+            var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
+
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _subjectManager.GetTimetableCurrentWeekTeacher(new TeacherGetTimetableDto
+            {
+                TeacherId = user.Id
+            });
+
+            if (response.IsSuccess)
+                return Ok(response.Data);
+            else
+                return BadRequest(response.ErrorMessage);
+        }
+
         [HttpGet("downloadTimetable")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> DownLoadTimeTable()
         {
             //await _ldapDownloadManager.SynchWithLdap();
-            var response = await _parserManager.ParseTimetable();
+            //var response = await _parserManager.ParseTimetable();
 
-            return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
+            //return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
+            return null;
         }
     }
 }
