@@ -29,6 +29,6 @@ namespace TrackingSystem.Api.Shared.Dto.Identity
         /// <summary>
         /// Роль
         /// </summary>
-        public ERoles Role { get; init; }
+        public Role Role { get; init; }
     }
 }

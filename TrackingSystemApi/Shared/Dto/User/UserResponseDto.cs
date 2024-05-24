@@ -20,7 +20,7 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Роли
         /// </summary>
-        public ERoles Role { get; set; }
+        public Role Role { get; set; }
 
         /// <summary>
         /// ФИО пользователя
@@ -40,6 +40,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Статус (отчислен, вышел из академа, учится)
         /// </summary>
-        public EStatus? Status { get; set; }
+        public Status? Status { get; set; }
     }
 }

@@ -21,14 +21,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             _appConfig = options.Value;
         }
 
-        public string GenerateToken(IEnumerable<Claim> claims, EJwtTokenType type)
+        public string GenerateToken(IEnumerable<Claim> claims, JwtTokenType type)
         {
             var now = DateTime.UtcNow;
 
             var lifetime = type switch
             {
-                EJwtTokenType.Access => LIFETIME_ACCESS,
-                EJwtTokenType.Refresh => LIFETIME_REFRESH,
+                JwtTokenType.Access => LIFETIME_ACCESS,
+                JwtTokenType.Refresh => LIFETIME_REFRESH,
                 _ => throw new NotImplementedException(type.ToString()),
             };
 
@@ -47,13 +47,13 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             return new JwtSecurityTokenHandler().WriteToken(tokenConfig);
         }
 
-        public SymmetricSecurityKey GetSymmetricSecurityKey(EJwtTokenType type) =>
+        public SymmetricSecurityKey GetSymmetricSecurityKey(JwtTokenType type) =>
         type switch
             {
-                EJwtTokenType.Access => new SymmetricSecurityKey(
+                JwtTokenType.Access => new SymmetricSecurityKey(
                     Encoding.ASCII.GetBytes(_appConfig.JWTAccessKey)),
 
-                EJwtTokenType.Refresh => new SymmetricSecurityKey(
+                JwtTokenType.Refresh => new SymmetricSecurityKey(
                     Encoding.ASCII.GetBytes(_appConfig.JWTRefreshKey)),
 
                 _ => throw new NotImplementedException(type.ToString())

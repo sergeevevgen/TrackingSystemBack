@@ -12,9 +12,9 @@ namespace TrackingSystem.Api.Shared.Dto.Subject
 
         public string? Type { get; set; }
 
-        public EPairNumbers Pair { get; set; }
+        public PairNumber Pair { get; set; }
 
-        public EIsDifference IsDifference { get; set; }
+        public Difference IsDifference { get; set; }
 
         public Guid GroupId { get; set; }
 

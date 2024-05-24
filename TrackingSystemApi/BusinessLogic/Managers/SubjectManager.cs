@@ -13,16 +13,16 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         private readonly ILogger _logger;
         private readonly ISubjectDbManager _storage;
         private readonly IGroupDbManager _groupStorage;
-        private readonly Dictionary<EPairNumbers, SubjectTimeSlotDto> SubjectsTime = new Dictionary<EPairNumbers, SubjectTimeSlotDto>
+        private readonly Dictionary<PairNumber, SubjectTimeSlotDto> SubjectsTime = new Dictionary<PairNumber, SubjectTimeSlotDto>
         {
-            { EPairNumbers.First, new SubjectTimeSlotDto { StartTime = new TimeSpan(8, 30, 0), EndTime = new TimeSpan(9, 50, 0) } },
-            { EPairNumbers.Second, new SubjectTimeSlotDto { StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 20, 0) } },
-            { EPairNumbers.Third, new SubjectTimeSlotDto { StartTime = new TimeSpan(11, 30, 0), EndTime = new TimeSpan(12, 50, 0) } },
-            { EPairNumbers.Fourth, new SubjectTimeSlotDto { StartTime = new TimeSpan(13, 30, 0), EndTime = new TimeSpan(14, 50, 0) } },
-            { EPairNumbers.Fifth, new SubjectTimeSlotDto { StartTime = new TimeSpan(15, 0, 0), EndTime = new TimeSpan(16, 20, 0) } },
-            { EPairNumbers.Sixth, new SubjectTimeSlotDto { StartTime = new TimeSpan(16, 30, 0), EndTime = new TimeSpan(17, 50, 0) } },
-            { EPairNumbers.Seventh, new SubjectTimeSlotDto { StartTime = new TimeSpan(18, 0, 0), EndTime = new TimeSpan(19, 20, 0) } },
-            { EPairNumbers.Eighth, new SubjectTimeSlotDto { StartTime = new TimeSpan(19, 30, 0), EndTime = new TimeSpan(20, 50, 0) } },
+            { PairNumber.First, new SubjectTimeSlotDto { StartTime = new TimeSpan(8, 30, 0), EndTime = new TimeSpan(9, 50, 0) } },
+            { PairNumber.Second, new SubjectTimeSlotDto { StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(11, 20, 0) } },
+            { PairNumber.Third, new SubjectTimeSlotDto { StartTime = new TimeSpan(11, 30, 0), EndTime = new TimeSpan(12, 50, 0) } },
+            { PairNumber.Fourth, new SubjectTimeSlotDto { StartTime = new TimeSpan(13, 30, 0), EndTime = new TimeSpan(14, 50, 0) } },
+            { PairNumber.Fifth, new SubjectTimeSlotDto { StartTime = new TimeSpan(15, 0, 0), EndTime = new TimeSpan(16, 20, 0) } },
+            { PairNumber.Sixth, new SubjectTimeSlotDto { StartTime = new TimeSpan(16, 30, 0), EndTime = new TimeSpan(17, 50, 0) } },
+            { PairNumber.Seventh, new SubjectTimeSlotDto { StartTime = new TimeSpan(18, 0, 0), EndTime = new TimeSpan(19, 20, 0) } },
+            { PairNumber.Eighth, new SubjectTimeSlotDto { StartTime = new TimeSpan(19, 30, 0), EndTime = new TimeSpan(20, 50, 0) } },
         };
 
         public SubjectManager(
@@ -64,7 +64,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
             if (model.Id.HasValue)
             {
-                model.IsDifference = EIsDifference.Actual;
+                model.IsDifference = Difference.Actual;
                 element = await _storage.Update(model, cancellationToken);
                 _logger.Info($"Занятие с идентификатором {model.Id} обновлено");
             }
@@ -209,7 +209,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// </summary>
         /// <param name="markTime"></param>
         /// <param name="number"></param>
-        private bool CheckTimeMark(DateTime markTime, EPairNumbers number, TimeSpan allowedDeviation)
+        private bool CheckTimeMark(DateTime markTime, PairNumber number, TimeSpan allowedDeviation)
         {
             var startTime = SubjectsTime[number].StartTime;
 

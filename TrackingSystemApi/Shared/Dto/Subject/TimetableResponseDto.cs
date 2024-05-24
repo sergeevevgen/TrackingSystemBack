@@ -10,7 +10,7 @@ namespace TrackingSystem.Api.Shared.Dto.Subject
 
         public string LessonName { get; set; } = null!;
 
-        public EPairNumbers Number { get; set; }
+        public PairNumber Number { get; set; }
 
         public string PlaceName { get; set; } = null!;
 

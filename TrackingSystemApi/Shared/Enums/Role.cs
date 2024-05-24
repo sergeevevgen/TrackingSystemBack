@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.Shared.Enums
 {
-    public enum EStatus
+    public enum Role
     {
-        Is_In_Academ = 0,
-        Is_Studying = 1,
-        Is_Dropped = 2,
+        Pupil = 0,
+        Teacher = 1,
+        Admin = 99
     }
 }

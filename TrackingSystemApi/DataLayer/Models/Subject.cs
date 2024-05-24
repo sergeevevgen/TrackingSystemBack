@@ -37,13 +37,13 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// Номер пары в расписании
         /// </summary>
         [Required]
-        public EPairNumbers Pair { get; set; }
+        public PairNumber Pair { get; set; }
 
         /// <summary>
         /// Было ли изменено данное занятие или нет?
         /// </summary>
         [Required]
-        public EIsDifference IsDifference { get; set; }
+        public Difference IsDifference { get; set; }
 
         /// <summary>
         /// Внешний ключ к группе

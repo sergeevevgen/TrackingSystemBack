@@ -57,7 +57,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 var tokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = _jwtAuthManager.GetSymmetricSecurityKey(EJwtTokenType.Refresh),
+                    IssuerSigningKey = _jwtAuthManager.GetSymmetricSecurityKey(JwtTokenType.Refresh),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true

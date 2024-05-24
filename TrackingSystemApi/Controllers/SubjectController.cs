@@ -23,7 +23,7 @@ namespace TrackingSystem.Api.Controllers
             _subjectManager = subjectManager;
         }
 
-        [HttpGet("mark/{id:guid}")]
+        [HttpPost("mark/{id:guid}")]
         [Authorize(Roles = "Pupil")]
         public async Task<IActionResult> MarkLesson([FromRoute] Guid id)
         {

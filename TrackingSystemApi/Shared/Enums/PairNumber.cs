@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.Shared.Enums
 {
-    public enum EPairNumbers
+    public enum PairNumber
     {
         First = 0, 
         Second = 1,

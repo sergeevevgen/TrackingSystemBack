@@ -50,7 +50,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// <summary>
         /// Статус пользователя в системе
         /// </summary>
-        public EStatus? Status { get; set; }
+        public Status? Status { get; set; }
 
         /// <summary>
         /// Связь один-ко-многим для учителя и занятия
@@ -61,7 +61,7 @@ namespace TrackingSystem.Api.DataLayer.Models
         /// Есть два типа роли: Учитель и ученик
         /// </summary>
         [Required]
-        public ERoles Role { get; set; }
+        public Role Role { get; set; }
 
         /// <summary>
         /// Связь с занятиями для проставления отметок

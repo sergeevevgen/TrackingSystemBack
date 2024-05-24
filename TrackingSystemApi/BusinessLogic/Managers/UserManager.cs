@@ -128,7 +128,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 bool result = false;
 
-                if (user.Role == ERoles.Admin && query.Password.Equals(_config.AdminPassword))
+                if (user.Role == Role.Admin && query.Password.Equals(_config.AdminPassword))
                 {
                     result = true;
                 }
@@ -152,11 +152,11 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 var accessToken = _jwtManager.GenerateToken(
                     identity.Claims,
-                    EJwtTokenType.Access);
+                    JwtTokenType.Access);
 
                 var refreshToken = _jwtManager.GenerateToken(
                     identity.Claims,
-                    EJwtTokenType.Refresh);
+                    JwtTokenType.Refresh);
 
                 // Тут надо посмотреть в каком Claims лежит Role
                 var response = new ResponseModel<UserLoginResponseDto>
@@ -252,7 +252,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 LastName = model.LastName,
                 MiddleName = model.MiddleName,
                 Login = model.UserLogin,
-                Status = model.Status ?? (string.IsNullOrEmpty(model.Group) ? null : EStatus.Is_Dropped),
+                Status = model.Status ?? (string.IsNullOrEmpty(model.Group) ? null : Status.Dropped),
                 Role = model.Role,
                 GroupId = groupId
             };

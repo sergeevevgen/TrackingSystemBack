@@ -91,9 +91,9 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                     if (user != null)
                     {
-                        user.Role = ERoles.Pupil;
+                        user.Role = Role.Pupil;
                         user.Group = !string.IsNullOrEmpty(c.GroupName) ? c.GroupName : null;
-                        user.Status = !string.IsNullOrEmpty(c.GroupName) ? EStatus.Is_Studying : EStatus.Is_Dropped;
+                        user.Status = !string.IsNullOrEmpty(c.GroupName) ? Status.Studying : Status.Dropped;
                     }
                 }
 
@@ -103,7 +103,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                     if (user != null)
                     {
-                        user.Role = ERoles.Teacher;
+                        user.Role = Role.Teacher;
                         user.Group = null;
                         user.Status = null;
                     }

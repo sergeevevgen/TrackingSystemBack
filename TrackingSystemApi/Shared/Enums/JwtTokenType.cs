@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.Shared.Enums
 {
-    public enum EJwtTokenType
+    public enum JwtTokenType
     {
         Access = 1,
         Refresh = 2,

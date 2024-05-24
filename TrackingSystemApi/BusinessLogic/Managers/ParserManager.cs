@@ -185,10 +185,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                                     PlaceId = placeId,
                                     TeacherId = teacher.Data.Id,
                                     Day = i - 2,
-                                    Pair = (EPairNumbers)(j - 1),
+                                    Pair = (PairNumber)(j - 1),
                                     Week = firstWeek + week,
                                     Type = lesson.type,
-                                    IsDifference = EIsDifference.Actual
+                                    IsDifference = Difference.Actual
                                 });
                             }
                         }

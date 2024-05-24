@@ -6,8 +6,8 @@ namespace TrackingSystem.Api.Shared.IManagers
 {
     public interface IJWTAuthManager
     {
-        string GenerateToken(IEnumerable<Claim> claims, EJwtTokenType type);
+        string GenerateToken(IEnumerable<Claim> claims, JwtTokenType type);
 
-        SymmetricSecurityKey GetSymmetricSecurityKey(EJwtTokenType type);
+        SymmetricSecurityKey GetSymmetricSecurityKey(JwtTokenType type);
     }
 }

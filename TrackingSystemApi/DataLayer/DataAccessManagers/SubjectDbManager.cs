@@ -334,7 +334,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     s.Week.Equals(model.Week))
                     .ToListAsync(cancellationToken);
 
-                query.ForEach(s => s.IsDifference = EIsDifference.Expired);
+                query.ForEach(s => s.IsDifference = Difference.Expired);
 
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -362,7 +362,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 var query = _context.Subjects
                     .Where(s =>
                     s.Week.Equals(model.Week)
-                    && s.IsDifference.Equals(EIsDifference.Expired)
+                    && s.IsDifference.Equals(Difference.Expired)
                     && s.Day > ((int)DateTime.Today.DayOfWeek - 1 + 7) % 7);
 
                 _context.Subjects.RemoveRange(query);
@@ -373,7 +373,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка удаления занятий недели #{model.Week} с {EIsDifference.Expired}");
+                _logger.Error(ex, $"Ошибка удаления занятий недели #{model.Week} с {Difference.Expired}");
                 throw;
             }
         }

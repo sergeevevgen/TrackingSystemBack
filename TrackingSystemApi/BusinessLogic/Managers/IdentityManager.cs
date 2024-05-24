@@ -75,7 +75,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 if (principal.Identity is not ClaimsIdentity identity)
                     return new ResponseModel<RefreshTokenResponseDTO> { ErrorMessage = "Ошибка получения сущности пользователя" };
 
-                var accessToken = _jwtAuthManager.GenerateToken(identity.Claims, EJwtTokenType.Access);
+                var accessToken = _jwtAuthManager.GenerateToken(identity.Claims, JwtTokenType.Access);
 
                 return new ResponseModel<RefreshTokenResponseDTO>
                 {
