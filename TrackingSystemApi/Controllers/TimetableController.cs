@@ -82,14 +82,14 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpGet("downloadTimetable")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DownLoadTimeTable()
         {
-            //await _ldapDownloadManager.SynchWithLdap();
-            //var response = await _parserManager.ParseTimetable();
+            await _ldapDownloadManager.SynchWithLdap();
+            var response = await _parserManager.ParseTimetable();
 
-            //return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
-            return null;
+            return response.IsSuccess ? Ok(response.Data) : BadRequest(response.ErrorMessage);
+            //return null;
         }
     }
 }

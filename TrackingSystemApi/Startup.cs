@@ -184,10 +184,10 @@ namespace TrackingSystem.Api
             //    x => x.ParseTimetable(),
             //    "15 3 * * *");
 
-            RecurringJob.AddOrUpdate<IUserManager>(
-                "Change week",
-                x => x.ChangeWeek(),
-                "15 3 * * 1");
+            //RecurringJob.AddOrUpdate<IUserManager>(
+            //    "Change week",
+            //    x => x.ChangeWeek(),
+            //    "15 3 * * 1");
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()

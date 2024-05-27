@@ -99,9 +99,9 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 foreach (var job in jobList)
                 {
-                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID) && job.JobType.Contains("Преподавательско-профессорский состав"));
+                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID) && job.JobType.Contains("Профессорско-преподавательский состав"));
 
-                    if (user != null)
+                    if (user != null && !user.Roles.Contains(RoleEnum.Teacher))
                     {
                         user.Roles.Add(RoleEnum.Teacher);
                     }
