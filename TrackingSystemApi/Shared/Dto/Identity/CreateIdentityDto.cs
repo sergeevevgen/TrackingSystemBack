@@ -29,6 +29,6 @@ namespace TrackingSystem.Api.Shared.Dto.Identity
         /// <summary>
         /// Роль
         /// </summary>
-        public Role Role { get; init; }
+        public List<RoleEnum> Roles { get; init; } = new List<RoleEnum>();
     }
 }

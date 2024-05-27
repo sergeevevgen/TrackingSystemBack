@@ -24,7 +24,7 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpPost("mark/{id:guid}")]
-        [Authorize(Roles = "Pupil")]
+        //[Authorize(Roles = "Pupil")]
         public async Task<IActionResult> MarkLesson([FromRoute] Guid id)
         {
             var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);

@@ -75,5 +75,11 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<ResponseModel<bool>> ChangeInfo(InfoChangeDto dto, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Метод для изменения недели
+        /// </summary>
+        /// <returns></returns>
+        Task<bool> ChangeWeek();
     }
 }

@@ -8,7 +8,6 @@ namespace TrackingSystem.Api.DataLayer.Data
         public TrackingSystemContext(DbContextOptions<TrackingSystemContext> options)
         : base(options)
         {
-            //Database.EnsureCreated();
         }
 
         public virtual DbSet<Lesson>? Lessons { get; set; }
@@ -25,8 +24,14 @@ namespace TrackingSystem.Api.DataLayer.Data
 
         public virtual DbSet<Info>? Infos { get; set; }
 
+        public DbSet<Role>? Roles { get; set; }
+
+        public DbSet<UserRole>? UserRoles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Todo: Надо прописать все типы удалений при удалении связанных сущностей
             modelBuilder.Entity<UserSubject>()
                 .HasOne(us => us.User)
@@ -40,6 +45,22 @@ namespace TrackingSystem.Api.DataLayer.Data
                 .WithMany(s => s.Users)
                 .HasForeignKey(us => us.SubjectId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            // Primary key для таблицы пользователи-роли
+            modelBuilder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

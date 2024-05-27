@@ -51,7 +51,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                            {
                                Id = u.Id,
                                Login = u.Login,
-                               Role = u.Role,
+                               Roles = u.UserRoles.Select(ur => ur.Role.Name).ToList(),
                                Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName[0] + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
@@ -71,7 +71,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                            {
                                Id = u.Id,
                                Login = u.Login,
-                               Role = u.Role,
+                               Roles = u.UserRoles.Select(ur => ur.Role.Name).ToList(),
                                Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName[0] + ".",
                                Group = u.UserGroup.Name,
                                Status = u.Status,
@@ -129,9 +129,21 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
-                User user = new();
+                User user = new()
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    GroupId = model.GroupId,
+                    Login = model.Login,
+                    MiddleName = model.MiddleName,
+                    Status = model.Status,
+                };
 
-                await _context.Users.AddAsync(CreateModel(model, user));
+                await _context.Users.AddAsync(user);
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await CreateModel(model, user, _context);
 
                 await _context.SaveChangesAsync(cancellationToken);
 
@@ -162,7 +174,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     .FirstOrDefaultAsync(u => u.Id.Equals(model.Id),
                     cancellationToken) ?? throw new Exception($"Пользователь с Id {model.Id} не найден");
 
-                CreateModel(model, element);
+                await CreateModel(model, element, _context);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -271,15 +283,50 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        private static User CreateModel(UserDto model, User user)
+        private static async Task<User> CreateModel(UserDto model, User user, TrackingSystemContext context)
         {
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.MiddleName = model.MiddleName;
-            user.Login = model.Login;
-            user.GroupId = model.GroupId;
-            user.Status = model.Status;
-            user.Role = model.Role;
+            if (model.Id.HasValue)
+            {
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.MiddleName = model.MiddleName;
+                user.Login = model.Login;
+                user.GroupId = model.GroupId;
+                user.Status = model.Status;
+
+                // Работа со связанными сущностями
+                ICollection<UserRole> userRoles = await context.UserRoles
+                    .Where(ur => ur.UserId.Equals(model.Id.Value))
+                    .ToListAsync();
+
+                // Вытаскиваем идентификаторы ролей по их именам
+                var eroles = await context.Roles
+                    .Where(r => model.Roles.Contains(r.Name))
+                    .Select(r => r.Id)
+                    .ToListAsync();
+
+                // Удаляем те роли, которые не соответствуют новым
+                context.UserRoles
+                    .RemoveRange(userRoles
+                        .Where(ur => !eroles.Contains(ur.RoleId)).ToList());
+
+                await context.SaveChangesAsync();
+            }
+
+            // Вытаскиваем идентификаторы ролей
+            var roles = await context.Roles
+                .Where(r => model.Roles.Contains(r.Name))
+                .ToListAsync();
+
+            foreach (var r in roles)
+            {
+                await context.UserRoles.AddAsync(new UserRole
+                {
+                    RoleId = r.Id,
+                    UserId = model.Id.Value,
+                });
+                await context.SaveChangesAsync();
+            }
 
             return user;
         }
@@ -301,7 +348,9 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 GroupId = user.GroupId,
                 Group = user.UserGroup?.Name,
                 Status = user.Status,
-                Role = user.Role,
+                Roles = user.UserRoles
+                    .Select(ur => ur.Role.Name)
+                    .ToList(),
             };
         }
     }

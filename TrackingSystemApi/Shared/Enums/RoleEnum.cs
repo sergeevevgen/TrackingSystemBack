@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrackingSystem.Api.Shared.Enums
 {
-    public enum Role
+    public enum RoleEnum
     {
         Pupil = 0,
         Teacher = 1,

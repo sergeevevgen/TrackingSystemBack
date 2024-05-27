@@ -58,10 +58,9 @@ namespace TrackingSystem.Api.DataLayer.Models
         public virtual ICollection<Subject>? TeacherSubjects { get; set; } = null!;
 
         /// <summary>
-        /// Есть два типа роли: Учитель и ученик
+        /// Для связи многие-ко-многим пользователи и роли
         /// </summary>
-        [Required]
-        public Role Role { get; set; }
+        public ICollection<UserRole> UserRoles { get; set; }
 
         /// <summary>
         /// Связь с занятиями для проставления отметок

@@ -91,7 +91,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                     if (user != null)
                     {
-                        user.Role = Role.Pupil;
+                        user.Roles.Add(RoleEnum.Pupil);
                         user.Group = !string.IsNullOrEmpty(c.GroupName) ? c.GroupName : null;
                         user.Status = !string.IsNullOrEmpty(c.GroupName) ? Status.Studying : Status.Dropped;
                     }
@@ -99,13 +99,11 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 foreach (var job in jobList)
                 {
-                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID));
+                    var user = mainList.FirstOrDefault(e => e.UserLogin.Equals(job.UID) && job.JobType.Contains("Преподавательско-профессорский состав"));
 
                     if (user != null)
                     {
-                        user.Role = Role.Teacher;
-                        user.Group = null;
-                        user.Status = null;
+                        user.Roles.Add(RoleEnum.Teacher);
                     }
                 }
 

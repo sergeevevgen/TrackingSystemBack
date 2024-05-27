@@ -128,7 +128,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 bool result = false;
 
-                if (user.Role == Role.Admin && query.Password.Equals(_config.AdminPassword))
+                if (user.Roles.Count == 1 && user.Roles.Contains(RoleEnum.Admin) && query.Password.Equals(_config.AdminPassword))
                 {
                     result = true;
                 }
@@ -146,7 +146,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     {
                         Login = user.Login,
                         UserId = user.Id,
-                        Role = user.Role
+                        Roles = user.Roles
                     },
                     cancellationToken);
 
@@ -166,8 +166,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         AccessToken = accessToken,
                         RefreshToken = refreshToken,
                         Name = identity.Name,
-                        Id = identity.Claims.Last().Value,
-                        Role = identity.Claims.ElementAt(1).Value,
+                        Id = identity.Claims.FirstOrDefault(c => c.Type == "Id")?.Value,
+                        Roles = identity.Claims
+                            .Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value)
+                            .ToList(),
                     }
                 };
 
@@ -253,7 +255,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 MiddleName = model.MiddleName,
                 Login = model.UserLogin,
                 Status = model.Status ?? (string.IsNullOrEmpty(model.Group) ? null : Status.Dropped),
-                Role = model.Role,
+                Roles = model.Roles,
                 GroupId = groupId
             };
 
@@ -330,6 +332,32 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             {
                 _logger.Error(ex);
                 return new ResponseModel<bool> { ErrorMessage = ex.Message };
+            }
+        }
+
+        public async Task<bool> ChangeWeek()
+        {
+            try
+            {
+                var week = await _subjectDbManager.GetInfo();
+
+                var result = await _subjectDbManager.ChangeInfo(new InfoChangeDto
+                {
+                    AllowedDeviation = week.AllowedDeviation,
+                    Week = week.Week + 1,
+                });
+
+                if (result)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Не удалось обновить неделю " + ex);
+                return false;
             }
         }
     }

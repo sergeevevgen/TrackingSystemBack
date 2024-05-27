@@ -42,10 +42,14 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, query.Login),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, query.Role.ToString()),
                     //new(ClaimsIdentity.DefaultRoleClaimType, user.Role.GetValueOrDefault().ToString()), TODO
                     new Claim("Id", query.UserId.ToString())
                 };
+
+                foreach (var role in query.Roles)
+                {
+                    claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, role.ToString()));
+                }
 
                 var claimsIdentity = new ClaimsIdentity(
                     claims,

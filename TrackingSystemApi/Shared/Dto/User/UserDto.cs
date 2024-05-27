@@ -21,6 +21,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
 
         public Status? Status { get; set; }
 
-        public Role Role { get; set; }
+        public List<RoleEnum> Roles { get; set; } = new List<RoleEnum>();
     }
 }

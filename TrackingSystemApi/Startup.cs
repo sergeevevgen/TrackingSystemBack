@@ -176,13 +176,18 @@ namespace TrackingSystem.Api
             //RecurringJob.AddOrUpdate<ILdapDownloadManager>(
             //"SyncWithLdap",
             //x => x.SynchWithLdap(),
-            //"0 0 * * *");
+            //"15 3 * * 0");
 
             //// Job для парсинга расписания один раз в день ночью
             //RecurringJob.AddOrUpdate<IParserManager>(
             //    "ParseTimetable",
             //    x => x.ParseTimetable(),
-            //    "0 0 1 * *");
+            //    "15 3 * * *");
+
+            RecurringJob.AddOrUpdate<IUserManager>(
+                "Change week",
+                x => x.ChangeWeek(),
+                "15 3 * * 1");
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()

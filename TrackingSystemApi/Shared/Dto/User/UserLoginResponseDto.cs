@@ -30,10 +30,10 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// Токен обновления
         /// </summary>
         public string RefreshToken { get; init; } = null!;
-        
+
         /// <summary>
         /// Роль
         /// </summary>
-        public string Role { get; init; } = null!;
+        public List<string> Roles { get; init; } = new List<string>();
     }
 }
