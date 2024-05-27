@@ -325,7 +325,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 await context.UserRoles.AddAsync(new UserRole
                 {
                     RoleId = r.Id,
-                    UserId = model.Id.Value,
+                    UserId = user.Id,
                 });
                 await context.SaveChangesAsync();
             }
