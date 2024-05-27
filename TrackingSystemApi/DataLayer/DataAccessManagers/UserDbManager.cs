@@ -237,6 +237,8 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 // Ищем пользователя сначала по логину, потом по идентификатору
                 var query = _context.Users
                     .Include(u => u.UserGroup)
+                    .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
                     .AsNoTracking()
                     .AsQueryable();
 
