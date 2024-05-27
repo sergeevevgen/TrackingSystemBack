@@ -109,7 +109,10 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 foreach (var user in mainList)
                 {
-                    await _manager.CreateOrUpdateFromLdap(user);
+                    if (user.Roles.Count > 0)
+                    {
+                        await _manager.CreateOrUpdateFromLdap(user);
+                    }
                 }
 
                 cn.Dispose();
