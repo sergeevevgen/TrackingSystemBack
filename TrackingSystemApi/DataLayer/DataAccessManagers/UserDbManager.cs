@@ -236,9 +236,6 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 // Ищем пользователя сначала по логину, потом по идентификатору
                 var query = _context.Users
-                    .Include(u => u.UserGroup)
-                    .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role)
                     .AsNoTracking()
                     .AsQueryable();
 
@@ -268,7 +265,10 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                     return null;
                 }
 
-                var element = await query.FirstOrDefaultAsync(cancellationToken);
+                var element = await query
+                    .Include(u => u.UserGroup)
+                    .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role).FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }

@@ -14,6 +14,6 @@ namespace TrackingSystem.Api.Shared.Dto.Identity
 
         public string Id { get; init; } = null!;
 
-        public string Role { get; init; } = null!;
+        public List<string> Roles { get; init; } = null!;
     }
 }

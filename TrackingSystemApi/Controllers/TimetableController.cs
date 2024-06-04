@@ -32,7 +32,7 @@ namespace TrackingSystem.Api.Controllers
             _ldapDownloadManager = ldapDownloadManager;
         }
 
-        [HttpGet("timetable/current")]
+        [HttpGet("current")]
         [Authorize(Roles = "Pupil")]
         public async Task<IActionResult> TimetableCurrentWeek()
         {
@@ -59,7 +59,7 @@ namespace TrackingSystem.Api.Controllers
                 return BadRequest(response.ErrorMessage);
         }
 
-        [HttpGet("timetableTeacher/current")]
+        [HttpGet("currentTeacher")]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> TimetableCurrentWeekTeacher()
         {
@@ -82,7 +82,7 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpGet("downloadTimetable")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DownLoadTimeTable()
         {
             await _ldapDownloadManager.SynchWithLdap();

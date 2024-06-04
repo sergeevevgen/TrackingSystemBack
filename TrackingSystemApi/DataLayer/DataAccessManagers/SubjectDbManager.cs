@@ -74,11 +74,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                 if (model.Id.HasValue)
                 {
-                    query = query.Where(s => s.Id.Equals(model.Id.Value))
-                        .Include(s => s.Group)
-                        .Include(s => s.Lesson)
-                        .Include(s => s.Place)
-                        .Include(s => s.Users);
+                    query = query.Where(s => s.Id.Equals(model.Id.Value));                        
                 }
                 else if (!string.IsNullOrEmpty(model.Type))
                 {
@@ -91,19 +87,19 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                             s.GroupId.Equals(model.GroupId) &&
                             s.PlaceId.Equals(model.PlaceId) &&
                             s.LessonId.Equals(model.LessonId) &&
-                            s.TeacherId.Equals(model.TeacherId)
-                        )
-                        .Include(s => s.Group)
-                        .Include(s => s.Lesson)
-                        .Include(s => s.Place)
-                        .Include(s => s.Users);
+                            s.TeacherId.Equals(model.TeacherId));
                 }
                 else
                 {
                     return null;
                 }
                     
-                var element = await query.FirstOrDefaultAsync(cancellationToken);
+                var element = await query
+                        .Include(s => s.Group)
+                        .Include(s => s.Lesson)
+                        .Include(s => s.Place)
+                        .Include(s => s.Users)
+                        .FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }
@@ -142,7 +138,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 await _context.Subjects.AddAsync(subject);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                await CreateModel(model, subject, _context);
+                CreateModel(model, subject);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -171,7 +167,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 var element = await _context.Subjects
                     .FirstOrDefaultAsync(u => u.Id.Equals(model.Id), cancellationToken) ?? throw new Exception($"Занятие с Id {model.Id} не найдено");
 
-                await CreateModel(model, element, _context);
+                CreateModel(model, element);
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -240,55 +236,65 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
         /// <param name="model"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        private static async Task<Subject> CreateModel(SubjectDto model, Subject subject, TrackingSystemContext context)
+        private static Subject CreateModel(SubjectDto model, Subject subject)
         {
-            if (model.Id.HasValue)
-            {
-                subject.Week = model.Week;
-                subject.Day = model.Day;
-                subject.Type = model.Type;
-                subject.Pair = model.Pair;
-                subject.IsDifference = model.IsDifference;
-                subject.GroupId = model.GroupId;
-                subject.LessonId = model.LessonId;
-                subject.PlaceId = model.PlaceId;
-                subject.TeacherId = model.TeacherId;
+            subject.Week = model.Week;
+            subject.Day = model.Day;
+            subject.Type = model.Type;
+            subject.Pair = model.Pair;
+            subject.IsDifference = model.IsDifference;
+            subject.GroupId = model.GroupId;
+            subject.LessonId = model.LessonId;
+            subject.PlaceId = model.PlaceId;
+            subject.TeacherId = model.TeacherId;
 
-                // Работа со связанными сущностями. Надо удалить те, которых нет и добавить новые
-                ICollection<UserSubject> userSubjects = context.UserSubjects
-                    .Where(r => r.SubjectId.Equals(model.Id.Value))
-                    .ToList();
+            //if (model.Id.HasValue)
+            //{
+            //    subject.Week = model.Week;
+            //    subject.Day = model.Day;
+            //    subject.Type = model.Type;
+            //    subject.Pair = model.Pair;
+            //    subject.IsDifference = model.IsDifference;
+            //    subject.GroupId = model.GroupId;
+            //    subject.LessonId = model.LessonId;
+            //    subject.PlaceId = model.PlaceId;
+            //    subject.TeacherId = model.TeacherId;
 
-                context.UserSubjects
-                    .RemoveRange(userSubjects
-                        .Where(us => !model.Users.ContainsKey(us.UserId))
-                        .ToList());
+            //    // Работа со связанными сущностями. Надо удалить те, которых нет и добавить новые
+            //    ICollection<UserSubject> userSubjects = context.UserSubjects
+            //        .Where(r => r.SubjectId.Equals(model.Id.Value))
+            //        .ToList();
 
-                await context.SaveChangesAsync();
+            //    context.UserSubjects
+            //        .RemoveRange(userSubjects
+            //            .Where(us => !model.Users.ContainsKey(us.UserId))
+            //            .ToList());
 
-                foreach (UserSubject us in userSubjects)
-                {
-                    us.IsMarked = model.Users[us.UserId];
-                    us.MarkTime = DateTime.Now;
-                    model.Users.Remove(us.UserId);
-                }
-                await context.SaveChangesAsync();
-            }
+            //    await context.SaveChangesAsync();
 
-            if (model.Users != null)
-            {
-                foreach (var u in model.Users)
-                {
-                    await context.UserSubjects.AddAsync(new UserSubject
-                    {
-                        SubjectId = subject.Id,
-                        UserId = u.Key,
-                        IsMarked = u.Value,
-                        MarkTime = DateTime.Now
-                    });
-                    await context.SaveChangesAsync();
-                }
-            }
+            //    foreach (UserSubject us in userSubjects)
+            //    {
+            //        us.IsMarked = model.Users[us.UserId];
+            //        us.MarkTime = DateTime.Now;
+            //        model.Users.Remove(us.UserId);
+            //    }
+            //    await context.SaveChangesAsync();
+            //}
+
+            //if (model.Users != null)
+            //{
+            //    foreach (var u in model.Users)
+            //    {
+            //        await context.UserSubjects.AddAsync(new UserSubject
+            //        {
+            //            SubjectId = subject.Id,
+            //            UserId = u.Key,
+            //            IsMarked = u.Value,
+            //            MarkTime = DateTime.Now
+            //        });
+            //        await context.SaveChangesAsync();
+            //    }
+            //}
 
             return subject;
         }
@@ -313,7 +319,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                 Pair = subject.Pair,
                 Type = subject.Type,
                 Users = subject.Users?
-                    .ToDictionary(k => k.UserId, v => v.IsMarked)
+                    .ToDictionary(k => k.UserId, v => v.IsMarked),
             };
         }
 
@@ -400,6 +406,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                    join places in _context.Places on subjects.PlaceId equals places.Id
                                    join groups in _context.Groups on subjects.GroupId equals groups.Id
                                    where groups.Id.Equals(model.GroupId) && subjects.Week.Equals(week.Week)
+                                   orderby subjects.Day, subjects.Pair
                                    select new TimetableResponseDto
                                    {
                                        Day = subjects.Day,
@@ -446,6 +453,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                   join places in _context.Places on subjects.PlaceId equals places.Id
                                   join groups in _context.Groups on subjects.GroupId equals groups.Id
                                   where subjects.TeacherId.Equals(model.TeacherId) && subjects.Week.Equals(info.Week)
+                                  orderby subjects.Day, subjects.Pair
                                   select new TimetableResponseDto
                                   {
                                       Day = subjects.Day,

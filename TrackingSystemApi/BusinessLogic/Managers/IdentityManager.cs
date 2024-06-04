@@ -86,9 +86,11 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     Data = new RefreshTokenResponseDTO
                     {
                         AccessToken = accessToken,
-                        Id = identity.Claims.Last().Value,
+                        Id = identity.Claims.FirstOrDefault(c => c.Type == "Id")?.Value,
                         Login = identity.Name,
-                        Role = identity.Claims.ElementAt(1).Value,
+                        Roles = identity.Claims
+                            .Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value)
+                            .ToList(),
                     }
                 };
             }

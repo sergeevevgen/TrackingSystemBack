@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrackingSystem.Api.Shared.Enums;
 
 namespace TrackingSystem.Api.Shared.Dto.User
 {
@@ -34,6 +35,6 @@ namespace TrackingSystem.Api.Shared.Dto.User
         /// <summary>
         /// Роль
         /// </summary>
-        public List<string> Roles { get; init; } = new List<string>();
+        public List<RoleEnum> Roles { get; init; } = new List<RoleEnum>();
     }
 }

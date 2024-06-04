@@ -168,7 +168,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         Name = identity.Name,
                         Id = identity.Claims.FirstOrDefault(c => c.Type == "Id")?.Value,
                         Roles = identity.Claims
-                            .Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value)
+                            .Where(c => c.Type == ClaimTypes.Role).Select(c => (RoleEnum)Enum.Parse(typeof(RoleEnum), c.Value))
                             .ToList(),
                     }
                 };

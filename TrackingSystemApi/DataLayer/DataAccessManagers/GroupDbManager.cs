@@ -75,22 +75,20 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
 
                 if (model.Id.HasValue)
                 {
-                    query = query.Where(g => g.Id == model.Id.Value)
-                        .Include(g => g.Subjects)
-                        .Include(g => g.Users);
+                    query = query.Where(g => g.Id == model.Id.Value);
                 }
                 else if (!string.IsNullOrEmpty(model.Name))
                 {
-                    query = query.Where(g => g.Name.Equals(model.Name))
-                        .Include(g => g.Subjects)
-                        .Include(g => g.Users);
+                    query = query.Where(g => g.Name.Equals(model.Name));
                 }
                 else
                 {
                     return null;
                 }
 
-                var element = await query.FirstOrDefaultAsync(cancellationToken);
+                var element = await query
+                    .Include(g => g.Subjects)
+                    .Include(g => g.Users).FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
             }
