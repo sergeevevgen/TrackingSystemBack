@@ -11,7 +11,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 {
     public class JWTAuthManager : IJWTAuthManager
     {
-        private const int LIFETIME_ACCESS = 600; // 10 минут
+        private const int LIFETIME_ACCESS = 60; // 10 минут
         private const int LIFETIME_REFRESH = 2_592_000; // 30 дней
 
         private readonly AppConfig _appConfig;
