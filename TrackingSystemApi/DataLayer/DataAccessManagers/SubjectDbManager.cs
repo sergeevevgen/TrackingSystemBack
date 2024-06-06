@@ -395,7 +395,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             try
             {
                 // Получаем текущую неделю
-                var week = await _context.Infos.FirstOrDefaultAsync(cancellationToken);
+                var week = await _context.Infos.OrderBy(i => i.Id).FirstOrDefaultAsync(cancellationToken);
                 if (week == null)
                 {
                     return null;

@@ -107,7 +107,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                 .Select(u => new UserFindResponseDto
                                 {
                                     Login = u.Login,
-                                    Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName + ".",
+                                    Name = u.LastName + " " + u.FirstName[0] + ". " + u.MiddleName[0] + ".",
                                 })
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(cancellationToken);

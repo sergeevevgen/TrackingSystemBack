@@ -67,7 +67,7 @@ namespace TrackingSystem.Api.Controllers
         public async Task<IActionResult> GetUserByIdentity()
         {
             var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
-            return Ok();
+            return Ok(user);
         }
 
         [HttpGet("{id:guid}")]
