@@ -27,5 +27,7 @@ namespace TrackingSystem.Api.Shared.IManagers.DbManagers
         Task<InfoResponseDto> GetInfo(CancellationToken cancellationToken = default);
 
         Task<bool> ChangeInfo(InfoChangeDto model, CancellationToken cancellationToken = default);
+
+        Task<SubjectResponseDto> GetCurrentSubjectByTeacher(SubjectTeacherDto model, CancellationToken cancellationToken = default);
     }
 }

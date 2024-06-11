@@ -1,4 +1,6 @@
-﻿using TrackingSystem.Api.Shared.Dto.Group;
+﻿using System;
+using TrackingSystem.Api.DataLayer.Models;
+using TrackingSystem.Api.Shared.Dto.Group;
 using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.Enums;
@@ -141,7 +143,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default)
+        public async Task<ResponseModel<SubjectUserMarkResponseDto>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -158,36 +160,50 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
 
                 if (subject == null)
                 {
-                    return new ResponseModel<string> { ErrorMessage = $"Занятие с {model.SubjectId} не найдено" };
+                    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = $"Занятие с {model.SubjectId} не найдено" };
                 }
 
+                // Пока отключим фильтры
                 if (!subject.GroupId.Equals(model.GroupId))
                 {
-                    return new ResponseModel<string> { ErrorMessage = $"У данного пользователя другая группа" };
+                    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = $"У данного пользователя другая группа" };
                 }
 
-                if (!subject.Week.Equals(info.Week))
-                {
-                    return new ResponseModel<string> { ErrorMessage = $"Не та неделя" };
-                }
+                //if (!subject.Week.Equals(info.Week))
+                //{
+                //    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = $"Не та неделя" };
+                //}
 
-                if (!IsMatchingDay(subject.Day, model.MarkTime.DayOfWeek))
-                {
-                    return new ResponseModel<string> { ErrorMessage = $"Не тот день" };
-                }                
+                //if (!IsMatchingDay(subject.Day, model.MarkTime.DayOfWeek))
+                //{
+                //    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = $"Не тот день" };
+                //}                
 
-                if (!CheckTimeMark(model.MarkTime, subject.Pair, info.AllowedDeviation))
-                {
-                    return new ResponseModel<string> { ErrorMessage = $"Время на отметку на занятии прошло, вы опоздали" };
-                }
+                //if (!CheckTimeMark(model.MarkTime, subject.Pair, info.AllowedDeviation))
+                //{
+                //    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = $"Время на отметку на занятии прошло, вы опоздали" };
+                //}
 
                 var result = await _storage.MarkUserSubject(model, cancellationToken);
 
-                return new ResponseModel<string> { Data = $"Пользователь с идентификатором {model.PupilId} отметился на занятии с идентификатором {model.SubjectId}" };
+                // Если false, то это значит, что пользователь уже отметился
+                if (!result)
+                {
+                    return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = "Вы уже отметились на данном занятии" };
+                }
+
+                var name = string.IsNullOrEmpty(subject.Type) ? null : subject.Type + ". ";
+                return new ResponseModel<SubjectUserMarkResponseDto> 
+                { 
+                    Data = new SubjectUserMarkResponseDto 
+                        {
+                            SubjectName = name + subject.LessonName
+                        }
+                };
             }
             catch (Exception ex)
             {
-                return new ResponseModel<string> { ErrorMessage = ex.Message };
+                return new ResponseModel<SubjectUserMarkResponseDto> { ErrorMessage = ex.Message };
             } 
         }
 
@@ -300,6 +316,82 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                 _logger.Error(ex, ex.Message);
                 return new ResponseModel<UserGetTimetableResponseDto> { ErrorMessage = $"Не удалось получить расписание для учителя {model.TeacherId}" + ex.Message };
             }
+        }
+
+        /// <summary>
+        /// Метод для получения текущего занятия
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel<SubjectTeacherResponseDto>> GetCurrentSubjectByTeacher(SubjectTeacherDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Преобразование DayOfWeek в ваш формат, где понедельник - это 0
+                int dayOfWeekIndex = (int)DateTime.Now.DayOfWeek - 1;
+                if (dayOfWeekIndex < 0)
+                {
+                    dayOfWeekIndex = 6; // Если Sunday (6), корректируем на Saturday (6)
+                }
+
+                model.Day = dayOfWeekIndex;
+
+                var pair = GetCurrentOrNextPair();
+
+                if (pair is null)
+                {
+                    throw new Exception("");
+                }
+
+                model.Pair = pair.Value;
+                var result = await _storage.GetCurrentSubjectByTeacher(model, cancellationToken);
+
+                if (result is null)
+                {
+                    throw new Exception("");
+                }
+
+                var name = string.IsNullOrEmpty(result.Type) ? null : result.Type + ". ";
+
+                return new ResponseModel<SubjectTeacherResponseDto>
+                { 
+                    Data = new SubjectTeacherResponseDto
+                    {
+                        SubjectId = result.Id,
+                        SubjectName = name + result.LessonName
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, ex.Message);
+                return new ResponseModel<SubjectTeacherResponseDto> { ErrorMessage = $"Не удалось получить занятие для учителя {model.TeacherId}" + ex.Message };
+            }
+        }
+
+        /// <summary>
+        /// Метод для получения текущей пары
+        /// </summary>
+        /// <returns></returns>
+        private PairNumber? GetCurrentOrNextPair()
+        {
+            var now = DateTime.Now.TimeOfDay;
+            _logger.Info(now);
+            foreach (var pair in SubjectsTime)
+            {
+                _logger.Info(pair);
+                if (now >= pair.Value.StartTime && now <= pair.Value.EndTime)
+                {
+                    return pair.Key;
+                }
+                else if (now < pair.Value.StartTime)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
         }
     }
 }

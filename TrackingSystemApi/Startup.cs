@@ -68,6 +68,17 @@ namespace TrackingSystem.Api
             services.AddAllScoped(appConfig);
             services.AddAllTransients();
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .SetIsOriginAllowed(host => true)
+                           .AllowCredentials();
+                });
+            });
+
             services.AddControllers().AddNewtonsoftJson();
 
             services.AddDistributedMemoryCache();
@@ -154,17 +165,13 @@ namespace TrackingSystem.Api
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseCors();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseSession();
-            app.UseCors(builder => builder
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .SetIsOriginAllowed((host) => true)
-               .AllowCredentials()
-             );
-
+            
             app.UseHangfireDashboard("/dashboard");
 
             app.UseEndpoints(endpoints =>

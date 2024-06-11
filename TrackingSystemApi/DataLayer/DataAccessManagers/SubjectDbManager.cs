@@ -99,6 +99,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                         .Include(s => s.Lesson)
                         .Include(s => s.Place)
                         .Include(s => s.Users)
+                        .Include(s => s.Teacher)
                         .FirstOrDefaultAsync(cancellationToken);
 
                 return element == null ? null : CreateModel(element);
@@ -194,29 +195,24 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 // Получил элемент, который необходимо обновить
                 var element = await _context.UserSubjects
-                    .FirstOrDefaultAsync(u => u.SubjectId.Equals(model.SubjectId), cancellationToken);
+                    .FirstOrDefaultAsync(u => u.SubjectId.Equals(model.SubjectId) && u.UserId.Equals(model.PupilId), cancellationToken);
 
-                // Если нет такого, то создаем новую запись
-                if (element == null)
+                // Если такой есть, то возвращаем false
+                if (element != null)
                 {
-                    element = new()
-                    {
-                        SubjectId = model.SubjectId,
-                        IsMarked = model.Mark,
-                        MarkTime = model.MarkTime,
-                        UserId = model.PupilId,
-                    };
-
-
-                    await _context.UserSubjects
-                        .AddAsync(element, cancellationToken);
+                    return false;
                 }
-                // Иначе обновляем поля
-                else
+                
+                element = new()
                 {
-                    element.MarkTime = model.MarkTime;
-                    element.IsMarked = model.Mark;
-                }
+                    SubjectId = model.SubjectId,
+                    IsMarked = model.Mark,
+                    MarkTime = model.MarkTime,
+                    UserId = model.PupilId,
+                };
+
+                await _context.UserSubjects
+                    .AddAsync(element, cancellationToken);                
                 
                 await _context.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
@@ -225,7 +221,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                _logger.Error(ex, $"Ошибка обновления занятия c Id {model.SubjectId}: {ex.Message}");
+                _logger.Error(ex, $"Ошибка отметки занятия c SubjectId {model.SubjectId} и UserId {model.PupilId}: {ex.Message}");
                 throw;
             }
         }
@@ -310,9 +306,13 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 Id = subject.Id,
                 GroupId = subject.GroupId,
+                GroupName = subject.Group.Name,
                 PlaceId = subject.PlaceId,
+                PlaceName = subject.Place.Name,
                 LessonId = subject.LessonId,
+                LessonName = subject.Lesson.Name,
                 TeacherId = subject.TeacherId,
+                TeacherName = subject.Teacher.LastName + " " + subject.Teacher.FirstName[0] + ". " + subject.Teacher.MiddleName[0] + ".",
                 Day = subject.Day,
                 Week = subject.Week,
                 IsDifference = subject.IsDifference,
@@ -502,6 +502,12 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
+        /// <summary>
+        /// Метод изменения инфы
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<bool> ChangeInfo(InfoChangeDto model, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
@@ -522,6 +528,43 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             {
                 await transaction.RollbackAsync(cancellationToken);
                 _logger.Error(ex, $"Ошибка обновления инфы");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Получение текущего занятия по идентификатору учителя, неделе, дню и паре
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<SubjectResponseDto> GetCurrentSubjectByTeacher(SubjectTeacherDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                // Получаем текущую неделю
+                var info = await GetInfo(cancellationToken);
+                if (info == null)
+                {
+                    throw new Exception("Заполните информационную сущность");
+                }
+
+                var query = await (from subjects in _context.Subjects
+                                   join lessons in _context.Lessons on subjects.LessonId equals lessons.Id
+                                   where subjects.TeacherId.Equals(model.TeacherId) && subjects.Week.Equals(info.Week)
+                                   && subjects.Day.Equals(model.Day) && subjects.Pair.Equals(model.Pair)
+                                   select new SubjectResponseDto
+                                   {
+                                       Id = subjects.Id,                                       
+                                       LessonName = subjects.Lesson.Name,
+                                       Type = subjects.Type,
+                                   }).FirstOrDefaultAsync(cancellationToken);
+
+                return query;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения текущего занятия");
                 throw;
             }
         }

@@ -45,7 +45,7 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="model"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<ResponseModel<string>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default);
+        Task<ResponseModel<SubjectUserMarkResponseDto>> MarkSubject(SubjectUserMarkDto model, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Метод для подготовки занятий к новому парсингу. Ставим isDifference = 0
@@ -76,5 +76,13 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<ResponseModel<UserGetTimetableResponseDto>> GetTimetableCurrentWeekTeacher(TeacherGetTimetableDto model, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Метод для получения текущего занятия преподавателя
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<ResponseModel<SubjectTeacherResponseDto>> GetCurrentSubjectByTeacher(SubjectTeacherDto model, CancellationToken cancellationToken = default);
     }
 }

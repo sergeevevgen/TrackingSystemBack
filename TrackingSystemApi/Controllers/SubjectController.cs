@@ -24,7 +24,7 @@ namespace TrackingSystem.Api.Controllers
         }
 
         [HttpPost("mark/{id:guid}")]
-        //[Authorize(Roles = "Pupil")]
+        [Authorize(Roles = "Pupil")]
         public async Task<IActionResult> MarkLesson([FromRoute] Guid id)
         {
             var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
@@ -44,6 +44,28 @@ namespace TrackingSystem.Api.Controllers
                 SubjectId = id,
                 PupilId = user.Id,
                 GroupId = user.GroupId.Value
+            });
+
+            if (response.IsSuccess)
+                return Ok(response.Data);
+            else
+                return BadRequest(response.ErrorMessage);
+        }
+
+        [HttpGet("current")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> GetCurrentLesson()
+        {
+            var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
+
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _subjectManager.GetCurrentSubjectByTeacher(new SubjectTeacherDto
+            {
+                TeacherId = user.Id,
             });
 
             if (response.IsSuccess)
