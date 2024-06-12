@@ -11,5 +11,7 @@ namespace TrackingSystem.Api.Shared.IManagers.DbManagers
         Task<bool> Delete(LessonDto model, CancellationToken cancellationToken = default);
 
         Task<LessonResponseDto?> GetElement(LessonDto model, CancellationToken cancellationToken = default);
+
+        Task<List<LessonsByTeacherResponseDto>> GetTeacherLessons(Guid teacherId, CancellationToken cancellationToken = default);
     }
 }

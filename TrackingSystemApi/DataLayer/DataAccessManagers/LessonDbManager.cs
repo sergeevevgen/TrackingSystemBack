@@ -155,6 +155,38 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
+        /// <summary>
+        /// Метод для получения занятий, проводимых преподавателем
+        /// </summary>
+        /// <param name="teacherId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<List<LessonsByTeacherResponseDto>> GetTeacherLessons(Guid teacherId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var query = await (from subjects in _context.Subjects
+                                   join lessons in _context.Lessons on subjects.LessonId equals lessons.Id
+                                   where subjects.TeacherId.Equals(teacherId)
+                                   orderby lessons.Id
+                                   select new LessonsByTeacherResponseDto
+                                   {
+                                       LessonId = lessons.Id,
+                                       LessonName = lessons.Name,
+                                   })
+                                   .GroupBy(x => x.LessonId)
+                                   .Select(g => g.First())
+                                   .ToListAsync(cancellationToken);
+
+                return query;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения занятий для учителя с идентификатором {teacherId}");
+                throw;
+            }
+        }
+
         private static Lesson CreateModel(LessonDto model, Lesson lesson)
         {
             lesson.Name = model.Name;

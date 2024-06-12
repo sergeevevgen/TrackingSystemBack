@@ -12,15 +12,18 @@ namespace TrackingSystem.Api.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserManager _userManager;
         private readonly ISubjectManager _subjectManager;
+        private readonly ILessonManager _lessonManager;
 
         public SubjectController(
             IHttpContextAccessor httpContextAccessor,
             IUserManager userManager,
-            ISubjectManager subjectManager)
+            ISubjectManager subjectManager,
+            ILessonManager lessonManager)
         {
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _subjectManager = subjectManager;
+            _lessonManager = lessonManager;
         }
 
         [HttpPost("mark/{id:guid}")]
@@ -67,6 +70,26 @@ namespace TrackingSystem.Api.Controllers
             {
                 TeacherId = user.Id,
             });
+
+            if (response.IsSuccess)
+                return Ok(response.Data);
+            else
+                return BadRequest(response.ErrorMessage);
+        }
+
+        [HttpGet("lessons")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> GetMyLessons()
+        {
+            var user = await _userManager.GetCurrentUserDataAsync(_httpContextAccessor);
+
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
+
+            // чтобы вывести список всех занятий препода, мне надо его гуид и впринципе всё
+            var response = await _lessonManager.GetTeacherLessons(user.Id);
 
             if (response.IsSuccess)
                 return Ok(response.Data);

@@ -344,7 +344,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     throw new Exception("");
                 }
 
-                model.Pair = pair.Value;
+                model.Pair = pair.Value + 1;
                 var result = await _storage.GetCurrentSubjectByTeacher(model, cancellationToken);
 
                 if (result is null)
@@ -359,7 +359,12 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                     Data = new SubjectTeacherResponseDto
                     {
                         SubjectId = result.Id,
-                        SubjectName = name + result.LessonName
+                        SubjectName = name + result.LessonName,
+                        GroupName = result.GroupName,
+                        PlaceName = result.PlaceName,
+                        From = SubjectsTime[result.Pair].StartTime.ToString(),
+                        To = SubjectsTime[result.Pair].EndTime.ToString(),
+                        Date = DateTime.Now.ToShortDateString(),
                     }
                 };
             }

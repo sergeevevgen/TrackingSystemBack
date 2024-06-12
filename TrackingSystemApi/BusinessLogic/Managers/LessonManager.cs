@@ -1,4 +1,5 @@
 ﻿    using TrackingSystem.Api.Shared.Dto.Lesson;
+using TrackingSystem.Api.Shared.Dto.Subject;
 using TrackingSystem.Api.Shared.Dto.User;
 using TrackingSystem.Api.Shared.IManagers.DbManagers;
 using TrackingSystem.Api.Shared.IManagers.LogicManagers;
@@ -56,6 +57,29 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             await _storage.Delete(model, cancellationToken);
             
             return true;
+        }
+
+        public async Task<ResponseModel<List<LessonsByTeacherResponseDto>>> GetTeacherLessons(Guid teacherId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var lessons = await _storage.GetTeacherLessons(teacherId);
+
+                if (lessons is null)
+                {
+                    var errorMessage = "Не удалось получить занятия преподавателя";
+                    _logger.Error(errorMessage);
+
+                    return new ResponseModel<List<LessonsByTeacherResponseDto>> { ErrorMessage = errorMessage };
+                }
+
+                return new ResponseModel<List<LessonsByTeacherResponseDto>> { Data = lessons };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return new ResponseModel<List<LessonsByTeacherResponseDto>> { ErrorMessage = ex.Message };
+            }
         }
 
         public async Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken = default)
