@@ -558,6 +558,7 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
                                        Id = subjects.Id,                                       
                                        LessonName = subjects.Lesson.Name,
                                        Type = subjects.Type,
+                                       Pair = subjects.Pair
                                    }).FirstOrDefaultAsync(cancellationToken);
 
                 return query;

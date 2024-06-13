@@ -329,7 +329,7 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             try
             {
                 // Преобразование DayOfWeek в ваш формат, где понедельник - это 0
-                int dayOfWeekIndex = (int)DateTime.Now.DayOfWeek - 1;
+                int dayOfWeekIndex = (int)DateTime.Now.DayOfWeek;
                 if (dayOfWeekIndex < 0)
                 {
                     dayOfWeekIndex = 6; // Если Sunday (6), корректируем на Saturday (6)
@@ -362,8 +362,8 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
                         SubjectName = name + result.LessonName,
                         GroupName = result.GroupName,
                         PlaceName = result.PlaceName,
-                        From = SubjectsTime[result.Pair].StartTime.ToString(),
-                        To = SubjectsTime[result.Pair].EndTime.ToString(),
+                        From = SubjectsTime[result.Pair - 1].StartTime.ToString(),
+                        To = SubjectsTime[result.Pair - 1].EndTime.ToString(),
                         Date = DateTime.Now.ToShortDateString(),
                     }
                 };
