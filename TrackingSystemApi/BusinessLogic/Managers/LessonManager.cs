@@ -82,6 +82,29 @@ namespace TrackingSystem.Api.BusinessLogic.Managers
             }
         }
 
+        public async Task<ResponseModel<LessonsStatisticDto>> GetTeacherLessonStatistic(TeacherLessonStatisticDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var lessons = await _storage.GetTeacherLessonStatistic(model);
+
+                if (lessons is null || lessons.Students.Count <= 0)
+                {
+                    var errorMessage = "Никто еще не отметился на этом занятии";
+                    _logger.Error(errorMessage);
+
+                    return new ResponseModel<LessonsStatisticDto> { ErrorMessage = errorMessage };
+                }
+
+                return new ResponseModel<LessonsStatisticDto> { Data = lessons };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex.Message);
+                return new ResponseModel<LessonsStatisticDto> { ErrorMessage = ex.Message };
+            }
+        }
+
         public async Task<ResponseModel<LessonResponseDto>> Read(LessonDto model, CancellationToken cancellationToken = default)
         {
             try

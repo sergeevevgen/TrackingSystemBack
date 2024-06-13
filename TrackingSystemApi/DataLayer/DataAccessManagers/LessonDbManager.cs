@@ -187,6 +187,66 @@ namespace TrackingSystem.Api.DataLayer.DataAccessManagers
             }
         }
 
+        public async Task<LessonsStatisticDto> GetTeacherLessonStatistic(TeacherLessonStatisticDto model, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var info = await _context.Infos.OrderBy(i => i.Id).FirstOrDefaultAsync(cancellationToken);
+                if (info == null)
+                {
+                    return null;
+                }
+
+                var query = await (from subjects in _context.Subjects
+                                   join groups in _context.Groups on subjects.GroupId equals groups.Id
+                                   join users in _context.Users on groups.Id equals users.GroupId
+                                   where subjects.LessonId.Equals(model.LessonId) && subjects.TeacherId.Equals(model.TeacherId) 
+                                   && subjects.Week.Equals(info.Week)
+                                   select new 
+                                   {
+                                       subjects.GroupId,
+                                       users.Id,
+                                   })
+                                   .ToListAsync(cancellationToken);
+                
+                // Получили количество учеников, у которых данное занятие на текущей неделе
+                var count = query.Count;
+
+                // Теперь вытащим количество отметок из UserSubjects
+                var query2 = await (from subjects in _context.Subjects
+                                    join us in _context.UserSubjects on subjects.Id equals us.SubjectId
+                                    join groups in _context.Groups on subjects.GroupId equals groups.Id
+                                    join users in _context.Users on us.UserId equals users.Id
+                                    where subjects.LessonId.Equals(model.LessonId) && subjects.Week.Equals(info.Week)
+                                    && subjects.TeacherId.Equals(model.TeacherId)
+                                    select new LessonHelpDto
+                                    {
+                                        GroupId = subjects.GroupId,
+                                        StudentId = us.UserId,
+                                        MarkTime = us.MarkTime.ToString(),
+                                        GroupName = groups.Name,
+                                        StudentName = users.LastName + " " + users.FirstName[0] + ". " + users.MiddleName[0] + ".",
+                                    })
+                                    .ToListAsync(cancellationToken);
+
+                // можно вытащить имена учеников, их группы, время отметки
+                var count2 = query2.Count;
+
+                double tmp = Math.Round((double)count2 / count * 100, 2);
+                // возвращаем процент
+                return new LessonsStatisticDto
+                {
+                    Students = query2,
+                    Perсentage = tmp
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Ошибка получения статистики для занятия учителя {model.TeacherId} с идентификатором {model.LessonId}");
+                throw;
+            }
+        }
+
         private static Lesson CreateModel(LessonDto model, Lesson lesson)
         {
             lesson.Name = model.Name;

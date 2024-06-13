@@ -44,5 +44,13 @@ namespace TrackingSystem.Api.Shared.IManagers.LogicManagers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<ResponseModel<List<LessonsByTeacherResponseDto>>> GetTeacherLessons(Guid guid, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Метод для получения статистики по занятию
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<ResponseModel<LessonsStatisticDto>> GetTeacherLessonStatistic(TeacherLessonStatisticDto model, CancellationToken cancellationToken = default);
     }
 }
