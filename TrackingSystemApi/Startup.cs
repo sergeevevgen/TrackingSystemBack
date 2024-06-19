@@ -72,9 +72,9 @@ namespace TrackingSystem.Api
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.AllowAnyHeader()
-                           .AllowAnyMethod()
-                           .SetIsOriginAllowed(host => true)
+                    builder.WithOrigins("http://localhost:8010")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()                           
                            .AllowCredentials();
                 });
             });
@@ -179,22 +179,22 @@ namespace TrackingSystem.Api
                 endpoints.MapControllers();
             });
 
-            //// Job для синхронизации с Ldap один раз в месяц
-            //RecurringJob.AddOrUpdate<ILdapDownloadManager>(
-            //"SyncWithLdap",
-            //x => x.SynchWithLdap(),
-            //"15 3 * * 0");
+            // Job для синхронизации с Ldap один раз в месяц
+            RecurringJob.AddOrUpdate<ILdapDownloadManager>(
+            "SyncWithLdap",
+            x => x.SynchWithLdap(),
+            "15 3 * * 0");
 
-            //// Job для парсинга расписания один раз в день ночью
-            //RecurringJob.AddOrUpdate<IParserManager>(
-            //    "ParseTimetable",
-            //    x => x.ParseTimetable(),
-            //    "15 3 * * *");
+            // Job для парсинга расписания один раз в день ночью
+            RecurringJob.AddOrUpdate<IParserManager>(
+                "ParseTimetable",
+                x => x.ParseTimetable(),
+                "15 3 * * *");
 
-            //RecurringJob.AddOrUpdate<IUserManager>(
-            //    "Change week",
-            //    x => x.ChangeWeek(),
-            //    "15 3 * * 1");
+            RecurringJob.AddOrUpdate<IUserManager>(
+                "Change week",
+                x => x.ChangeWeek(),
+                "15 3 * * 1");
         }
 
         private AppConfig UpdateAppConfigFromEnvironment()
